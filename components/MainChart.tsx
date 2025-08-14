@@ -364,7 +364,7 @@ export default function MainChart() {
           </div>
         </div>
 
-        {/* Submenu */}
+        {/* Submenu - positioned absolutely to not affect layout */}
         {showSubmenu && (
           <div style={styles.submenu}>
             {/* Trend Line */}
@@ -586,17 +586,28 @@ const styles = {
     cursor: "pointer", // Make it clear that these are clickable
   },
   submenu: {
-    width: "180px", // Width of the submenu
-    backgroundColor: "#f0f0f0", // Background color for the submenu
-    borderRight: "1px solid #ccc",
+    position: "absolute",
+    left: "40px", // Position it right next to the left column
+    top: "30px", // Start below the top toolbar
+    width: "180px",
+    backgroundColor: "#f0f0f0",
+    border: "1px solid #ccc",
     padding: "10px",
     boxSizing: "border-box",
+    zIndex: 1000,
+    maxHeight: "calc(100vh - 30px)", // Don't exceed viewport height
+    overflowY: "auto", // Add scroll if content overflows
   },
   submenuItem: {
     display: "flex",
     alignItems: "center",
-    marginBottom: "8px",
+    padding: "8px",
     cursor: "pointer",
+    borderBottom: "1px solid #ddd",
+    backgroundColor: "#fff",
+    "&:hover": {
+      backgroundColor: "#f5f5f5",
+    },
   },
   submenuText: {
     marginLeft: "8px",
