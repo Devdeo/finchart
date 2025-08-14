@@ -1,23 +1,26 @@
 import { useState, useRef, useEffect } from "react";
 import OIChartAlpha5 from "./OIChartAlpha5";
+
 export default function MainChart() {
   const [openMenu, setOpenMenu] = useState(null);
   const [menuPosition, setMenuPosition] = useState({ top: 0, left: 0 });
   const toolbarRef = useRef(null);
   const menuRef = useRef(null);
-  const [showSubmenu, setShowSubmenu] = useState(false); // State to control submenu visibility
-  const [showFibSubmenu, setShowFibSubmenu] = useState(false); // State to control Fibonacci submenu visibility
-  const [showPatternSubmenu, setShowPatternSubmenu] = useState(false); // State to control Pattern submenu visibility
-  const [showProjectionSubmenu, setShowProjectionSubmenu] = useState(false); // State to control Projection submenu visibility
-  const [showBrushesSubmenu, setShowBrushesSubmenu] = useState(false); // State to control Brushes submenu visibility
+  const [showSubmenu, setShowSubmenu] = useState(false);
+  const [showFibSubmenu, setShowFibSubmenu] = useState(false);
+  const [showPatternSubmenu, setShowPatternSubmenu] = useState(false);
+  const [showProjectionSubmenu, setShowProjectionSubmenu] = useState(false);
+  const [showBrushesSubmenu, setShowBrushesSubmenu] = useState(false);
   const submenuRef = useRef(null);
   const fibSubmenuRef = useRef(null);
   const patternSubmenuRef = useRef(null);
   const projectionSubmenuRef = useRef(null);
-  const brushesSubmenuRef = useRef(null); // Ref for Brushes submenu
+  const brushesSubmenuRef = useRef(null);
 
-  // Example state for settings
+  // OI Data state
   const [oiData, setOiData] = useState(true);
+
+  // Settings state
   const [settings, setSettings] = useState({
     lastPrice: true,
     highPrice: true,
@@ -35,7 +38,7 @@ export default function MainChart() {
         setOpenMenu(null);
       }
 
-      // Close submenu when clicking outside
+      // Close submenus when clicking outside
       if (
         showSubmenu &&
         submenuRef.current &&
@@ -45,7 +48,6 @@ export default function MainChart() {
         setShowSubmenu(false);
       }
 
-      // Close Fibonacci submenu when clicking outside
       if (
         showFibSubmenu &&
         fibSubmenuRef.current &&
@@ -55,7 +57,6 @@ export default function MainChart() {
         setShowFibSubmenu(false);
       }
 
-      // Close Pattern submenu when clicking outside
       if (
         showPatternSubmenu &&
         patternSubmenuRef.current &&
@@ -65,7 +66,6 @@ export default function MainChart() {
         setShowPatternSubmenu(false);
       }
 
-      // Close Projection submenu when clicking outside
       if (
         showProjectionSubmenu &&
         projectionSubmenuRef.current &&
@@ -75,8 +75,7 @@ export default function MainChart() {
         setShowProjectionSubmenu(false);
       }
 
-       // Close Brushes submenu when clicking outside
-       if (
+      if (
         showBrushesSubmenu &&
         brushesSubmenuRef.current &&
         !brushesSubmenuRef.current.contains(e.target) &&
@@ -94,13 +93,11 @@ export default function MainChart() {
     const rect = event.currentTarget.getBoundingClientRect();
     setOpenMenu(openMenu === menu ? null : menu);
 
-    // Temporarily position it where it would normally go
     setMenuPosition({
       top: rect.bottom + window.scrollY,
       left: rect.left + window.scrollX,
     });
 
-    // Delay measure to after DOM update
     setTimeout(() => {
       if (menuRef.current) {
         const menuRect = menuRef.current.getBoundingClientRect();
@@ -110,13 +107,11 @@ export default function MainChart() {
         const viewportWidth = window.innerWidth;
         const viewportHeight = window.innerHeight;
 
-        // Horizontal adjust
         if (left + menuRect.width > viewportWidth) {
           left = viewportWidth - menuRect.width - 10;
         }
         if (left < 0) left = 0;
 
-        // Vertical adjust
         if (top + menuRect.height > window.scrollY + viewportHeight) {
           top = rect.top + window.scrollY - menuRect.height;
         }
@@ -349,7 +344,7 @@ export default function MainChart() {
             </svg>
           </div>
 
-          {/* Second tool icon - Trend Line with submenu functionality */}
+          {/* Second tool icon - Trend Line */}
           <div
             className="submenu-trigger"
             style={styles.numberBox}
@@ -363,6 +358,7 @@ export default function MainChart() {
             </svg>
           </div>
 
+          {/* Fibonacci tool */}
           <div
             className="fib-submenu-trigger"
             style={styles.numberBox}
@@ -379,6 +375,7 @@ export default function MainChart() {
             </svg>
           </div>
 
+          {/* Pattern tool */}
           <div
             className="pattern-submenu-trigger"
             style={styles.numberBox}
@@ -392,34 +389,41 @@ export default function MainChart() {
             </svg>
           </div>
 
+          {/* Projection tool */}
           <div
             className="projection-submenu-trigger"
             style={styles.numberBox}
             onClick={() => setShowProjectionSubmenu(!showProjectionSubmenu)}
           >
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 28" width="28" height="28" fill="none"><path fill="currentColor" fill-rule="evenodd" clip-rule="evenodd" d="M4.5 5a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3zM2 6.5A2.5 2.5 0 0 1 6.95 6H24v1H6.95A2.5 2.5 0 0 1 2 6.5zM4.5 15a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3zM2 16.5a2.5 2.5 0 0 1 4.95-.5h13.1a2.5 2.5 0 1 1 0 1H6.95A2.5 2.5 0 0 1 2 16.5zM22.5 15a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3zm-18 6a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3zM2 22.5a2.5 2.5 0 0 1 4.95-.5H24v1H6.95A2.5 2.5 0 0 1 2 22.5z"></path><path fill="currentColor" fill-rule="evenodd" clip-rule="evenodd" d="M22.4 8.94l-1.39.63-.41-.91 1.39-.63.41.91zm-4 1.8l-1.39.63-.41-.91 1.39-.63.41.91zm-4 1.8l-1.4.63-.4-.91 1.39-.63.41.91zm-4 1.8l-1.4.63-.4-.91 1.39-.63.41.91z"></path></svg>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 28" width="28" height="28" fill="none">
+              <path fill="currentColor" fillRule="evenodd" clipRule="evenodd" d="M4.5 5a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3zM2 6.5A2.5 2.5 0 0 1 6.95 6H24v1H6.95A2.5 2.5 0 0 1 2 6.5zM4.5 15a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3zM2 16.5a2.5 2.5 0 0 1 4.95-.5h13.1a2.5 2.5 0 1 1 0 1H6.95A2.5 2.5 0 0 1 2 16.5zM22.5 15a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3zm-18 6a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3zM2 22.5a2.5 2.5 0 0 1 4.95-.5H24v1H6.95A2.5 2.5 0 0 1 2 22.5z"></path>
+              <path fill="currentColor" fillRule="evenodd" clipRule="evenodd" d="M22.4 8.94l-1.39.63-.41-.91 1.39-.63.41.91zm-4 1.8l-1.39.63-.41-.91 1.39-.63.41.91zm-4 1.8l-1.4.63-.4-.91 1.39-.63.41.91zm-4 1.8l-1.4.63-.4-.91 1.39-.63.41.91z"></path>
+            </svg>
           </div>
 
-          {/* Brushes menu item - ADDED */}
+          {/* Brushes tool */}
           <div
             className="brushes-submenu-trigger"
             style={styles.numberBox}
             onClick={() => setShowBrushesSubmenu(!showBrushesSubmenu)}
           >
-             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 28" width="28" height="28"><g fill="currentColor" fillRule="nonzero"><path d="M1.789 23l.859-.854.221-.228c.18-.19.38-.409.597-.655.619-.704 1.238-1.478 1.815-2.298.982-1.396 1.738-2.776 2.177-4.081 1.234-3.667 5.957-4.716 8.923-1.263 3.251 3.785-.037 9.38-5.379 9.38h-9.211zm9.211-1c4.544 0 7.272-4.642 4.621-7.728-2.45-2.853-6.225-2.015-7.216.931-.474 1.408-1.273 2.869-2.307 4.337-.599.852-1.241 1.653-1.882 2.383l-.068.078h6.853z"></path><path d="M18.182 6.002l-1.419 1.286c-1.031.935-1.075 2.501-.096 3.48l1.877 1.877c.976.976 2.553.954 3.513-.045l5.65-5.874-.721-.693-5.65 5.874c-.574.596-1.507.609-2.086.031l-1.877-1.877c-.574-.574-.548-1.48.061-2.032l1.419-1.286-.672-.741z"></path></g></svg>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 28" width="28" height="28">
+              <g fill="currentColor" fillRule="nonzero">
+                <path d="M1.789 23l.859-.854.221-.228c.18-.19.38-.409.597-.655.619-.704 1.238-1.478 1.815-2.298.982-1.396 1.738-2.776 2.177-4.081 1.234-3.667 5.957-4.716 8.923-1.263 3.251 3.785-.037 9.38-5.379 9.38h-9.211zm9.211-1c4.544 0 7.272-4.642 4.621-7.728-2.45-2.853-6.225-2.015-7.216.931-.474 1.408-1.273 2.869-2.307 4.337-.599.852-1.241 1.653-1.882 2.383l-.068.078h6.853z"></path>
+                <path d="M18.182 6.002l-1.419 1.286c-1.031.935-1.075 2.501-.096 3.48l1.877 1.877c.976.976 2.553.954 3.513-.045l5.65-5.874-.721-.693-5.65 5.874c-.574.596-1.507.609-2.086.031l-1.877-1.877c-.574-.574-.548-1.48.061-2.032l1.419-1.286-.672-.741z"></path>
+              </g>
+            </svg>
           </div>
 
+          {/* Text tool */}
           <div style={styles.numberBox}>
             T
           </div>
 
+          {/* Ruler tool */}
           <div style={styles.numberBox}>
             <i className="fa-solid fa-ruler"></i>
           </div>
-
-
-
-
         </div>
 
         {/* Submenu - positioned absolutely to not affect layout */}
@@ -569,7 +573,6 @@ export default function MainChart() {
           </div>
         )}
 
-        {/* Pattern & Elliott Wave Submenu - positioned absolutely to not affect layout */}
         {showPatternSubmenu && (
           <div ref={patternSubmenuRef} style={styles.patternSubmenu}>
             {/* XABCD Pattern */}
@@ -680,7 +683,6 @@ export default function MainChart() {
           </div>
         )}
 
-        {/* Fibonacci Submenu - positioned absolutely to not affect layout */}
         {showFibSubmenu && (
           <div ref={fibSubmenuRef} style={styles.fibSubmenu}>
             {/* Fib Retracement */}
@@ -727,70 +729,12 @@ export default function MainChart() {
             {/* Fib Time Zone */}
             <div style={styles.submenuItem}>
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 28" width="20" height="20">
-                <path fill="currentColor" fillRule="evenodd" d="M19 4v21h1V4h-1Zm5 0v21h1V4h-1ZM6 12.95V25H5V12.95a2.5 2.5 0 0 1 0-4.9V4h1v4.05a2.5 2.5 0 0 1 1.67 3.7L8.7 12.8 8 13.5l-1-1c-.3.22-.63.38-1 .45ZM5.5 9a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM13 19.5a1.5 1.5 0 1 1 3 0 1.5 1.5 0 0 1-3 0Zm1 5.5v-3.05A2.5 2.5 0 0 1 12.5 18l-1-1 .7-.7 1.05 1.03c.23-.13.48-.23.75-.28V4h1v13.05a2.5 2.5 0 0 1 0 4.9V25h-1ZM8.97 14.47l1.56 1.56.7-.71-1.55-1.55-.7.7Z"></path>
+                <path fill="currentColor" fillRule="evenodd" clipRule="evenodd" d="M19 4v21h1V4h-1Zm5 0v21h1V4h-1ZM6 12.95V25H5V12.95a2.5 2.5 0 0 1 0-4.9V4h1v4.05a2.5 2.5 0 0 1 1.67 3.7L8.7 12.8 8 13.5l-1-1c-.3.22-.63.38-1 .45ZM5.5 9a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3Zm1 5.5v-3.05A2.5 2.5 0 0 1 12.5 18l-1-1 .7-.7 1.05 1.03c.23-.13.48-.23.75-.28V4h1v13.05a2.5 2.5 0 0 1 0 4.9V25h-1ZM8.97 14.47l1.56 1.56.7-.71-1.55-1.55-.7.7Z"></path>
               </svg>
               <span style={styles.submenuText}>Fib Time Zone</span>
             </div>
 
             {/* Fib Speed Resistance Fan */}
-            <div style={styles.submenuItem}>
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 28" width="20" height="20">
-                <g fill="currentColor" fillRule="nonzero">
-                  <path d="M4 2v19.5h1v-19.5zM15.5 10h-11v1h11zM17 12.5v11h1v-11zM6.29 22.417l10.162-10.162-.707-.707-10.162 10.162z" id="Line"></path>
-                  <path d="M19.264 9.443l6.589-6.589-.707-.707-6.589 6.589z"></path>
-                  <path d="M6.577 23.381l19.071-5.903-.296-.955-19.071 5.903z"></path>
-                  <path d="M5.573 21.724l5.905-19.076-.955-.296-5.905 19.076z"></path>
-                  <path d="M6.5 24h19.5v-1h-19.5z"></path>
-                  <path d="M4.5 25c.828 0 1.5-.672 1.5-1.5s-.672-1.5-1.5-1.5-1.5.672-1.5 1.5.672 1.5 1.5 1.5zm0 1c-1.381 0-2.5-1.119-2.5-2.5s1.119-2.5 2.5-2.5 2.5 1.119 2.5 2.5-1.119 2.5-2.5 2.5zM17.5 12c.828 0 1.5-.672 1.5-1.5s-.672-1.5-1.5-1.5-1.5.672-1.5 1.5.672 1.5 1.5 1.5zm0 1c-1.381 0-2.5-1.119-2.5-2.5s1.119-2.5 2.5-2.5 2.5 1.119 2.5 2.5-1.119 2.5-2.5 2.5z"></path>
-                </g>
-              </svg>
-              <span style={styles.submenuText}>Fib Speed Resistance Fan</span>
-            </div>
-
-            {/* Trend-Based Fib Time */}
-            <div style={styles.submenuItem}>
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 28" width="20" height="20">
-                <g fill="currentColor" fillRule="nonzero">
-                  <path d="M20 2v22h1v-22z"></path>
-                  <path d="M24 2v22h1v-22z"></path>
-                  <path d="M4.673 11.471l3.69 10.333.942-.336-3.69-10.333z"></path>
-                  <path d="M17 21.535v-19.535h-1v19.535z"></path>
-                  <path d="M11.5 24h3v-1h-3z"></path>
-                  <path d="M4.5 11c.828 0 1.5-.672 1.5-1.5s-.672-1.5-1.5-1.5-1.5.672-1.5 1.5.672 1.5 1.5 1.5zm0 1c-1.381 0-2.5-1.119-2.5-2.5s1.119-2.5 2.5-2.5 2.5 1.119 2.5 2.5-1.119 2.5-2.5 2.5zM9.5 25c.828 0 1.5-.672 1.5-1.5s-.672-1.5-1.5-1.5-1.5.672-1.5 1.5.672 1.5 1.5 1.5zm0 1c-1.381 0-2.5-1.119-2.5-2.5s1.119-2.5 2.5-2.5 2.5 1.119 2.5 2.5-1.119 2.5-2.5 2.5zM16.5 25c.828 0 1.5-.672 1.5-1.5s-.672-1.5-1.5-1.5-1.5.672-1.5 1.5.672 1.5 1.5 1.5zm0 1c-1.381 0-2.5-1.119-2.5-2.5s1.119-2.5 2.5-2.5 2.5 1.119 2.5 2.5-1.119 2.5-2.5 2.5z"></path>
-                </g>
-              </svg>
-              <span style={styles.submenuText}>Trend-Based Fib Time</span>
-            </div>
-
-            {/* Fib Circles */}
-            <div style={styles.submenuItem}>
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 28" width="20" height="20">
-                <g fill="currentColor" fillRule="nonzero">
-                  <path d="M23.868 7.825c2.791 3.916 2.918 9.33-.065 13.435-3.733 5.138-10.925 6.277-16.063 2.544l.721-.714c4.682 3.294 11.157 2.229 14.534-2.418 2.641-3.635 2.657-8.502.153-12.133l.721-.714z"></path>
-                  <path d="M8.477 5.899c3.584-2.509 8.298-2.514 11.865-.127l.718-.721c-3.845-2.669-9.099-2.813-13.157.028-5.203 3.643-6.467 10.814-2.824 16.016l.718-.721c-3.201-4.737-2.022-11.185 2.68-14.476z"></path>
-                  <path d="M14.5 15c4.142 0 7.5-3.358 7.5-7.5 0-4.142-3.358-7.5-7.5-7.5-4.142 0-7.5 3.358-7.5 7.5 0 4.142 3.358 7.5 7.5 7.5zm0 1c-4.694 0-8.5-3.806-8.5-8.5s3.806-8.5 8.5-8.5 8.5 3.806 8.5 8.5-3.806 8.5-8.5 8.5z"></path>
-                  <path d="M14.5 19c2.485 0 4.5-2.015 4.5-4.5s-2.015-4.5-4.5-4.5-4.5 2.015-4.5 4.5 2.015 4.5 4.5 4.5zm0 1c-3.038 0-5.5-2.462-5.5-5.5s2.462-5.5 5.5-5.5 5.5 2.462 5.5 5.5-2.462 5.5-5.5 5.5z"></path>
-                  <path d="M22.5 8c.828 0 1.5-.672 1.5-1.5s-.672-1.5-1.5-1.5-1.5.672-1.5 1.5.672 1.5 1.5 1.5zm0 1c-1.381 0-2.5-1.119-2.5-2.5s1.119-2.5 2.5-2.5 2.5 1.119 2.5 2.5-1.119 2.5-2.5 2.5zM6.5 24c.828 0 1.5-.672 1.5-1.5s-.672-1.5-1.5-1.5-1.5.672-1.5 1.5.672 1.5 1.5 1.5zm0 1c-1.381 0-2.5-1.119-2.5-2.5s1.119-2.5 2.5-2.5 2.5 1.119 2.5 2.5-1.119 2.5-2.5 2.5z"></path>
-                </g>
-              </svg>
-              <span style={styles.submenuText}>Fib Circles</span>
-            </div>
-
-            {/* Fib Spiral */}
-            <div style={styles.submenuItem}>
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 28" width="20" height="20">
-                <g fill="currentColor" fillRule="nonzero">
-                  <path d="M4.395 10.18c3.432-4.412 10.065-4.998 13.675-.973l.745-.668c-4.044-4.509-11.409-3.858-15.209 1.027l.789.614z"></path>
-                  <path d="M19.991 12.494c.877 2.718.231 5.487-1.897 7.543-2.646 2.556-6.752 2.83-9.188.477-1.992-1.924-2.027-5.38-.059-7.281 1.582-1.528 3.78-1.587 5.305-.115 1.024.99 1.386 2.424.876 3.491l.902.431c.709-1.482.232-3.37-1.084-4.641-1.921-1.855-4.734-1.78-6.695.115-2.378 2.297-2.337 6.405.059 8.719 2.846 2.749 7.563 2.435 10.577-.477 2.407-2.325 3.147-5.493 2.154-8.569l-.952.307z"></path>
-                  <path d="M21.01 9.697l3.197-3.197-.707-.707-3.197 3.197z"></path>
-                  <path d="M14.989 15.719l3.674-3.674-.707-.707-3.674 3.674z"></path>
-                  <path d="M13.5 18c.828 0 1.5-.672 1.5-1.5s-.672-1.5-1.5-1.5-1.5.672-1.5 1.5.672 1.5 1.5 1.5zm0 1c-1.381 0-2.5-1.119-2.5-2.5s1.119-2.5 2.5-2.5 2.5 1.119 2.5 2.5-1.119 2.5-2.5 2.5zM19.5 12c.828 0 1.5-.672 1.5-1.5s-.672-1.5-1.5-1.5-1.5.672-1.5 1.5.672 1.5 1.5 1.5zm0 1c-1.381 0-2.5-1.119-2.5-2.5s1.119-2.5 2.5-2.5 2.5 1.119 2.5 2.5-1.119 2.5-2.5 2.5z"></path>
-                </g>
-              </svg>
-              <span style={styles.submenuText}>Fib Spiral</span>
-            </div>
-
-            {/* Fib Speed Resistance Arcs */}
             <div style={styles.submenuItem}>
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 28" width="20" height="20">
                 <g fill="currentColor" fillRule="nonzero">
@@ -801,7 +745,7 @@ export default function MainChart() {
                   <path d="M13.5 20c.828 0 1.5-.672 1.5-1.5s-.672-1.5-1.5-1.5-1.5.672-1.5 1.5.672 1.5 1.5 1.5zm0 1c-1.381 0-2.5-1.119-2.5-2.5s1.119-2.5 2.5-2.5 2.5 1.119 2.5 2.5-1.119 2.5-2.5 2.5zM13.5 11c.828 0 1.5-.672 1.5-1.5s-.672-1.5-1.5-1.5-1.5.672-1.5 1.5.672 1.5 1.5 1.5zm0 1c-1.381 0-2.5-1.119-2.5-2.5s1.119-2.5 2.5-2.5 2.5 1.119 2.5 2.5-1.119 2.5-2.5 2.5z"></path>
                 </g>
               </svg>
-              <span style={styles.submenuText}>Fib Speed Resistance Arcs</span>
+              <span style={styles.submenuText}>Fib Speed Resistance Fan</span>
             </div>
 
             {/* Fib Wedge */}
@@ -836,7 +780,6 @@ export default function MainChart() {
           </div>
         )}
 
-        {/* Projection Submenu - positioned absolutely to not affect layout */}
         {showProjectionSubmenu && (
           <div ref={projectionSubmenuRef} style={styles.projectionSubmenu}>
             {/* Long Position */}
@@ -1004,7 +947,6 @@ export default function MainChart() {
           </div>
         )}
 
-        {/* Brushes Submenu - positioned absolutely to not affect layout */}
         {showBrushesSubmenu && (
           <div ref={brushesSubmenuRef} style={styles.brushesSubmenu}>
             {/* Brush */}
@@ -1139,7 +1081,7 @@ export default function MainChart() {
 
         <div style={styles.mainChart}>
           <div>
-            <OIChartAlpha5 />
+            <OIChartAlpha5 showOiData={oiData} />
           </div>
         </div>
       </div>
@@ -1194,7 +1136,11 @@ const styles = {
     borderBottom: "1px solid #eee",
     cursor: "pointer",
   },
-  mainArea: { display: "flex", flex: 1, overflow: "hidden" },
+  mainArea: {
+    display: "flex",
+    flex: 1,
+    overflow: "hidden",
+  },
   leftColumn: {
     width: "40px",
     flexShrink: 0,
@@ -1203,29 +1149,29 @@ const styles = {
     display: "flex",
     flexDirection: "column",
     alignItems: "center",
-    justifyContent: "flex-start", // Align items to the top
+    justifyContent: "flex-start",
   },
   numberBox: {
     height: "40px",
-    width: "100%", // Occupy full width of the leftColumn
+    width: "100%",
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
     borderBottom: "1px solid #ccc",
-    cursor: "pointer", // Make it clear that these are clickable
+    cursor: "pointer",
   },
   submenu: {
     position: "absolute",
-    left: "40px", // Position it right next to the left column
-    top: "70px", // Start from the second menu item (30px toolbar + 40px first item)
+    left: "40px",
+    top: "70px",
     width: "180px",
     backgroundColor: "#f0f0f0",
     border: "1px solid #ccc",
     padding: "10px",
     boxSizing: "border-box",
     zIndex: 1000,
-    maxHeight: "calc(100vh - 70px)", // Don't exceed viewport height
-    overflowY: "auto", // Add scroll if content overflows
+    maxHeight: "calc(100vh - 70px)",
+    overflowY: "auto",
   },
   submenuItem: {
     display: "flex",
@@ -1234,9 +1180,6 @@ const styles = {
     cursor: "pointer",
     borderBottom: "1px solid #ddd",
     backgroundColor: "#fff",
-    "&:hover": {
-      backgroundColor: "#f5f5f5",
-    },
   },
   submenuText: {
     marginLeft: "8px",
@@ -1244,55 +1187,55 @@ const styles = {
   },
   fibSubmenu: {
     position: "absolute",
-    left: "40px", // Position it right next to the left column
-    top: "110px", // Start from the third menu item (30px toolbar + 40px first item + 40px second item)
-    width: "220px", // Slightly wider for longer Fibonacci names
+    left: "40px",
+    top: "110px",
+    width: "220px",
     backgroundColor: "#f0f0f0",
     border: "1px solid #ccc",
     padding: "10px",
     boxSizing: "border-box",
     zIndex: 1000,
-    maxHeight: "calc(100vh - 110px)", // Don't exceed viewport height
-    overflowY: "auto", // Add scroll if content overflows
+    maxHeight: "calc(100vh - 110px)",
+    overflowY: "auto",
   },
   patternSubmenu: {
     position: "absolute",
-    left: "40px", // Position it right next to the left column
-    top: "150px", // Start from the fourth menu item (30px toolbar + 40px * 3 items)
-    width: "200px", // Width for Pattern & Elliott Wave names
+    left: "40px",
+    top: "150px",
+    width: "200px",
     backgroundColor: "#f0f0f0",
     border: "1px solid #ccc",
     padding: "10px",
     boxSizing: "border-box",
     zIndex: 1000,
-    maxHeight: "calc(100vh - 150px)", // Don't exceed viewport height
-    overflowY: "auto", // Add scroll if content overflows
+    maxHeight: "calc(100vh - 150px)",
+    overflowY: "auto",
   },
   projectionSubmenu: {
     position: "absolute",
-    left: "40px", // Position it right next to the left column
-    top: "190px", // Start from the fifth menu item (30px toolbar + 40px * 4 items)
-    width: "220px", // Width for Projection related items
+    left: "40px",
+    top: "190px",
+    width: "220px",
     backgroundColor: "#f0f0f0",
     border: "1px solid #ccc",
     padding: "10px",
     boxSizing: "border-box",
     zIndex: 1000,
-    maxHeight: "calc(100vh - 190px)", // Don't exceed viewport height
-    overflowY: "auto", // Add scroll if content overflows
+    maxHeight: "calc(100vh - 190px)",
+    overflowY: "auto",
   },
-  brushesSubmenu: { // Style for the new Brushes submenu
+  brushesSubmenu: {
     position: "absolute",
-    left: "40px", // Position it right next to the left column
-    top: "230px", // Start from the sixth menu item (30px toolbar + 40px * 5 items)
-    width: "200px", // Adjust width as needed
+    left: "40px",
+    top: "230px",
+    width: "200px",
     backgroundColor: "#f0f0f0",
     border: "1px solid #ccc",
     padding: "10px",
     boxSizing: "border-box",
     zIndex: 1000,
-    maxHeight: "calc(100vh - 230px)", // Don't exceed viewport height
-    overflowY: "auto", // Add scroll if content overflows
+    maxHeight: "calc(100vh - 230px)",
+    overflowY: "auto",
   },
   submenuSectionHeader: {
     padding: "8px 0",
@@ -1308,5 +1251,6 @@ const styles = {
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
+    position: "relative",
   },
 };
