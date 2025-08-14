@@ -83,5 +83,5 @@ export default function OIChartAlpha5({ showOiData = true }: OIChartAlpha5Props)
     }
   }, [showOiData]);
 
-  return <div ref={ref} style={{ width: '100%', height: '100%', minHeight: '680px' }} />;
+  return <div ref={ref} style={{ width: '100%', height: '100%', minHeight: '90%' }} />;
 }

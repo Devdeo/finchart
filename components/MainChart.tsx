@@ -1080,9 +1080,10 @@ export default function MainChart() {
         )}
 
         <div style={styles.mainChart}>
-          <div>
+          
+            
             <OIChartAlpha5 showOiData={oiData} />
-          </div>
+          
         </div>
       </div>
     </div>
