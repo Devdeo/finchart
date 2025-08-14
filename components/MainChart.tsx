@@ -690,7 +690,10 @@ export default function MainChart() {
 
         {/* Second Submenu - appears above middle area */}
         {showSecondSubmenu && (
-          <div className="second-submenu" style={styles.secondSubmenu}>
+          <div className="second-submenu" style={{
+            ...styles.secondSubmenu,
+            left: showSubmenu ? "220px" : "40px", // Adjust based on whether first submenu is open
+          }}>
             {/* Drawing Tools */}
             <div style={styles.submenuItem}>
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 28" width="20" height="20">
@@ -862,7 +865,6 @@ const styles = {
   secondSubmenu: {
     position: "absolute",
     top: "30px", // Position it just below the top toolbar
-    left: showSubmenu ? "220px" : "40px", // Adjust based on whether first submenu is open
     width: "180px",
     backgroundColor: "#f0f0f0",
     border: "1px solid #ccc",
