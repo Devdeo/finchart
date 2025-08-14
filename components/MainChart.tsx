@@ -6,7 +6,9 @@ export default function MainChart() {
   const toolbarRef = useRef(null);
   const menuRef = useRef(null);
   const [showSubmenu, setShowSubmenu] = useState(false); // State to control submenu visibility
+  const [showFibSubmenu, setShowFibSubmenu] = useState(false); // State to control Fibonacci submenu visibility
   const submenuRef = useRef(null);
+  const fibSubmenuRef = useRef(null);
 
   // Example state for settings
   const [oiData, setOiData] = useState(true);
@@ -36,11 +38,21 @@ export default function MainChart() {
       ) {
         setShowSubmenu(false);
       }
+      
+      // Close Fibonacci submenu when clicking outside
+      if (
+        showFibSubmenu &&
+        fibSubmenuRef.current &&
+        !fibSubmenuRef.current.contains(e.target) &&
+        !e.target.closest(".fib-submenu-trigger")
+      ) {
+        setShowFibSubmenu(false);
+      }
     };
     document.addEventListener("mousedown", handleClickOutside);
     return () =>
       document.removeEventListener("mousedown", handleClickOutside);
-  }, [showSubmenu]);
+  }, [showSubmenu, showFibSubmenu]);
 
   const openDropdown = (menu, event) => {
     const rect = event.currentTarget.getBoundingClientRect();
@@ -315,7 +327,11 @@ export default function MainChart() {
             </svg>
           </div>
 
-          <div style={styles.numberBox}>
+          <div 
+            className="fib-submenu-trigger"
+            style={styles.numberBox}
+            onClick={() => setShowFibSubmenu(!showFibSubmenu)}
+          >
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 28" width="28" height="28">
               <g fill="currentColor" fillRule="nonzero">
                 <path d="M3 5h22v-1h-22z"></path>
@@ -522,6 +538,162 @@ export default function MainChart() {
             </div>
           </div>
         )}
+
+        {/* Fibonacci Submenu - positioned absolutely to not affect layout */}
+        {showFibSubmenu && (
+          <div ref={fibSubmenuRef} style={styles.fibSubmenu}>
+            {/* Fib Retracement */}
+            <div style={styles.submenuItem}>
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 28" width="20" height="20">
+                <g fill="currentColor" fillRule="nonzero">
+                  <path d="M3 5h22v-1h-22z"></path>
+                  <path d="M3 17h22v-1h-22z"></path>
+                  <path d="M3 11h19.5v-1h-19.5z"></path>
+                  <path d="M5.5 23h19.5v-1h-19.5z"></path>
+                  <path d="M3.5 24c.828 0 1.5-.672 1.5-1.5s-.672-1.5-1.5-1.5-1.5.672-1.5 1.5.672 1.5 1.5 1.5zm0 1c-1.381 0-2.5-1.119-2.5-2.5s1.119-2.5 2.5-2.5 2.5 1.119 2.5 2.5-1.119 2.5-2.5 2.5zM24.5 12c.828 0 1.5-.672 1.5-1.5s-.672-1.5-1.5-1.5-1.5.672-1.5 1.5.672 1.5 1.5 1.5zm0 1c-1.381 0-2.5-1.119-2.5-2.5s1.119-2.5 2.5-2.5 2.5 1.119 2.5 2.5-1.119 2.5-2.5 2.5z"></path>
+                </g>
+              </svg>
+              <span style={styles.submenuText}>Fib Retracement</span>
+            </div>
+
+            {/* Trend-Based Fib Extension */}
+            <div style={styles.submenuItem}>
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 28" width="20" height="20">
+                <g fill="currentColor" fillRule="nonzero">
+                  <path d="M4 25h22v-1h-22z" id="Line"></path>
+                  <path d="M4 21h22v-1h-22z"></path>
+                  <path d="M6.5 17h19.5v-1h-19.5z"></path>
+                  <path d="M5 14.5v-3h-1v3zM6.617 9.275l10.158-3.628-.336-.942-10.158 3.628z"></path>
+                  <path d="M18.5 6c.828 0 1.5-.672 1.5-1.5s-.672-1.5-1.5-1.5-1.5.672-1.5 1.5.672 1.5 1.5 1.5zm0 1c-1.381 0-2.5-1.119-2.5-2.5s1.119-2.5 2.5-2.5 2.5 1.119 2.5 2.5-1.119 2.5-2.5 2.5zM4.5 11c.828 0 1.5-.672 1.5-1.5s-.672-1.5-1.5-1.5-1.5.672-1.5 1.5.672 1.5 1.5 1.5zm0 1c-1.381 0-2.5-1.119-2.5-2.5s1.119-2.5 2.5-2.5 2.5 1.119 2.5 2.5-1.119 2.5-2.5 2.5zM4.5 18c.828 0 1.5-.672 1.5-1.5s-.672-1.5-1.5-1.5-1.5.672-1.5 1.5.672 1.5 1.5 1.5zm0 1c-1.381 0-2.5-1.119-2.5-2.5s1.119-2.5 2.5-2.5 2.5 1.119 2.5 2.5-1.119 2.5-2.5 2.5z"></path>
+                </g>
+              </svg>
+              <span style={styles.submenuText}>Trend-Based Fib Extension</span>
+            </div>
+
+            {/* Fib Channel */}
+            <div style={styles.submenuItem}>
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 28" width="20" height="20">
+                <g fill="currentColor" fillRule="nonzero">
+                  <path d="M7.463 12.026l13.537-7.167-.468-.884-13.537 7.167z"></path>
+                  <path d="M22.708 16.824l-17.884 9.468.468.884 17.884-9.468z"></path>
+                  <path d="M22.708 9.824l-15.839 8.386.468.884 15.839-8.386z"></path>
+                  <path d="M5.5 14c.828 0 1.5-.672 1.5-1.5s-.672-1.5-1.5-1.5-1.5.672-1.5 1.5.672 1.5 1.5 1.5zm0 1c-1.381 0-2.5-1.119-2.5-2.5s1.119-2.5 2.5-2.5 2.5 1.119 2.5 2.5-1.119 2.5-2.5 2.5zM5.5 21c.828 0 1.5-.672 1.5-1.5s-.672-1.5-1.5-1.5-1.5.672-1.5 1.5.672 1.5 1.5 1.5zm0 1c-1.381 0-2.5-1.119-2.5-2.5s1.119-2.5 2.5-2.5 2.5 1.119 2.5 2.5-1.119 2.5-2.5 2.5zM22.5 5c.828 0 1.5-.672 1.5-1.5s-.672-1.5-1.5-1.5-1.5.672-1.5 1.5.672 1.5 1.5 1.5zm0 1c-1.381 0-2.5-1.119-2.5-2.5s1.119-2.5 2.5-2.5 2.5 1.119 2.5 2.5-1.119 2.5-2.5 2.5z"></path>
+                </g>
+              </svg>
+              <span style={styles.submenuText}>Fib Channel</span>
+            </div>
+
+            {/* Fib Time Zone */}
+            <div style={styles.submenuItem}>
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 28" width="20" height="20">
+                <path fill="currentColor" fillRule="evenodd" d="M19 4v21h1V4h-1Zm5 0v21h1V4h-1ZM6 12.95V25H5V12.95a2.5 2.5 0 0 1 0-4.9V4h1v4.05a2.5 2.5 0 0 1 1.67 3.7L8.7 12.8 8 13.5l-1-1c-.3.22-.63.38-1 .45ZM5.5 9a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM13 19.5a1.5 1.5 0 1 1 3 0 1.5 1.5 0 0 1-3 0Zm1 5.5v-3.05A2.5 2.5 0 0 1 12.5 18l-1-1 .7-.7 1.05 1.03c.23-.13.48-.23.75-.28V4h1v13.05a2.5 2.5 0 0 1 0 4.9V25h-1ZM8.97 14.47l1.56 1.56.7-.71-1.55-1.55-.7.7Z"></path>
+              </svg>
+              <span style={styles.submenuText}>Fib Time Zone</span>
+            </div>
+
+            {/* Fib Speed Resistance Fan */}
+            <div style={styles.submenuItem}>
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 28" width="20" height="20">
+                <g fill="currentColor" fillRule="nonzero">
+                  <path d="M4 2v19.5h1v-19.5zM15.5 10h-11v1h11zM17 12.5v11h1v-11zM6.29 22.417l10.162-10.162-.707-.707-10.162 10.162z" id="Line"></path>
+                  <path d="M19.264 9.443l6.589-6.589-.707-.707-6.589 6.589z"></path>
+                  <path d="M6.577 23.381l19.071-5.903-.296-.955-19.071 5.903z"></path>
+                  <path d="M5.573 21.724l5.905-19.076-.955-.296-5.905 19.076z"></path>
+                  <path d="M6.5 24h19.5v-1h-19.5z"></path>
+                  <path d="M4.5 25c.828 0 1.5-.672 1.5-1.5s-.672-1.5-1.5-1.5-1.5.672-1.5 1.5.672 1.5 1.5 1.5zm0 1c-1.381 0-2.5-1.119-2.5-2.5s1.119-2.5 2.5-2.5 2.5 1.119 2.5 2.5-1.119 2.5-2.5 2.5zM17.5 12c.828 0 1.5-.672 1.5-1.5s-.672-1.5-1.5-1.5-1.5.672-1.5 1.5.672 1.5 1.5 1.5zm0 1c-1.381 0-2.5-1.119-2.5-2.5s1.119-2.5 2.5-2.5 2.5 1.119 2.5 2.5-1.119 2.5-2.5 2.5z"></path>
+                </g>
+              </svg>
+              <span style={styles.submenuText}>Fib Speed Resistance Fan</span>
+            </div>
+
+            {/* Trend-Based Fib Time */}
+            <div style={styles.submenuItem}>
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 28" width="20" height="20">
+                <g fill="currentColor" fillRule="nonzero">
+                  <path d="M20 2v22h1v-22z"></path>
+                  <path d="M24 2v22h1v-22z"></path>
+                  <path d="M4.673 11.471l3.69 10.333.942-.336-3.69-10.333z"></path>
+                  <path d="M17 21.535v-19.535h-1v19.535z"></path>
+                  <path d="M11.5 24h3v-1h-3z"></path>
+                  <path d="M4.5 11c.828 0 1.5-.672 1.5-1.5s-.672-1.5-1.5-1.5-1.5.672-1.5 1.5.672 1.5 1.5 1.5zm0 1c-1.381 0-2.5-1.119-2.5-2.5s1.119-2.5 2.5-2.5 2.5 1.119 2.5 2.5-1.119 2.5-2.5 2.5zM9.5 25c.828 0 1.5-.672 1.5-1.5s-.672-1.5-1.5-1.5-1.5.672-1.5 1.5.672 1.5 1.5 1.5zm0 1c-1.381 0-2.5-1.119-2.5-2.5s1.119-2.5 2.5-2.5 2.5 1.119 2.5 2.5-1.119 2.5-2.5 2.5zM16.5 25c.828 0 1.5-.672 1.5-1.5s-.672-1.5-1.5-1.5-1.5.672-1.5 1.5.672 1.5 1.5 1.5zm0 1c-1.381 0-2.5-1.119-2.5-2.5s1.119-2.5 2.5-2.5 2.5 1.119 2.5 2.5-1.119 2.5-2.5 2.5z"></path>
+                </g>
+              </svg>
+              <span style={styles.submenuText}>Trend-Based Fib Time</span>
+            </div>
+
+            {/* Fib Circles */}
+            <div style={styles.submenuItem}>
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 28" width="20" height="20">
+                <g fill="currentColor" fillRule="nonzero">
+                  <path d="M23.868 7.825c2.791 3.916 2.918 9.33-.065 13.435-3.733 5.138-10.925 6.277-16.063 2.544l.721-.714c4.682 3.294 11.157 2.229 14.534-2.418 2.641-3.635 2.657-8.502.153-12.133l.721-.714z"></path>
+                  <path d="M8.477 5.899c3.584-2.509 8.298-2.514 11.865-.127l.718-.721c-3.845-2.669-9.099-2.813-13.157.028-5.203 3.643-6.467 10.814-2.824 16.016l.718-.721c-3.201-4.737-2.022-11.185 2.68-14.476z"></path>
+                  <path d="M14.5 22c4.142 0 7.5-3.358 7.5-7.5 0-4.142-3.358-7.5-7.5-7.5-4.142 0-7.5 3.358-7.5 7.5 0 4.142 3.358 7.5 7.5 7.5zm0 1c-4.694 0-8.5-3.806-8.5-8.5s3.806-8.5 8.5-8.5 8.5 3.806 8.5 8.5-3.806 8.5-8.5 8.5z"></path>
+                  <path d="M14.5 19c2.485 0 4.5-2.015 4.5-4.5s-2.015-4.5-4.5-4.5-4.5 2.015-4.5 4.5 2.015 4.5 4.5 4.5zm0 1c-3.038 0-5.5-2.462-5.5-5.5s2.462-5.5 5.5-5.5 5.5 2.462 5.5 5.5-2.462 5.5-5.5 5.5z"></path>
+                  <path d="M22.5 8c.828 0 1.5-.672 1.5-1.5s-.672-1.5-1.5-1.5-1.5.672-1.5 1.5.672 1.5 1.5 1.5zm0 1c-1.381 0-2.5-1.119-2.5-2.5s1.119-2.5 2.5-2.5 2.5 1.119 2.5 2.5-1.119 2.5-2.5 2.5zM6.5 24c.828 0 1.5-.672 1.5-1.5s-.672-1.5-1.5-1.5-1.5.672-1.5 1.5.672 1.5 1.5 1.5zm0 1c-1.381 0-2.5-1.119-2.5-2.5s1.119-2.5 2.5-2.5 2.5 1.119 2.5 2.5-1.119 2.5-2.5 2.5z"></path>
+                </g>
+              </svg>
+              <span style={styles.submenuText}>Fib Circles</span>
+            </div>
+
+            {/* Fib Spiral */}
+            <div style={styles.submenuItem}>
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 28" width="20" height="20">
+                <g fill="currentColor" fillRule="nonzero">
+                  <path d="M4.395 10.18c3.432-4.412 10.065-4.998 13.675-.973l.745-.668c-4.044-4.509-11.409-3.858-15.209 1.027l.789.614z"></path>
+                  <path d="M19.991 12.494c.877 2.718.231 5.487-1.897 7.543-2.646 2.556-6.752 2.83-9.188.477-1.992-1.924-2.027-5.38-.059-7.281 1.582-1.528 3.78-1.587 5.305-.115 1.024.99 1.386 2.424.876 3.491l.902.431c.709-1.482.232-3.37-1.084-4.641-1.921-1.855-4.734-1.78-6.695.115-2.378 2.297-2.337 6.405.059 8.719 2.846 2.749 7.563 2.435 10.577-.477 2.407-2.325 3.147-5.493 2.154-8.569l-.952.307z"></path>
+                  <path d="M21.01 9.697l3.197-3.197-.707-.707-3.197 3.197z"></path>
+                  <path d="M14.989 15.719l3.674-3.674-.707-.707-3.674 3.674z"></path>
+                  <path d="M13.5 18c.828 0 1.5-.672 1.5-1.5s-.672-1.5-1.5-1.5-1.5.672-1.5 1.5.672 1.5 1.5 1.5zm0 1c-1.381 0-2.5-1.119-2.5-2.5s1.119-2.5 2.5-2.5 2.5 1.119 2.5 2.5-1.119 2.5-2.5 2.5zM19.5 12c.828 0 1.5-.672 1.5-1.5s-.672-1.5-1.5-1.5-1.5.672-1.5 1.5.672 1.5 1.5 1.5zm0 1c-1.381 0-2.5-1.119-2.5-2.5s1.119-2.5 2.5-2.5 2.5 1.119 2.5 2.5-1.119 2.5-2.5 2.5z"></path>
+                </g>
+              </svg>
+              <span style={styles.submenuText}>Fib Spiral</span>
+            </div>
+
+            {/* Fib Speed Resistance Arcs */}
+            <div style={styles.submenuItem}>
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 28" width="20" height="20">
+                <g fill="currentColor" fillRule="nonzero">
+                  <path d="M8 9.5c0 3.038 2.462 5.5 5.5 5.5s5.5-2.462 5.5-5.5v-.5h-1v.5c0 2.485-2.015 4.5-4.5 4.5s-4.5-2.015-4.5-4.5v-.5h-1v.5z"></path>
+                  <path d="M0 9.5c0 7.456 6.044 13.5 13.5 13.5s13.5-6.044 13.5-13.5v-.5h-1v.5c0 6.904-5.596 12.5-12.5 12.5s-12.5-5.596-12.5-12.5v-.5h-1v.5z"></path>
+                  <path d="M4 9.5c0 4.259 2.828 7.964 6.86 9.128l.48.139.277-.961-.48-.139c-3.607-1.041-6.137-4.356-6.137-8.167v-.5h-1v.5z"></path>
+                  <path d="M16.141 18.628c4.032-1.165 6.859-4.869 6.859-9.128v-.5h-1v.5c0 3.811-2.53 7.125-6.136 8.167l-.48.139.278.961.48-.139z"></path>
+                  <path d="M13.5 20c.828 0 1.5-.672 1.5-1.5s-.672-1.5-1.5-1.5-1.5.672-1.5 1.5.672 1.5 1.5 1.5zm0 1c-1.381 0-2.5-1.119-2.5-2.5s1.119-2.5 2.5-2.5 2.5 1.119 2.5 2.5-1.119 2.5-2.5 2.5zM13.5 11c.828 0 1.5-.672 1.5-1.5s-.672-1.5-1.5-1.5-1.5.672-1.5 1.5.672 1.5 1.5 1.5zm0 1c-1.381 0-2.5-1.119-2.5-2.5s1.119-2.5 2.5-2.5 2.5 1.119 2.5 2.5-1.119 2.5-2.5 2.5z"></path>
+                </g>
+              </svg>
+              <span style={styles.submenuText}>Fib Speed Resistance Arcs</span>
+            </div>
+
+            {/* Fib Wedge */}
+            <div style={styles.submenuItem}>
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 28" width="20" height="20">
+                <g fill="currentColor" fillRule="nonzero">
+                  <path d="M21.5 23h-14v1h14zM5 7.5v14h1v-14z"></path>
+                  <path d="M12 23c0-3.314-2.686-6-6-6h-.5v1h.5c2.761 0 5 2.239 5 5v.5h1v-.5z"></path>
+                  <path d="M20 23c0-7.732-6.268-14-14-14h-.5v1h.5c7.18 0 13 5.82 13 13v.5h1v-.5z"></path>
+                  <path d="M16 23c0-5.523-4.477-10-10-10h-.5v1h.5c4.971 0 9 4.029 9 9v.5h1v-.5z"></path>
+                  <path d="M5.5 7c.828 0 1.5-.672 1.5-1.5s-.672-1.5-1.5-1.5-1.5.672-1.5 1.5.672 1.5 1.5 1.5zm0 1c-1.381 0-2.5-1.119-2.5-2.5s1.119-2.5 2.5-2.5 2.5 1.119 2.5 2.5-1.119 2.5-2.5 2.5zM23.5 25c.828 0 1.5-.672 1.5-1.5s-.672-1.5-1.5-1.5-1.5.672-1.5 1.5.672 1.5 1.5 1.5zm0 1c-1.381 0-2.5-1.119-2.5-2.5s1.119-2.5 2.5-2.5 2.5 1.119 2.5 2.5-1.119 2.5-2.5 2.5zM5.5 25c.828 0 1.5-.672 1.5-1.5s-.672-1.5-1.5-1.5-1.5.672-1.5 1.5.672 1.5 1.5 1.5zm0 1c-1.381 0-2.5-1.119-2.5-2.5s1.119-2.5 2.5-2.5 2.5 1.119 2.5 2.5-1.119 2.5-2.5 2.5z"></path>
+                </g>
+              </svg>
+              <span style={styles.submenuText}>Fib Wedge</span>
+            </div>
+
+            {/* Pitchfan */}
+            <div style={styles.submenuItem}>
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 28" width="20" height="20">
+                <g fill="currentColor" fillRule="nonzero">
+                  <path d="M20.349 20.654l4.489-.711-.156-.988-4.489.711z"></path>
+                  <path d="M7.254 22.728l9.627-1.525-.156-.988-9.627 1.525z"></path>
+                  <path d="M7.284 22.118l15.669-8.331-.469-.883-15.669 8.331z"></path>
+                  <path d="M6.732 21.248l8.364-15.731-.883-.469-8.364 15.731z"></path>
+                  <path d="M17.465 18.758l-8.188-8.188-.707.707 8.188 8.188z"></path>
+                  <path d="M6.273 20.818l1.499-9.467-.988-.156-1.499 9.467z"></path>
+                  <path d="M8.329 7.834l.715-4.516-.988-.156-.715 4.51"></path>
+                </g>
+              </svg>
+              <span style={styles.submenuText}>Pitchfan</span>
+            </div>
+          </div>
+        )}
         <div style={styles.mainChart}>
           <div>I am middle</div>
         </div>
@@ -624,6 +796,19 @@ const styles = {
   submenuText: {
     marginLeft: "8px",
     fontSize: "14px",
+  },
+  fibSubmenu: {
+    position: "absolute",
+    left: "40px", // Position it right next to the left column
+    top: "110px", // Start from the third menu item (30px toolbar + 40px first item + 40px second item)
+    width: "220px", // Slightly wider for longer Fibonacci names
+    backgroundColor: "#f0f0f0",
+    border: "1px solid #ccc",
+    padding: "10px",
+    boxSizing: "border-box",
+    zIndex: 1000,
+    maxHeight: "calc(100vh - 110px)", // Don't exceed viewport height
+    overflowY: "auto", // Add scroll if content overflows
   },
   mainChart: {
     flex: 1,
