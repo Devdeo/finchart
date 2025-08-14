@@ -6,6 +6,7 @@ export default function MainChart() {
   const toolbarRef = useRef(null);
   const menuRef = useRef(null);
   const [showSubmenu, setShowSubmenu] = useState(false); // State to control submenu visibility
+  const submenuRef = useRef(null);
 
   // Example state for settings
   const [oiData, setOiData] = useState(true);
@@ -25,11 +26,21 @@ export default function MainChart() {
       ) {
         setOpenMenu(null);
       }
+      
+      // Close submenu when clicking outside
+      if (
+        showSubmenu &&
+        submenuRef.current &&
+        !submenuRef.current.contains(e.target) &&
+        !e.target.closest(".submenu-trigger")
+      ) {
+        setShowSubmenu(false);
+      }
     };
     document.addEventListener("mousedown", handleClickOutside);
     return () =>
       document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
+  }, [showSubmenu]);
 
   const openDropdown = (menu, event) => {
     const rect = event.currentTarget.getBoundingClientRect();
@@ -292,6 +303,7 @@ export default function MainChart() {
 
           {/* Second tool icon - Trend Line with submenu functionality */}
           <div 
+            className="submenu-trigger"
             style={styles.numberBox} 
             onClick={() => setShowSubmenu(!showSubmenu)}
           >
@@ -366,7 +378,7 @@ export default function MainChart() {
 
         {/* Submenu - positioned absolutely to not affect layout */}
         {showSubmenu && (
-          <div style={styles.submenu}>
+          <div ref={submenuRef} style={styles.submenu}>
             {/* Trend Line */}
             <div style={styles.submenuItem}>
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 28" width="20" height="20">
@@ -588,14 +600,14 @@ const styles = {
   submenu: {
     position: "absolute",
     left: "40px", // Position it right next to the left column
-    top: "30px", // Start below the top toolbar
+    top: "70px", // Start from the second menu item (30px toolbar + 40px first item)
     width: "180px",
     backgroundColor: "#f0f0f0",
     border: "1px solid #ccc",
     padding: "10px",
     boxSizing: "border-box",
     zIndex: 1000,
-    maxHeight: "calc(100vh - 30px)", // Don't exceed viewport height
+    maxHeight: "calc(100vh - 70px)", // Don't exceed viewport height
     overflowY: "auto", // Add scroll if content overflows
   },
   submenuItem: {
