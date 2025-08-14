@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-
+import OIChartAlpha5 from "./OIChartAlpha5";
 export default function MainChart() {
   const [openMenu, setOpenMenu] = useState(null);
   const [menuPosition, setMenuPosition] = useState({ top: 0, left: 0 });
@@ -1138,7 +1138,9 @@ export default function MainChart() {
         )}
 
         <div style={styles.mainChart}>
-          <div>I am middle</div>
+          <div>
+            <OIChartAlpha5 />
+          </div>
         </div>
       </div>
     </div>
