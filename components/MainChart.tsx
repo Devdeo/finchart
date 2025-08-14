@@ -1,0 +1,429 @@
+import { useState, useRef, useEffect } from "react";
+
+export default function MainChart() {
+  const [openMenu, setOpenMenu] = useState(null);
+  const [menuPosition, setMenuPosition] = useState({ top: 0, left: 0 });
+  const toolbarRef = useRef(null);
+  const menuRef = useRef(null);
+
+  // Example state for settings
+  const [oiData, setOiData] = useState(true);
+  const [settings, setSettings] = useState({
+    lastPrice: true,
+    highPrice: true,
+    lowPrice: true,
+    reverseCoord: false,
+    gridShow: true,
+  });
+
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (
+        !e.target.closest(".popup-menu") &&
+        !e.target.closest(".toolbar-btn")
+      ) {
+        setOpenMenu(null);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () =>
+      document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  const openDropdown = (menu, event) => {
+    const rect = event.currentTarget.getBoundingClientRect();
+    setOpenMenu(openMenu === menu ? null : menu);
+
+    // Temporarily position it where it would normally go
+    setMenuPosition({
+      top: rect.bottom + window.scrollY,
+      left: rect.left + window.scrollX,
+    });
+
+    // Delay measure to after DOM update
+    setTimeout(() => {
+      if (menuRef.current) {
+        const menuRect = menuRef.current.getBoundingClientRect();
+        let top = rect.bottom + window.scrollY;
+        let left = rect.left + window.scrollX;
+
+        const viewportWidth = window.innerWidth;
+        const viewportHeight = window.innerHeight;
+
+        // Horizontal adjust
+        if (left + menuRect.width > viewportWidth) {
+          left = viewportWidth - menuRect.width - 10;
+        }
+        if (left < 0) left = 0;
+
+        // Vertical adjust
+        if (top + menuRect.height > window.scrollY + viewportHeight) {
+          top = rect.top + window.scrollY - menuRect.height;
+        }
+        if (top < 0) top = 0;
+
+        setMenuPosition({ top, left });
+      }
+    }, 0);
+  };
+
+  const toggleSetting = (key) => {
+    setSettings((prev) => ({ ...prev, [key]: !prev[key] }));
+  };
+
+  return (
+    <div style={styles.container}>
+      {/* Top toolbar */}
+      <div style={styles.topScroll} ref={toolbarRef}>
+        <div style={styles.scrollRow}>
+          <div className="toolbar-btn" style={styles.testBox}>
+            <i className="fa-solid fa-magnifying-glass"></i> Symbol
+          </div>
+
+          <div
+            className="toolbar-btn"
+            style={styles.testBox}
+            onClick={(e) => openDropdown("timeframe", e)}
+          >
+            <i className="fa-solid fa-hourglass"></i>&nbsp; Timeframe
+          </div>
+
+          <div
+            className="toolbar-btn"
+            style={styles.testBox}
+            onClick={(e) => openDropdown("charttype", e)}
+          >
+            <i className="fa-solid fa-chart-column"></i>&nbsp; Chart Type
+          </div>
+
+          <div
+            className="toolbar-btn"
+            style={styles.testBox}
+            onClick={(e) => openDropdown("indicator", e)}
+          >
+            <i className="fa-solid fa-chart-simple"></i>&nbsp; Indicator
+          </div>
+
+          <div
+            className="toolbar-btn"
+            style={styles.testBox}
+            onClick={(e) => openDropdown("ai", e)}
+          >
+            <i className="fa-solid fa-hexagon-nodes-bolt"></i>&nbsp; AI
+          </div>
+
+          <div style={styles.testBox}>
+            <input
+              type="checkbox"
+              checked={oiData}
+              onChange={() => setOiData(!oiData)}
+              style={{ marginRight: "5px" }}
+            />
+            <i className="fa-solid fa-database"></i>&nbsp; OI Data
+          </div>
+
+          <div
+            className="toolbar-btn"
+            style={styles.testBox}
+            onClick={(e) => openDropdown("settings", e)}
+          >
+            <i className="fa-solid fa-gear"></i>
+          </div>
+        </div>
+      </div>
+
+      {/* Dropdown menu */}
+      {openMenu && (
+        <div
+          ref={menuRef}
+          className="popup-menu"
+          style={{
+            ...styles.popup,
+            position: "absolute",
+            top: menuPosition.top,
+            left: menuPosition.left,
+          }}
+        >
+          <div style={styles.popupContent}>
+            {openMenu === "timeframe" &&
+              [
+                "1m",
+                "2m",
+                "3m",
+                "4m",
+                "5m",
+                "10m",
+                "15m",
+                "30m",
+                "1h",
+                "2h",
+                "4h",
+                "1d",
+              ].map((tf) => (
+                <div key={tf} style={styles.dropdownItem}>
+                  {tf}
+                </div>
+              ))}
+
+            {openMenu === "charttype" &&
+              [
+                "Candle Solid",
+                "Candle Stroke",
+                "Candle Up Stroke",
+                "Candle Down Stroke",
+                "OHLC",
+                "Area",
+              ].map((type) => (
+                <div key={type} style={styles.dropdownItem}>
+                  {type}
+                </div>
+              ))}
+
+            {openMenu === "indicator" && (
+              <>
+                <strong>Trend</strong>
+                {[
+                  "SMA – Simple Moving Average",
+                  "EMA – Exponential Moving Average",
+                  "WMA – Weighted Moving Average",
+                  "MACD – Moving Average Convergence Divergence",
+                  "Ichimoku Cloud",
+                  "Supertrend",
+                  "Parabolic SAR",
+                  "ADX – Average Directional Index",
+                  "HMA – Hull Moving Average",
+                  "Gann HiLo Activator",
+                ].map((item) => (
+                  <div key={item} style={styles.dropdownItem}>
+                    {item}
+                  </div>
+                ))}
+                <strong>Momentum</strong>
+                {[
+                  "RSI – Relative Strength Index",
+                  "Stochastic Oscillator",
+                  "Stochastic RSI",
+                  "CCI – Commodity Channel Index",
+                  "Williams %R",
+                  "ROC – Rate of Change",
+                  "Awesome Oscillator",
+                  "Elder Impulse System",
+                ].map((item) => (
+                  <div key={item} style={styles.dropdownItem}>
+                    {item}
+                  </div>
+                ))}
+                <strong>Volatility</strong>
+                {[
+                  "Bollinger Bands",
+                  "Keltner Channels",
+                  "ATR – Average True Range",
+                  "Donchian Channels",
+                  "Standard Deviation Channel",
+                  "Chaikin Volatility",
+                ].map((item) => (
+                  <div key={item} style={styles.dropdownItem}>
+                    {item}
+                  </div>
+                ))}
+                <strong>Volume</strong>
+                {[
+                  "Volume Histogram",
+                  "OBV – On-Balance Volume",
+                  "MFI – Money Flow Index",
+                  "Accumulation/Distribution Line",
+                  "Chaikin Money Flow (CMF)",
+                  "Volume Oscillator",
+                ].map((item) => (
+                  <div key={item} style={styles.dropdownItem}>
+                    {item}
+                  </div>
+                ))}
+                <strong>Pattern Recognition</strong>
+                {[
+                  "Chart Pattern Recognition",
+                  "Candlestick Pattern Recognition",
+                  "Harmonic Pattern Recognition",
+                ].map((item) => (
+                  <div key={item} style={styles.dropdownItem}>
+                    {item}
+                  </div>
+                ))}
+              </>
+            )}
+
+            {openMenu === "ai" && (
+              <>
+                <div style={styles.dropdownItem}>Auto Analysis</div>
+                <div style={styles.dropdownItem}>Chat</div>
+              </>
+            )}
+
+            {openMenu === "settings" &&
+              Object.entries(settings).map(([key, value]) => (
+                <label key={key} style={styles.toggleItem}>
+                  <input
+                    type="checkbox"
+                    checked={value}
+                    onChange={() => toggleSetting(key)}
+                  />
+                  {key
+                    .replace(/([A-Z])/g, " $1")
+                    .replace(/^./, (c) => c.toUpperCase())}
+                </label>
+              ))}
+          </div>
+        </div>
+      )}
+
+      {/* Main area */}
+      <div style={styles.mainArea}>
+        <div style={styles.leftColumn}>
+          
+            <div style={styles.numberBox}>
+               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 28" width="28" height="28">
+        <g fill="currentColor">
+          <path d="M18 15h8v-1h-8z"></path>
+          <path d="M14 18v8h1v-8zM14 3v8h1v-8zM3 15h8v-1h-8z"></path>
+        </g>
+      </svg>
+            </div>
+          <div style={styles.numberBox}>
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 28" width="28" height="28">
+        <g fill="currentColor" fill-rule="nonzero">
+          <path d="M7.354 21.354l14-14-.707-.707-14 14z"></path>
+          <path d="M22.5 7c.828 0 1.5-.672 1.5-1.5s-.672-1.5-1.5-1.5-1.5.672-1.5 1.5.672 1.5 1.5 1.5zm0 1c-1.381 0-2.5-1.119-2.5-2.5s1.119-2.5 2.5-2.5 2.5 1.119 2.5 2.5-1.119 2.5-2.5 2.5zM5.5 24c.828 0 1.5-.672 1.5-1.5s-.672-1.5-1.5-1.5-1.5.672-1.5 1.5.672 1.5 1.5 1.5zm0 1c-1.381 0-2.5-1.119-2.5-2.5s1.119-2.5 2.5-2.5 2.5 1.119 2.5 2.5-1.119 2.5-2.5 2.5z"></path>
+        </g>
+      </svg>
+            </div>
+          <div style={styles.numberBox}>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 28" width="28" height="28">
+              <g fill="currentColor" fill-rule="nonzero">
+                <path d="M3 5h22v-1h-22z"></path>
+                <path d="M3 17h22v-1h-22z"></path>
+                <path d="M3 11h19.5v-1h-19.5z"></path>
+                <path d="M5.5 23h19.5v-1h-19.5z"></path>
+                <path d="M3.5 24c.828 0 1.5-.672 1.5-1.5s-.672-1.5-1.5-1.5-1.5.672-1.5 1.5.672 1.5 1.5 1.5zm0 1c-1.381 0-2.5-1.119-2.5-2.5s1.119-2.5 2.5-2.5 2.5 1.119 2.5 2.5-1.119 2.5-2.5 2.5zM24.5 12c.828 0 1.5-.672 1.5-1.5s-.672-1.5-1.5-1.5-1.5.672-1.5 1.5.672 1.5 1.5 1.5zm0 1c-1.381 0-2.5-1.119-2.5-2.5s1.119-2.5 2.5-2.5 2.5 1.119 2.5 2.5-1.119 2.5-2.5 2.5z"></path>
+              </g>
+            </svg>
+          </div>
+                      <div style={styles.numberBox}>
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 28" width="28" height="28">
+        <g fill="currentColor" fill-rule="nonzero">
+          <path d="M20.449 8.505l2.103 9.112.974-.225-2.103-9.112zM13.943 14.011l7.631 4.856.537-.844-7.631-4.856zM14.379 11.716l4.812-3.609-.6-.8-4.812 3.609zM10.96 13.828l-4.721 6.744.819.573 4.721-6.744zM6.331 20.67l2.31-13.088-.985-.174-2.31 13.088zM9.041 7.454l1.995 3.492.868-.496-1.995-3.492z"></path>
+          <path d="M8.5 7c.828 0 1.5-.672 1.5-1.5s-.672-1.5-1.5-1.5-1.5.672-1.5 1.5.672 1.5 1.5 1.5zm0 1c-1.381 0-2.5-1.119-2.5-2.5s1.119-2.5 2.5-2.5 2.5 1.119 2.5 2.5-1.119 2.5-2.5 2.5zM5.5 24c.828 0 1.5-.672 1.5-1.5s-.672-1.5-1.5-1.5-1.5.672-1.5 1.5.672 1.5 1.5 1.5zm0 1c-1.381 0-2.5-1.119-2.5-2.5s1.119-2.5 2.5-2.5 2.5 1.119 2.5 2.5-1.119 2.5-2.5 2.5zM12.5 14c.828 0 1.5-.672 1.5-1.5s-.672-1.5-1.5-1.5-1.5.672-1.5 1.5.672 1.5 1.5 1.5zm0 1c-1.381 0-2.5-1.119-2.5-2.5s1.119-2.5 2.5-2.5 2.5 1.119 2.5 2.5-1.119 2.5-2.5 2.5zM20.5 8c.828 0 1.5-.672 1.5-1.5s-.672-1.5-1.5-1.5-1.5.672-1.5 1.5.672 1.5 1.5 1.5zm0 1c-1.381 0-2.5-1.119-2.5-2.5s1.119-2.5 2.5-2.5 2.5 1.119 2.5 2.5-1.119 2.5-2.5 2.5zM23.5 21c.828 0 1.5-.672 1.5-1.5s-.672-1.5-1.5-1.5-1.5.672-1.5 1.5.672 1.5 1.5 1.5zm0 1c-1.381 0-2.5-1.119-2.5-2.5s1.119-2.5 2.5-2.5 2.5 1.119 2.5 2.5-1.119 2.5-2.5 2.5z"></path>
+        </g>
+      </svg>
+            </div>
+          <div style={styles.numberBox}>
+                   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 28" width="28" height="28">
+        <g fill="currentColor" fill-rule="evenodd">
+          <path fill-rule="nonzero" d="M4.5 5a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3zM2 6.5A2.5 2.5 0 0 1 6.95 6H24v1H6.95A2.5 2.5 0 0 1 2 6.5zM4.5 15a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3zM2 16.5a2.5 2.5 0 0 1 4.95-.5h13.1a2.5 2.5 0 1 1 0 1H6.95A2.5 2.5 0 0 1 2 16.5zM22.5 15a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3zm-18 6a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3zM2 22.5a2.5 2.5 0 0 1 4.95-.5H24v1H6.95A2.5 2.5 0 0 1 2 22.5z"></path>
+          <path fill="currentColor" fill-rule="evenodd" clip-rule="evenodd" d="M22.4 8.94l-1.39.63-.41-.91 1.39-.63.41.91zm-4 1.8l-1.39.63-.41-.91 1.39-.63.41.91zm-4 1.8l-1.4.63-.4-.91 1.39-.63.41.91zm-4 1.8l-1.4.63-.4-.91 1.39-.63.41.91z"></path>
+        </g>
+      </svg>
+            </div>
+          <div style={styles.numberBox}>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 28" width="28" height="28">
+        <g fill="currentColor" fill-rule="nonzero">
+          <path d="M1.789 23l.859-.854.221-.228c.18-.19.38-.409.597-.655.619-.704 1.238-1.478 1.815-2.298.982-1.396 1.738-2.776 2.177-4.081 1.234-3.667 5.957-4.716 8.923-1.263 3.251 3.785-.037 9.38-5.379 9.38h-9.211zm9.211-1c4.544 0 7.272-4.642 4.621-7.728-2.45-2.853-6.225-2.015-7.216.931-.474 1.408-1.273 2.869-2.307 4.337-.599.852-1.241 1.653-1.882 2.383l-.068.078h6.853z"></path>
+          <path d="M18.182 6.002l-1.419 1.286c-1.031.935-1.075 2.501-.096 3.48l1.877 1.877c.976.976 2.553.954 3.513-.045l5.65-5.874-.721-.693-5.65 5.874c-.574.596-1.507.609-2.086.031l-1.877-1.877c-.574-.574-.548-1.48.061-2.032l1.419-1.286-.672-.741z"></path>
+        </g>
+      </svg>
+          </div>
+          <div style={styles.numberBox}>
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 28" width="28" height="28">
+        <path fill="currentColor" d="M8 6.5c0-.28.22-.5.5-.5H14v16h-2v1h5v-1h-2V6h5.5c.28 0 .5.22.5.5V9h1V6.5c0-.83-.67-1.5-1.5-1.5h-12C7.67 5 7 5.67 7 6.5V9h1V6.5Z"></path>
+      </svg>
+          </div>
+          <div style={styles.numberBox}>
+               <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28">
+        <path fill="currentColor" d="M2 9.75a1.5 1.5 0 0 0-1.5 1.5v5.5a1.5 1.5 0 0 0 1.5 1.5h24a1.5 1.5 0 0 0 1.5-1.5v-5.5a1.5 1.5 0 0 0-1.5-1.5zm0 1h3v2.5h1v-2.5h3.25v3.9h1v-3.9h3.25v2.5h1v-2.5h3.25v3.9h1v-3.9H22v2.5h1v-2.5h3a.5.5 0 0 1 .5.5v5.5a.5.5 0 0 1-.5.5H2a.5.5 0 0 1-.5-.5v-5.5a.5.5 0 0 1 .5-.5z" transform="rotate(-45 14 14)"></path>
+      </svg>
+          </div>
+          <div style={styles.numberBox}>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 28" width="28" height="28" fill="currentColor">
+        <path d="M17.646 18.354l4 4 .708-.708-4-4z"></path>
+        <path d="M12.5 21a8.5 8.5 0 1 1 0-17 8.5 8.5 0 0 1 0 17zm0-1a7.5 7.5 0 1 0 0-15 7.5 7.5 0 0 0 0 15z"></path>
+        <path d="M9 13h7v-1H9z"></path>
+        <path d="M13 16V9h-1v7z"></path>
+      </svg>
+          </div>
+        </div>
+        <div style={styles.mainChart}>
+          <div>I am middle</div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+const styles = {
+  container: {
+    display: "flex",
+    flexDirection: "column",
+    height: "100vh",
+    overflow: "hidden",
+  },
+  topScroll: {
+    height: "30px",
+    overflowX: "auto",
+    whiteSpace: "nowrap",
+    borderBottom: "1px solid #ccc",
+    background: "#fafafa",
+    flexShrink: 0,
+  },
+  scrollRow: { display: "flex", height: "100%" },
+  testBox: {
+    display: "flex",
+    alignItems: "center",
+    borderRight: "1px solid #ccc",
+    padding: "0 5px",
+    background: "#fff",
+    cursor: "pointer",
+  },
+  popup: {
+    background: "#fff",
+    border: "1px solid #ccc",
+    borderRadius: "4px",
+    minWidth: "200px",
+    maxHeight: "300px",
+    overflowY: "auto",
+    boxShadow: "0 4px 12px rgba(0,0,0,0.2)",
+    zIndex: 2000,
+  },
+  popupContent: { padding: "5px" },
+  dropdownItem: {
+    padding: "5px",
+    cursor: "pointer",
+    borderBottom: "1px solid #eee",
+  },
+  toggleItem: {
+    display: "flex",
+    alignItems: "center",
+    padding: "5px",
+    borderBottom: "1px solid #eee",
+    cursor: "pointer",
+  },
+  mainArea: { display: "flex", flex: 1, overflow: "hidden" },
+  leftColumn: {
+    width: "40px",
+    flexShrink: 0,
+    borderRight: "1px solid #ccc",
+    background: "#fafafa",
+  },
+  numberBox: {
+    height: "40px",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    borderBottom: "1px solid #ccc",
+  },
+  mainChart: {
+    flex: 1,
+    background: "#f9f9f9",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+};
