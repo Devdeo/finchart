@@ -8,6 +8,7 @@ export default function MainChart() {
   const [showSubmenu, setShowSubmenu] = useState(false); // State to control submenu visibility
   const [selectedTrendTool, setSelectedTrendTool] = useState(null);
   const [trendToolPosition, setTrendToolPosition] = useState({ top: 0, left: 0 });
+  const [showSecondSubmenu, setShowSecondSubmenu] = useState(false); // State for second icon submenu
 
   // Example state for settings
   const [oiData, setOiData] = useState(true);
@@ -25,10 +26,12 @@ export default function MainChart() {
         !e.target.closest(".popup-menu") &&
         !e.target.closest(".toolbar-btn") &&
         !e.target.closest(".submenu-item") &&
-        !e.target.closest(".trend-tool-menu")
+        !e.target.closest(".trend-tool-menu") &&
+        !e.target.closest(".second-submenu")
       ) {
         setOpenMenu(null);
         setSelectedTrendTool(null);
+        setShowSecondSubmenu(false);
       }
     };
     document.addEventListener("mousedown", handleClickOutside);
@@ -317,7 +320,10 @@ export default function MainChart() {
             </svg>
           </div>
 
-          <div style={styles.numberBox}>
+          <div 
+            style={styles.numberBox}
+            onClick={() => setShowSecondSubmenu(!showSecondSubmenu)}
+          >
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 28" width="28" height="28">
               <g fill="currentColor" fillRule="nonzero">
                 <path d="M7.354 21.354l14-14-.707-.707-14 14z"></path>
@@ -681,6 +687,75 @@ export default function MainChart() {
             </div>
           </div>
         )}
+
+        {/* Second Submenu - appears above middle area */}
+        {showSecondSubmenu && (
+          <div className="second-submenu" style={styles.secondSubmenu}>
+            {/* Drawing Tools */}
+            <div style={styles.submenuItem}>
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 28" width="20" height="20">
+                <g fill="currentColor" fillRule="nonzero">
+                  <path d="M7.354 21.354l14-14-.707-.707-14 14z"></path>
+                  <path d="M22.5 7c.828 0 1.5-.672 1.5-1.5s-.672-1.5-1.5-1.5-1.5.672-1.5 1.5.672 1.5 1.5 1.5zm0 1c-1.381 0-2.5-1.119-2.5-2.5s1.119-2.5 2.5-2.5 2.5 1.119 2.5 2.5-1.119 2.5-2.5 2.5zM5.5 24c.828 0 1.5-.672 1.5-1.5s-.672-1.5-1.5-1.5-1.5.672-1.5 1.5.672 1.5 1.5 1.5zm0 1c-1.381 0-2.5-1.119-2.5-2.5s1.119-2.5 2.5-2.5 2.5 1.119 2.5 2.5-1.119 2.5-2.5 2.5z"></path>
+                </g>
+              </svg>
+              <span style={styles.submenuText}>Trend Line</span>
+            </div>
+
+            <div style={styles.submenuItem}>
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 28" width="20" height="20">
+                <g fill="currentColor" fillRule="nonzero">
+                  <path d="M8.354 20.354l5-5-.707-.707-5 5z"></path>
+                  <path d="M16.354 12.354l8-8-.707-.707-8 8z"></path>
+                  <path d="M14.5 15c.828 0 1.5-.672 1.5-1.5s-.672-1.5-1.5-1.5-1.5.672-1.5 1.5.672 1.5 1.5 1.5zm0 1c-1.381 0-2.5-1.119-2.5-2.5s1.119-2.5 2.5-2.5 2.5 1.119 2.5 2.5-1.119 2.5-2.5 2.5zM6.5 23c.828 0 1.5-.672 1.5-1.5s-.672-1.5-1.5-1.5-1.5.672-1.5 1.5.672 1.5 1.5 1.5zm0 1c-1.381 0-2.5-1.119-2.5-2.5s1.119-2.5 2.5-2.5 2.5 1.119 2.5 2.5-1.119 2.5-2.5 2.5z"></path>
+                </g>
+              </svg>
+              <span style={styles.submenuText}>Ray</span>
+            </div>
+
+            <div style={styles.submenuItem}>
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 28" width="20" height="20">
+                <g fill="currentColor" fillRule="nonzero" clipRule="evenodd">
+                  <path d="M22.4989 4C21.6705 4 20.9989 4.67157 20.9989 5.5C20.9989 5.91456 21.1664 6.28904 21.4387 6.56106C21.7106 6.83282 22.0848 7 22.4989 7C23.3274 7 23.9989 6.32843 23.9989 5.5C23.9989 4.67157 23.3274 4 22.4989 4ZM19.9989 5.5C19.9989 4.11929 21.1182 3 22.4989 3C23.8796 3 24.9989 4.11929 24.9989 5.5C24.9989 6.88071 23.8796 8 22.4989 8C21.9899 8 21.5159 7.8475 21.1209 7.58617L7.58575 21.1214C7.84733 21.5165 8 21.9907 8 22.5C8 23.8807 6.88071 25 5.5 25C4.11929 25 3 23.8807 3 22.5C3 21.1193 4.11929 20 5.5 20C6.00932 20 6.48351 20.1527 6.87864 20.4143L20.4136 6.87929C20.1518 6.48403 19.9989 6.0096 19.9989 5.5ZM5.5 21C4.67157 21 4 21.6716 4 22.5C4 23.3284 4.67157 24 5.5 24C6.32843 24 7 23.3284 7 22.5C7 22.0856 6.83265 21.7113 6.56066 21.4393C6.28867 21.1673 5.91435 21 5.5 21Z"></path>
+                  <path d="M16 19.5C16 18.1193 17.1193 17 18.5 17H23.5C24.8807 17 26 18.1193 26 19.5V22.5C26 23.8807 24.8807 25 23.5 25H18.5C17.1193 25 16 23.8807 16 22.5V19.5ZM18.5 18C17.6716 18 17 18.6716 17 19.5V22.5C17 23.3284 17.6716 24 18.5 24H23.5C24.3284 24 25 23.3284 25 22.5V19.5C25 18.6716 24.3284 18 23.5 18H18.5Z"></path>
+                </g>
+              </svg>
+              <span style={styles.submenuText}>Info Line</span>
+            </div>
+
+            <div style={styles.submenuItem}>
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 28" width="20" height="20">
+                <g fill="currentColor" fillRule="nonzero">
+                  <path d="M4.354 25.354l5-5-.707-.707-5 5z"></path>
+                  <path d="M12.354 17.354l5-5-.707-.707-5 5z"></path>
+                  <path d="M20.354 9.354l5-5-.707-.707-5 5z"></path>
+                  <path d="M18.5 12c.828 0 1.5-.672 1.5-1.5s-.672-1.5-1.5-1.5-1.5.672-1.5 1.5.672 1.5 1.5 1.5zm0 1c-1.381 0-2.5-1.119-2.5-2.5s1.119-2.5 2.5-2.5 2.5 1.119 2.5 2.5-1.119 2.5-2.5 2.5zM10.5 20c.828 0 1.5-.672 1.5-1.5s-.672-1.5-1.5-1.5-1.5.672-1.5 1.5.672 1.5 1.5 1.5zm0 1c-1.381 0-2.5-1.119-2.5-2.5s1.119-2.5 2.5-2.5 2.5 1.119 2.5 2.5-1.119 2.5-2.5 2.5z"></path>
+                </g>
+              </svg>
+              <span style={styles.submenuText}>Extended Line</span>
+            </div>
+
+            <div style={styles.submenuItem}>
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 28" width="20" height="20">
+                <g fill="currentColor" fillRule="nonzero">
+                  <path d="M4 15h8.5v-1h-8.5zM16.5 15h8.5v-1h-8.5z"></path>
+                  <path d="M14.5 16c.828 0 1.5-.672 1.5-1.5s-.672-1.5-1.5-1.5-1.5.672-1.5 1.5.672 1.5 1.5 1.5zm0 1c-1.381 0-2.5-1.119-2.5-2.5s1.119-2.5 2.5-2.5 2.5 1.119 2.5 2.5-1.119 2.5-2.5 2.5z"></path>
+                </g>
+              </svg>
+              <span style={styles.submenuText}>Horizontal Line</span>
+            </div>
+
+            <div style={styles.submenuItem}>
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 28" width="20" height="20">
+                <g fill="currentColor" fillRule="nonzero">
+                  <path d="M15 12v-8.5h-1v8.5zM14 16.5v8.5h1v-8.5z"></path>
+                  <path d="M14.5 16c.828 0 1.5-.672 1.5-1.5s-.672-1.5-1.5-1.5-1.5.672-1.5 1.5.672 1.5 1.5 1.5zm0 1c-1.381 0-2.5-1.119-2.5-2.5s1.119-2.5 2.5-2.5 2.5 1.119 2.5 2.5-1.119 2.5-2.5 2.5z"></path>
+                </g>
+              </svg>
+              <span style={styles.submenuText}>Vertical Line</span>
+            </div>
+          </div>
+        )}
         
         <div style={styles.mainChart}>
           <div>I am middle</div>
@@ -783,6 +858,19 @@ const styles = {
     overflowY: "auto",
     boxShadow: "0 4px 12px rgba(0,0,0,0.2)",
     zIndex: 2001,
+  },
+  secondSubmenu: {
+    position: "absolute",
+    top: "30px", // Position it just below the top toolbar
+    left: showSubmenu ? "220px" : "40px", // Adjust based on whether first submenu is open
+    width: "180px",
+    backgroundColor: "#f0f0f0",
+    border: "1px solid #ccc",
+    borderRadius: "4px",
+    padding: "10px",
+    boxSizing: "border-box",
+    boxShadow: "0 2px 8px rgba(0,0,0,0.2)",
+    zIndex: 1000,
   },
   mainChart: {
     flex: 1,
