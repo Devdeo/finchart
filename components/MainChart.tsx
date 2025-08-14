@@ -280,15 +280,7 @@ export default function MainChart() {
       {/* Main area */}
       <div style={styles.mainArea}>
         <div style={styles.leftColumn}>
-          {/* Toggle button for submenu */}
-          <div 
-            style={styles.numberBox} 
-            onClick={() => setShowSubmenu(!showSubmenu)}
-          >
-            <i className={`fa-solid ${showSubmenu ? 'fa-chevron-left' : 'fa-chevron-right'}`}></i>
-          </div>
-
-          {/* Original tool icons */}
+          {/* First tool icon */}
           <div style={styles.numberBox}>
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 28" width="28" height="28">
               <g fill="currentColor">
@@ -298,7 +290,11 @@ export default function MainChart() {
             </svg>
           </div>
 
-          <div style={styles.numberBox}>
+          {/* Second tool icon - Trend Line with submenu functionality */}
+          <div 
+            style={styles.numberBox} 
+            onClick={() => setShowSubmenu(!showSubmenu)}
+          >
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 28" width="28" height="28">
               <g fill="currentColor" fillRule="nonzero">
                 <path d="M7.354 21.354l14-14-.707-.707-14 14z"></path>
