@@ -34,6 +34,7 @@ export default function MainChart() {
   const [appliedIndicators, setAppliedIndicators] = useState([]);
   const [hoveredIndicator, setHoveredIndicator] = useState(null);
   const [smaIndicators, setSmaIndicators] = useState([]);
+  const [showIndicatorControls, setShowIndicatorControls] = useState(null);
 
   // Settings state
   const [settings, setSettings] = useState({
@@ -51,6 +52,14 @@ export default function MainChart() {
         !e.target.closest(".toolbar-btn")
       ) {
         setOpenMenu(null);
+      }
+
+      // Close indicator controls when clicking outside
+      if (
+        showIndicatorControls &&
+        !e.target.closest("[data-indicator-chip]")
+      ) {
+        setShowIndicatorControls(null);
       }
 
       // Close submenus when clicking outside
@@ -102,7 +111,7 @@ export default function MainChart() {
     document.addEventListener("mousedown", handleClickOutside);
     return () =>
       document.removeEventListener("mousedown", handleClickOutside);
-  }, [showSubmenu, showFibSubmenu, showPatternSubmenu, showProjectionSubmenu, showBrushesSubmenu]);
+  }, [showSubmenu, showFibSubmenu, showPatternSubmenu, showProjectionSubmenu, showBrushesSubmenu, showIndicatorControls]);
 
   const openDropdown = (menu, event) => {
     const rect = event.currentTarget.getBoundingClientRect();
@@ -1274,27 +1283,39 @@ export default function MainChart() {
                 {appliedIndicators.filter(indicator => indicator.name !== "SMA – Simple Moving Average").map((indicator) => (
                   <div 
                     key={indicator.id} 
+                    data-indicator-chip
                     style={{
                       ...styles.indicatorChip,
-                      ...(hoveredIndicator === indicator.id ? styles.indicatorChipHover : {})
+                      ...(showIndicatorControls === indicator.id ? styles.indicatorChipHover : {})
                     }}
-                    onMouseEnter={() => setHoveredIndicator(indicator.id)}
-                    onMouseLeave={() => setHoveredIndicator(null)}
+                    onClick={() => setShowIndicatorControls(showIndicatorControls === indicator.id ? null : indicator.id)}
                   >
                     <span style={styles.indicatorName}>{indicator.name}</span>
-                    <button 
-                      style={{
-                        ...styles.removeButton,
-                        ...(hoveredIndicator === indicator.id ? styles.removeButtonVisible : {})
-                      }}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        removeIndicator(indicator.id);
-                      }}
-                      title="Remove indicator"
-                    >
-                      ×
-                    </button>
+                    {showIndicatorControls === indicator.id && (
+                      <>
+                        <button 
+                          style={styles.settingsButton}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            // Settings functionality can be added here
+                            console.log(`Settings for ${indicator.name}`);
+                          }}
+                          title="Settings"
+                        >
+                          <i className="fa-solid fa-gear"></i>
+                        </button>
+                        <button 
+                          style={styles.removeButton}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            removeIndicator(indicator.id);
+                          }}
+                          title="Remove indicator"
+                        >
+                          ×
+                        </button>
+                      </>
+                    )}
                   </div>
                 ))}
                 {smaIndicators.map((sma) => (
@@ -1600,9 +1621,9 @@ const styles = {
     borderRadius: "2px",
     width: "14px",
     height: "14px",
-    fontSize: "12px",
+    fontSize: "10px",
     cursor: "pointer",
-    display: "none",
+    display: "flex",
     alignItems: "center",
     justifyContent: "center",
     lineHeight: "1",
@@ -1616,5 +1637,21 @@ const styles = {
   },
   removeButtonVisible: {
     display: "flex",
+  },
+  settingsButton: {
+    background: "none",
+    border: "none",
+    color: "#686d76",
+    fontSize: "10px",
+    cursor: "pointer",
+    padding: "0 2px",
+    marginRight: "2px",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    width: "14px",
+    height: "14px",
+    borderRadius: "2px",
+    transition: "all 0.2s",
   },
 };

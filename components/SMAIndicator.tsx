@@ -112,7 +112,9 @@ const SMAIndicator: React.FC<SMAIndicatorProps> = ({
           fontSize: "11px",
           fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', sans-serif",
           boxShadow: "0 1px 2px rgba(0, 0, 0, 0.1)",
+          cursor: "pointer",
         }}
+        onClick={() => setShowSettings(!showSettings)}
       >
         <span style={{ color: "#131722", marginRight: "4px" }}>
           SMA({period})
@@ -126,8 +128,14 @@ const SMAIndicator: React.FC<SMAIndicatorProps> = ({
             cursor: "pointer",
             padding: "0 2px",
             marginRight: "2px",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
           }}
-          onClick={() => setShowSettings(!showSettings)}
+          onClick={(e) => {
+            e.stopPropagation();
+            setShowSettings(!showSettings);
+          }}
           title="Settings"
         >
           <i className="fa-solid fa-gear"></i>
@@ -149,7 +157,10 @@ const SMAIndicator: React.FC<SMAIndicatorProps> = ({
             padding: "0",
             fontWeight: "bold",
           }}
-          onClick={onRemove}
+          onClick={(e) => {
+            e.stopPropagation();
+            onRemove();
+          }}
           title="Remove"
         >
           ×
