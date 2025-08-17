@@ -19,7 +19,46 @@ export default function OIChartAlpha5({ showOiData = true, onChartReady }: OICha
     // Register the overlay & figures only once
     registerOIOverlay();
 
-    const chart = init(ref.current);
+    const chart = init(ref.current, {
+      styles: {
+        candle: {
+          tooltip: {
+            showRule: 'none'
+          }
+        },
+        crosshair: {
+          show: true,
+          horizontal: {
+            show: true,
+            line: {
+              show: true,
+              style: 'dashed',
+              color: '#888',
+              width: 1
+            },
+            text: {
+              show: true,
+              color: '#D9D9D9',
+              backgroundColor: '#686D76'
+            }
+          },
+          vertical: {
+            show: true,
+            line: {
+              show: true,
+              style: 'dashed',
+              color: '#888',
+              width: 1
+            },
+            text: {
+              show: true,
+              color: '#D9D9D9',
+              backgroundColor: '#686D76'
+            }
+          }
+        }
+      }
+    });
     chartRef.current = chart;
 
     const candles = Array.from({ length: 50 }, (_, i) => {

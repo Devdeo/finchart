@@ -1225,8 +1225,56 @@ export default function MainChart() {
             </div>
           )}
           
+          {/* Symbol and Price Display */}
+          <div style={styles.symbolPriceDisplay}>
+            <div style={styles.symbolName}>NIFTY 50</div>
+            <div style={styles.currentPrice}>24,567.80</div>
+          </div>
+
           <OIChartAlpha5 showOiData={oiData} onChartReady={(chart) => {
             chartInstanceRef.current = chart;
+            // Remove default chart labels
+            chart.setStyles({
+              grid: {
+                show: settings.gridShow,
+              },
+              candle: {
+                tooltip: {
+                  showRule: 'none'
+                }
+              },
+              crosshair: {
+                show: true,
+                horizontal: {
+                  show: true,
+                  line: {
+                    show: true,
+                    style: 'dashed',
+                    color: '#888',
+                    width: 1
+                  },
+                  text: {
+                    show: true,
+                    color: '#D9D9D9',
+                    backgroundColor: '#686D76'
+                  }
+                },
+                vertical: {
+                  show: true,
+                  line: {
+                    show: true,
+                    style: 'dashed',
+                    color: '#888',
+                    width: 1
+                  },
+                  text: {
+                    show: true,
+                    color: '#D9D9D9',
+                    backgroundColor: '#686D76'
+                  }
+                }
+              }
+            });
           }} />
         </div>
       </div>
@@ -1399,13 +1447,33 @@ const styles = {
   },
   indicatorsPanel: {
     position: "absolute",
-    top: "5px",
+    top: "50px",
     left: "5px",
     backgroundColor: "transparent",
     padding: "0",
     zIndex: 1000,
     maxWidth: "250px",
     pointerEvents: "none",
+  },
+  symbolPriceDisplay: {
+    position: "absolute",
+    top: "5px",
+    left: "5px",
+    zIndex: 1001,
+    pointerEvents: "none",
+  },
+  symbolName: {
+    color: "#333",
+    fontSize: "16px",
+    fontWeight: "bold",
+    textShadow: "0 0 3px rgba(255, 255, 255, 0.8)",
+    marginBottom: "2px",
+  },
+  currentPrice: {
+    color: "#4CAF50",
+    fontSize: "12px",
+    fontWeight: "normal",
+    textShadow: "0 0 3px rgba(255, 255, 255, 0.8)",
   },
   indicatorsPanelTitle: {
     display: "none",
