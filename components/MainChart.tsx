@@ -26,6 +26,9 @@ export default function MainChart() {
   // OI Data state
   const [oiData, setOiData] = useState(true);
 
+  // Chart type state
+  const [chartType, setChartType] = useState("candle");
+
   // Applied indicators state
   const [appliedIndicators, setAppliedIndicators] = useState([]);
   const [hoveredIndicator, setHoveredIndicator] = useState(null);
@@ -229,6 +232,45 @@ export default function MainChart() {
     return "other";
   };
 
+  const handleChartTypeChange = (type) => {
+    setChartType(type);
+    if (chartInstanceRef.current) {
+      let klineType;
+      switch (type) {
+        case "Candle Solid":
+          klineType = "candle_solid";
+          break;
+        case "Candle Stroke":
+          klineType = "candle_stroke";
+          break;
+        case "Candle Up Stroke":
+          klineType = "candle_up_stroke";
+          break;
+        case "Candle Down Stroke":
+          klineType = "candle_down_stroke";
+          break;
+        case "OHLC":
+          klineType = "ohlc";
+          break;
+        case "Area":
+          klineType = "area";
+          break;
+        default:
+          klineType = "candle_solid";
+      }
+      
+      chartInstanceRef.current.setStyles({
+        candle: {
+          type: klineType,
+          tooltip: {
+            showRule: 'none'
+          }
+        }
+      });
+    }
+    setOpenMenu(null);
+  };
+
   return (
     <div style={styles.container}>
       {/* Top toolbar */}
@@ -326,14 +368,21 @@ export default function MainChart() {
             {openMenu === "charttype" &&
               [
                 "Candle Solid",
-                "Candle Stroke",
+                "Candle Stroke", 
                 "Candle Up Stroke",
                 "Candle Down Stroke",
                 "OHLC",
                 "Area",
               ].map((type) => (
-                <div key={type} style={styles.dropdownItem}>
-                  {type}
+                <div 
+                  key={type} 
+                  style={{
+                    ...styles.dropdownItem,
+                    backgroundColor: chartType === type ? "#e3f2fd" : "transparent"
+                  }}
+                  onClick={() => handleChartTypeChange(type)}
+                >
+                  {type} {chartType === type && "✓"}
                 </div>
               ))}
 
@@ -1246,12 +1295,13 @@ export default function MainChart() {
 
           <OIChartAlpha5 showOiData={oiData} onChartReady={(chart) => {
             chartInstanceRef.current = chart;
-            // Remove default chart labels
+            // Apply initial chart type and styles
             chart.setStyles({
               grid: {
                 show: settings.gridShow,
               },
               candle: {
+                type: "candle_solid",
                 tooltip: {
                   showRule: 'none'
                 }
