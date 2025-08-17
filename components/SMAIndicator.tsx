@@ -280,27 +280,29 @@ const SMAIndicator: React.FC<SMAIndicatorProps> = ({
             position: "absolute",
             top: "100%",
             left: "0",
-            backgroundColor: "#131722",
-            border: "1px solid #434651",
+            backgroundColor: "white",
+            border: "1px solid #e0e3eb",
             borderRadius: "6px",
             padding: "16px",
-            boxShadow: "0 8px 24px rgba(0,0,0,0.4)",
+            boxShadow: "0 8px 24px rgba(0,0,0,0.15)",
             zIndex: 2000,
             minWidth: "220px",
             marginTop: "4px",
             fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', sans-serif",
           }}
+          onMouseDown={(e) => e.stopPropagation()}
+          onClick={(e) => e.stopPropagation()}
         >
           <div style={{ 
             display: "flex", 
             justifyContent: "space-between", 
             alignItems: "center",
             marginBottom: "16px",
-            borderBottom: "1px solid #434651",
+            borderBottom: "1px solid #e0e3eb",
             paddingBottom: "8px"
           }}>
             <span style={{
-              color: "#d1d4dc",
+              color: "#131722",
               fontSize: "14px",
               fontWeight: "600"
             }}>
@@ -310,20 +312,25 @@ const SMAIndicator: React.FC<SMAIndicatorProps> = ({
               style={{
                 background: "none",
                 border: "none",
-                color: "#868993",
+                color: "#787b86",
                 fontSize: "16px",
                 cursor: "pointer",
                 padding: "4px",
                 borderRadius: "4px",
                 lineHeight: "1",
                 transition: "color 0.2s",
+                pointerEvents: "auto",
               }}
               onClick={handleCloseSettings}
+              onMouseDown={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+              }}
               onMouseEnter={(e) => {
-                e.currentTarget.style.color = "#d1d4dc";
+                e.currentTarget.style.color = "#131722";
               }}
               onMouseLeave={(e) => {
-                e.currentTarget.style.color = "#868993";
+                e.currentTarget.style.color = "#787b86";
               }}
               title="Close"
             >
@@ -337,7 +344,7 @@ const SMAIndicator: React.FC<SMAIndicatorProps> = ({
               fontSize: "12px",
               marginBottom: "6px",
               fontWeight: "500",
-              color: "#d1d4dc"
+              color: "#131722"
             }}>
               Period
             </label>
@@ -347,23 +354,26 @@ const SMAIndicator: React.FC<SMAIndicatorProps> = ({
               max={200}
               value={period}
               onChange={handlePeriodChange}
+              onMouseDown={(e) => e.stopPropagation()}
+              onClick={(e) => e.stopPropagation()}
               style={{
                 width: "100%",
                 padding: "8px 10px",
-                border: "1px solid #434651",
+                border: "1px solid #e0e3eb",
                 borderRadius: "4px",
                 fontSize: "13px",
                 outline: "none",
                 boxSizing: "border-box",
-                backgroundColor: "#1e222d",
-                color: "#d1d4dc",
+                backgroundColor: "white",
+                color: "#131722",
                 transition: "border-color 0.2s",
+                pointerEvents: "auto",
               }}
               onFocus={(e) => {
                 e.currentTarget.style.borderColor = "#2962ff";
               }}
               onBlur={(e) => {
-                e.currentTarget.style.borderColor = "#434651";
+                e.currentTarget.style.borderColor = "#e0e3eb";
               }}
             />
           </div>
@@ -374,7 +384,7 @@ const SMAIndicator: React.FC<SMAIndicatorProps> = ({
               fontSize: "12px",
               marginBottom: "6px",
               fontWeight: "500",
-              color: "#d1d4dc"
+              color: "#131722"
             }}>
               Color
             </label>
@@ -383,37 +393,43 @@ const SMAIndicator: React.FC<SMAIndicatorProps> = ({
                 type="color"
                 value={color}
                 onChange={handleColorChange}
+                onMouseDown={(e) => e.stopPropagation()}
+                onClick={(e) => e.stopPropagation()}
                 style={{
                   width: "40px",
                   height: "32px",
-                  border: "1px solid #434651",
+                  border: "1px solid #e0e3eb",
                   borderRadius: "4px",
                   cursor: "pointer",
                   outline: "none",
-                  backgroundColor: "transparent",
+                  backgroundColor: "white",
                   padding: "2px",
+                  pointerEvents: "auto",
                 }}
               />
               <input
                 type="text"
                 value={color}
                 onChange={(e) => setColor(e.target.value)}
+                onMouseDown={(e) => e.stopPropagation()}
+                onClick={(e) => e.stopPropagation()}
                 style={{
                   flex: 1,
                   padding: "8px 10px",
-                  border: "1px solid #434651",
+                  border: "1px solid #e0e3eb",
                   borderRadius: "4px",
                   fontSize: "13px",
                   outline: "none",
-                  backgroundColor: "#1e222d",
-                  color: "#d1d4dc",
+                  backgroundColor: "white",
+                  color: "#131722",
                   fontFamily: "monospace",
+                  pointerEvents: "auto",
                 }}
                 onFocus={(e) => {
                   e.currentTarget.style.borderColor = "#2962ff";
                 }}
                 onBlur={(e) => {
-                  e.currentTarget.style.borderColor = "#434651";
+                  e.currentTarget.style.borderColor = "#e0e3eb";
                 }}
               />
             </div>
@@ -425,7 +441,7 @@ const SMAIndicator: React.FC<SMAIndicatorProps> = ({
               fontSize: "12px",
               marginBottom: "6px",
               fontWeight: "500",
-              color: "#d1d4dc"
+              color: "#131722"
             }}>
               Line Width
             </label>
@@ -435,26 +451,29 @@ const SMAIndicator: React.FC<SMAIndicatorProps> = ({
               max={8}
               value={thickness}
               onChange={handleThicknessChange}
+              onMouseDown={(e) => e.stopPropagation()}
+              onClick={(e) => e.stopPropagation()}
               style={{
                 width: "100%",
                 height: "6px",
-                backgroundColor: "#434651",
+                backgroundColor: "#e0e3eb",
                 borderRadius: "3px",
                 outline: "none",
                 cursor: "pointer",
                 appearance: "none",
                 WebkitAppearance: "none",
+                pointerEvents: "auto",
               }}
             />
             <div style={{
               display: "flex",
               justifyContent: "space-between",
               fontSize: "11px",
-              color: "#868993",
+              color: "#787b86",
               marginTop: "4px"
             }}>
               <span>1</span>
-              <span style={{ fontWeight: "500", color: "#d1d4dc" }}>{thickness}px</span>
+              <span style={{ fontWeight: "500", color: "#131722" }}>{thickness}px</span>
               <span>8</span>
             </div>
           </div>
@@ -471,8 +490,13 @@ const SMAIndicator: React.FC<SMAIndicatorProps> = ({
               color: "white",
               fontWeight: "600",
               transition: "background-color 0.2s",
+              pointerEvents: "auto",
             }}
             onClick={handleCloseSettings}
+            onMouseDown={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+            }}
             onMouseOver={(e) => {
               e.currentTarget.style.backgroundColor = "#1e53e5";
             }}
