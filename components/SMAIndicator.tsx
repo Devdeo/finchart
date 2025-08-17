@@ -99,16 +99,20 @@ const SMAIndicator: React.FC<SMAIndicatorProps> = ({
     });
   }, [color, chart]);
 
-  const handleTextClick = () => {
+  const handleTextClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
     setShowSettings(!showSettings);
   };
 
   const handleSettingsClick = (e: React.MouseEvent) => {
+    e.preventDefault();
     e.stopPropagation();
     setShowSettings(!showSettings);
   };
 
   const handleRemoveClick = (e: React.MouseEvent) => {
+    e.preventDefault();
     e.stopPropagation();
     onRemove();
   };
@@ -139,8 +143,17 @@ const SMAIndicator: React.FC<SMAIndicatorProps> = ({
             color: "#131722", 
             cursor: "pointer",
             userSelect: "none",
+            padding: "2px",
+            borderRadius: "2px",
+            transition: "background-color 0.2s",
           }}
           onClick={handleTextClick}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.backgroundColor = "rgba(19, 23, 34, 0.1)";
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.backgroundColor = "transparent";
+          }}
           title="Click to open settings"
         >
           SMA({period})
@@ -160,8 +173,19 @@ const SMAIndicator: React.FC<SMAIndicatorProps> = ({
             width: "16px",
             height: "16px",
             borderRadius: "2px",
+            outline: "none",
+            transition: "background-color 0.2s",
+            zIndex: 10,
+            position: "relative",
           }}
           onClick={handleSettingsClick}
+          onMouseDown={(e) => e.stopPropagation()}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.backgroundColor = "rgba(104, 109, 118, 0.1)";
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.backgroundColor = "transparent";
+          }}
           title="Settings"
         >
           <i className="fa-solid fa-gear"></i>
@@ -183,8 +207,19 @@ const SMAIndicator: React.FC<SMAIndicatorProps> = ({
             lineHeight: "1",
             padding: "0",
             fontWeight: "bold",
+            outline: "none",
+            transition: "background-color 0.2s",
+            zIndex: 10,
+            position: "relative",
           }}
           onClick={handleRemoveClick}
+          onMouseDown={(e) => e.stopPropagation()}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.backgroundColor = "#d32f3f";
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.backgroundColor = "#f23645";
+          }}
           title="Remove"
         >
           ×
