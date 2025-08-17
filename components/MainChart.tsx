@@ -188,27 +188,32 @@ export default function MainChart() {
       type: getIndicatorType(indicatorName)
     };
 
-    // Add indicator to chart (you can expand this based on specific indicator logic)
+    // Add indicator to chart
     if (chartInstanceRef.current) {
-      // For pattern recognition indicators, call the respective functions
       if (indicatorName === "Candlestick Pattern Recognition") {
         handlePatternRecognition();
+        setAppliedIndicators(prev => [...prev, newIndicator]);
       } else if (indicatorName === "Chart Pattern Recognition") {
         handleChartPatternRecognition();
+        setAppliedIndicators(prev => [...prev, newIndicator]);
       } else if (indicatorName === "Harmonic Pattern Recognition") {
         handleHarmonicPatternRecognition();
+        setAppliedIndicators(prev => [...prev, newIndicator]);
       } else if (indicatorName === "SMA – Simple Moving Average") {
-        // Add SMA indicator
-        const smaId = `sma-${Date.now()}`;
-        setSmaIndicators(prev => [...prev, { id: smaId, chart: chartInstanceRef.current }]);
+        // For SMA, create the component with unique ID
+        const smaId = indicatorId;
+        setSmaIndicators(prev => [...prev, { 
+          id: smaId, 
+          chart: chartInstanceRef.current,
+          name: indicatorName
+        }]);
+        // Don't add SMA to appliedIndicators as it manages itself
       } else {
-        // For other indicators, you can add chart indicators here
-        // chartInstanceRef.current.createIndicator(indicatorType, options);
         console.log(`Applied ${indicatorName} to chart`);
+        setAppliedIndicators(prev => [...prev, newIndicator]);
       }
     }
 
-    setAppliedIndicators(prev => [...prev, newIndicator]);
     setOpenMenu(null);
   };
 
@@ -236,7 +241,7 @@ export default function MainChart() {
 
   const removeSmaIndicator = (smaId) => {
     setSmaIndicators(prev => prev.filter(sma => sma.id !== smaId));
-    setAppliedIndicators(prev => prev.filter(ind => ind.id !== smaId));
+    // SMA indicators are not in appliedIndicators, so no need to remove from there
   };
 
   const getIndicatorType = (indicatorName) => {
@@ -1280,7 +1285,7 @@ export default function MainChart() {
             <div style={styles.indicatorsPanel}>
               <div style={styles.indicatorsPanelTitle}>Applied Indicators</div>
               <div style={styles.indicatorsList}>
-                {appliedIndicators.filter(indicator => indicator.name !== "SMA – Simple Moving Average").map((indicator) => (
+                {appliedIndicators.map((indicator) => (
                   <div 
                     key={indicator.id} 
                     data-indicator-chip

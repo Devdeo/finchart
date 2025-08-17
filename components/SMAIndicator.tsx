@@ -36,11 +36,16 @@ const SMAIndicator: React.FC<SMAIndicatorProps> = ({
         ],
         calc: (dataList: any[], indicator: any) => {
           const p = Number(indicator.calcParams[0]) || 20;
+          if (p <= 0 || p > dataList.length) return [];
+          
           const result: any[] = [];
           let sum = 0;
+          
           for (let i = 0; i < dataList.length; i++) {
             sum += dataList[i].close;
-            if (i >= p) sum -= dataList[i - p].close;
+            if (i >= p) {
+              sum -= dataList[i - p].close;
+            }
             if (i >= p - 1) {
               result.push({ sma: sum / p });
             } else {
@@ -60,8 +65,8 @@ const SMAIndicator: React.FC<SMAIndicatorProps> = ({
           ],
         },
       });
-    } catch {
-      // ignore duplicate register
+    } catch (error) {
+      // Silently handle duplicate registration
     }
   };
 
@@ -128,15 +133,17 @@ const SMAIndicator: React.FC<SMAIndicatorProps> = ({
         style={{
           display: "flex",
           alignItems: "center",
-          backgroundColor: "rgba(255, 255, 255, 0.9)",
-          border: "1px solid rgba(0, 0, 0, 0.1)",
-          borderRadius: "3px",
+          backgroundColor: "rgba(255, 255, 255, 0.95)",
+          border: "1px solid rgba(0, 0, 0, 0.15)",
+          borderRadius: "4px",
           padding: "4px 6px",
           fontSize: "11px",
           fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', sans-serif",
-          boxShadow: "0 1px 2px rgba(0, 0, 0, 0.1)",
+          boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
           cursor: "pointer",
           gap: "4px",
+          minHeight: "20px",
+          backdropFilter: "blur(2px)",
         }}
       >
         <span 
@@ -144,9 +151,14 @@ const SMAIndicator: React.FC<SMAIndicatorProps> = ({
             color: "#131722", 
             cursor: "pointer",
             userSelect: "none",
-            padding: "2px",
+            padding: "2px 4px",
             borderRadius: "2px",
             transition: "background-color 0.2s",
+            fontWeight: "500",
+            fontSize: "11px",
+            lineHeight: "1.2",
+            minWidth: "50px",
+            textAlign: "center",
           }}
           onClick={handleTextClick}
           onMouseEnter={(e) => {
