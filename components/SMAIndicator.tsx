@@ -99,8 +99,26 @@ const SMAIndicator: React.FC<SMAIndicatorProps> = ({
     });
   }, [color, chart]);
 
+  const handleTextClick = () => {
+    setShowSettings(!showSettings);
+  };
+
+  const handleSettingsClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setShowSettings(!showSettings);
+  };
+
+  const handleRemoveClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    onRemove();
+  };
+
+  const handleCloseSettings = () => {
+    setShowSettings(false);
+  };
+
   return (
-    <div style={{ position: "relative", display: "inline-block" }}>
+    <div style={{ position: "relative", display: "inline-block", margin: "2px" }}>
       <div 
         style={{
           display: "flex",
@@ -108,17 +126,26 @@ const SMAIndicator: React.FC<SMAIndicatorProps> = ({
           backgroundColor: "rgba(255, 255, 255, 0.9)",
           border: "1px solid rgba(0, 0, 0, 0.1)",
           borderRadius: "3px",
-          padding: "2px 4px",
+          padding: "4px 6px",
           fontSize: "11px",
           fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', sans-serif",
           boxShadow: "0 1px 2px rgba(0, 0, 0, 0.1)",
           cursor: "pointer",
+          gap: "4px",
         }}
-        onClick={() => setShowSettings(!showSettings)}
       >
-        <span style={{ color: "#131722", marginRight: "4px" }}>
+        <span 
+          style={{ 
+            color: "#131722", 
+            cursor: "pointer",
+            userSelect: "none",
+          }}
+          onClick={handleTextClick}
+          title="Click to open settings"
+        >
           SMA({period})
         </span>
+        
         <button
           style={{
             background: "none",
@@ -126,28 +153,28 @@ const SMAIndicator: React.FC<SMAIndicatorProps> = ({
             color: "#686d76",
             fontSize: "10px",
             cursor: "pointer",
-            padding: "0 2px",
-            marginRight: "2px",
+            padding: "2px",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
+            width: "16px",
+            height: "16px",
+            borderRadius: "2px",
           }}
-          onClick={(e) => {
-            e.stopPropagation();
-            setShowSettings(!showSettings);
-          }}
+          onClick={handleSettingsClick}
           title="Settings"
         >
           <i className="fa-solid fa-gear"></i>
         </button>
+        
         <button
           style={{
             background: "#f23645",
             color: "white",
             border: "none",
             borderRadius: "2px",
-            width: "14px",
-            height: "14px",
+            width: "16px",
+            height: "16px",
             fontSize: "10px",
             cursor: "pointer",
             display: "flex",
@@ -157,10 +184,7 @@ const SMAIndicator: React.FC<SMAIndicatorProps> = ({
             padding: "0",
             fontWeight: "bold",
           }}
-          onClick={(e) => {
-            e.stopPropagation();
-            onRemove();
-          }}
+          onClick={handleRemoveClick}
           title="Remove"
         >
           ×
@@ -176,32 +200,49 @@ const SMAIndicator: React.FC<SMAIndicatorProps> = ({
             backgroundColor: "white",
             border: "1px solid #ccc",
             borderRadius: "4px",
-            padding: "8px",
+            padding: "12px",
             boxShadow: "0 4px 12px rgba(0,0,0,0.2)",
             zIndex: 1000,
-            minWidth: "150px",
+            minWidth: "180px",
+            marginTop: "2px",
           }}
         >
-          <div style={{ marginBottom: "8px" }}>
-            <label style={{ display: "block", fontSize: "11px", marginBottom: "4px" }}>
+          <div style={{ marginBottom: "12px" }}>
+            <label style={{ 
+              display: "block", 
+              fontSize: "12px", 
+              marginBottom: "4px",
+              fontWeight: "500",
+              color: "#333"
+            }}>
               Period:
             </label>
             <input
               type="number"
               min={1}
+              max={200}
               value={period}
               onChange={(e) => setPeriod(Number(e.target.value))}
               style={{
                 width: "100%",
-                padding: "2px 4px",
+                padding: "4px 6px",
                 border: "1px solid #ccc",
-                borderRadius: "2px",
-                fontSize: "11px",
+                borderRadius: "3px",
+                fontSize: "12px",
+                outline: "none",
+                boxSizing: "border-box",
               }}
             />
           </div>
-          <div style={{ marginBottom: "8px" }}>
-            <label style={{ display: "block", fontSize: "11px", marginBottom: "4px" }}>
+          
+          <div style={{ marginBottom: "12px" }}>
+            <label style={{ 
+              display: "block", 
+              fontSize: "12px", 
+              marginBottom: "4px",
+              fontWeight: "500",
+              color: "#333"
+            }}>
               Color:
             </label>
             <input
@@ -210,24 +251,35 @@ const SMAIndicator: React.FC<SMAIndicatorProps> = ({
               onChange={(e) => setColor(e.target.value)}
               style={{
                 width: "100%",
-                height: "24px",
+                height: "28px",
                 border: "1px solid #ccc",
-                borderRadius: "2px",
+                borderRadius: "3px",
                 cursor: "pointer",
+                outline: "none",
+                boxSizing: "border-box",
               }}
             />
           </div>
+          
           <button
             style={{
               width: "100%",
-              padding: "4px",
-              backgroundColor: "#f0f0f0",
-              border: "1px solid #ccc",
-              borderRadius: "2px",
-              fontSize: "11px",
+              padding: "6px",
+              backgroundColor: "#f8f9fa",
+              border: "1px solid #dee2e6",
+              borderRadius: "3px",
+              fontSize: "12px",
               cursor: "pointer",
+              color: "#495057",
+              fontWeight: "500",
             }}
-            onClick={() => setShowSettings(false)}
+            onClick={handleCloseSettings}
+            onMouseOver={(e) => {
+              e.currentTarget.style.backgroundColor = "#e9ecef";
+            }}
+            onMouseOut={(e) => {
+              e.currentTarget.style.backgroundColor = "#f8f9fa";
+            }}
           >
             Close
           </button>
