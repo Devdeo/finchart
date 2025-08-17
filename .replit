@@ -1,6 +1,6 @@
 run = "npm run dev"
 hidden = [".config", "package-lock.json", ".next", ".swc"]
-modules = ["nodejs-20"]
+modules = ["nodejs-20", "web"]
 
 [nix]
 channel = "stable-25_05"
