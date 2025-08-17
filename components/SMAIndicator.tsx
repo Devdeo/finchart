@@ -1,4 +1,3 @@
-
 import React, { useEffect, useRef, useState } from "react";
 
 interface SMAIndicatorProps {
@@ -8,11 +7,11 @@ interface SMAIndicatorProps {
   initialColor?: string;
 }
 
-const SMAIndicator: React.FC<SMAIndicatorProps> = ({ 
-  chart, 
-  onRemove, 
-  initialPeriod = 20, 
-  initialColor = "#FF9600" 
+const SMAIndicator: React.FC<SMAIndicatorProps> = ({
+  chart,
+  onRemove,
+  initialPeriod = 20,
+  initialColor = "#FF9600"
 }) => {
   const indicatorIdRef = useRef<string | null>(null);
   const [period, setPeriod] = useState(initialPeriod);
@@ -37,10 +36,10 @@ const SMAIndicator: React.FC<SMAIndicatorProps> = ({
         calc: (dataList: any[], indicator: any) => {
           const p = Number(indicator.calcParams[0]) || 20;
           if (p <= 0 || p > dataList.length) return [];
-          
+
           const result: any[] = [];
           let sum = 0;
-          
+
           for (let i = 0; i < dataList.length; i++) {
             sum += dataList[i].close;
             if (i >= p) {
@@ -129,7 +128,7 @@ const SMAIndicator: React.FC<SMAIndicatorProps> = ({
 
   return (
     <div style={{ position: "relative", display: "inline-block", margin: "2px" }}>
-      <div 
+      <div
         style={{
           display: "flex",
           alignItems: "center",
@@ -144,11 +143,12 @@ const SMAIndicator: React.FC<SMAIndicatorProps> = ({
           gap: "4px",
           minHeight: "20px",
           backdropFilter: "blur(2px)",
+          pointerEvents: "auto",
         }}
       >
-        <span 
-          style={{ 
-            color: "#131722", 
+        <span
+          style={{
+            color: "#131722",
             cursor: "pointer",
             userSelect: "none",
             padding: "2px 4px",
@@ -171,7 +171,7 @@ const SMAIndicator: React.FC<SMAIndicatorProps> = ({
         >
           SMA({period})
         </span>
-        
+
         <button
           style={{
             background: "none",
@@ -190,6 +190,7 @@ const SMAIndicator: React.FC<SMAIndicatorProps> = ({
             transition: "background-color 0.2s",
             zIndex: 10,
             position: "relative",
+            pointerEvents: "auto",
           }}
           onClick={handleSettingsClick}
           onMouseDown={(e) => e.stopPropagation()}
@@ -203,7 +204,7 @@ const SMAIndicator: React.FC<SMAIndicatorProps> = ({
         >
           <i className="fa-solid fa-gear"></i>
         </button>
-        
+
         <button
           style={{
             background: "#f23645",
@@ -224,6 +225,7 @@ const SMAIndicator: React.FC<SMAIndicatorProps> = ({
             transition: "background-color 0.2s",
             zIndex: 10,
             position: "relative",
+            pointerEvents: "auto",
           }}
           onClick={handleRemoveClick}
           onMouseDown={(e) => e.stopPropagation()}
@@ -256,9 +258,9 @@ const SMAIndicator: React.FC<SMAIndicatorProps> = ({
           }}
         >
           <div style={{ marginBottom: "12px" }}>
-            <label style={{ 
-              display: "block", 
-              fontSize: "12px", 
+            <label style={{
+              display: "block",
+              fontSize: "12px",
               marginBottom: "4px",
               fontWeight: "500",
               color: "#333"
@@ -282,11 +284,11 @@ const SMAIndicator: React.FC<SMAIndicatorProps> = ({
               }}
             />
           </div>
-          
+
           <div style={{ marginBottom: "12px" }}>
-            <label style={{ 
-              display: "block", 
-              fontSize: "12px", 
+            <label style={{
+              display: "block",
+              fontSize: "12px",
               marginBottom: "4px",
               fontWeight: "500",
               color: "#333"
@@ -308,11 +310,11 @@ const SMAIndicator: React.FC<SMAIndicatorProps> = ({
               }}
             />
           </div>
-          
+
           <div style={{ marginBottom: "12px" }}>
-            <label style={{ 
-              display: "block", 
-              fontSize: "12px", 
+            <label style={{
+              display: "block",
+              fontSize: "12px",
               marginBottom: "4px",
               fontWeight: "500",
               color: "#333"
@@ -348,7 +350,7 @@ const SMAIndicator: React.FC<SMAIndicatorProps> = ({
               <span>8</span>
             </div>
           </div>
-          
+
           <button
             style={{
               width: "100%",
