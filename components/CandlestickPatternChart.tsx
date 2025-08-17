@@ -320,21 +320,7 @@ export const CandlestickPatternOverlay: OverlayTemplate = {
         },
       });
 
-      figs.push({
-        type: "rect",
-        attrs: {
-          x: coord.x - 4,
-          y: coord.y - 25,
-          width: 8,
-          height: 8,
-          radius: 2
-        },
-        styles: {
-          color,
-          borderColor: color,
-          borderSize: 1
-        }
-      });
+      
     });
     return figs;
   },
