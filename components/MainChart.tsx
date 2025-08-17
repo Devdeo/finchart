@@ -26,6 +26,9 @@ export default function MainChart() {
   // OI Data state
   const [oiData, setOiData] = useState(true);
 
+  // Applied indicators state
+  const [appliedIndicators, setAppliedIndicators] = useState([]);
+
   // Settings state
   const [settings, setSettings] = useState({
     lastPrice: true,
@@ -162,6 +165,69 @@ export default function MainChart() {
     }
   };
 
+  const addIndicator = (indicatorName) => {
+    const indicatorId = `${indicatorName}-${Date.now()}`;
+    const newIndicator = {
+      id: indicatorId,
+      name: indicatorName,
+      type: getIndicatorType(indicatorName)
+    };
+
+    // Add indicator to chart (you can expand this based on specific indicator logic)
+    if (chartInstanceRef.current) {
+      // For pattern recognition indicators, call the respective functions
+      if (indicatorName === "Candlestick Pattern Recognition") {
+        handlePatternRecognition();
+      } else if (indicatorName === "Chart Pattern Recognition") {
+        handleChartPatternRecognition();
+      } else if (indicatorName === "Harmonic Pattern Recognition") {
+        handleHarmonicPatternRecognition();
+      } else {
+        // For other indicators, you can add chart indicators here
+        // chartInstanceRef.current.createIndicator(indicatorType, options);
+        console.log(`Applied ${indicatorName} to chart`);
+      }
+    }
+
+    setAppliedIndicators(prev => [...prev, newIndicator]);
+    setOpenMenu(null);
+  };
+
+  const removeIndicator = (indicatorId) => {
+    const indicator = appliedIndicators.find(ind => ind.id === indicatorId);
+    if (indicator && chartInstanceRef.current) {
+      // Remove overlays based on indicator type
+      if (indicator.name === "Candlestick Pattern Recognition") {
+        chartInstanceRef.current.removeOverlay({ name: "candlestick-pattern" });
+      } else if (indicator.name === "Chart Pattern Recognition") {
+        chartInstanceRef.current.removeOverlay({ name: "chart-patterns" });
+      } else if (indicator.name === "Harmonic Pattern Recognition") {
+        chartInstanceRef.current.removeOverlay({ name: "harmonic-pattern" });
+      } else {
+        // For other indicators, remove them by ID
+        // chartInstanceRef.current.removeIndicator(indicatorId);
+      }
+    }
+
+    setAppliedIndicators(prev => prev.filter(ind => ind.id !== indicatorId));
+  };
+
+  const getIndicatorType = (indicatorName) => {
+    // Map indicator names to types for categorization
+    const patternIndicators = ["Candlestick Pattern Recognition", "Chart Pattern Recognition", "Harmonic Pattern Recognition"];
+    const trendIndicators = ["SMA – Simple Moving Average", "EMA – Exponential Moving Average", "MACD – Moving Average Convergence Divergence"];
+    const momentumIndicators = ["RSI – Relative Strength Index", "Stochastic Oscillator"];
+    const volatilityIndicators = ["Bollinger Bands", "ATR – Average True Range"];
+    const volumeIndicators = ["Volume Histogram", "OBV – On-Balance Volume"];
+
+    if (patternIndicators.includes(indicatorName)) return "pattern";
+    if (trendIndicators.includes(indicatorName)) return "trend";
+    if (momentumIndicators.includes(indicatorName)) return "momentum";
+    if (volatilityIndicators.includes(indicatorName)) return "volatility";
+    if (volumeIndicators.includes(indicatorName)) return "volume";
+    return "other";
+  };
+
   return (
     <div style={styles.container}>
       {/* Top toolbar */}
@@ -285,7 +351,11 @@ export default function MainChart() {
                   "HMA – Hull Moving Average",
                   "Gann HiLo Activator",
                 ].map((item) => (
-                  <div key={item} style={styles.dropdownItem}>
+                  <div 
+                    key={item} 
+                    style={styles.dropdownItem}
+                    onClick={() => addIndicator(item)}
+                  >
                     {item}
                   </div>
                 ))}
@@ -300,7 +370,11 @@ export default function MainChart() {
                   "Awesome Oscillator",
                   "Elder Impulse System",
                 ].map((item) => (
-                  <div key={item} style={styles.dropdownItem}>
+                  <div 
+                    key={item} 
+                    style={styles.dropdownItem}
+                    onClick={() => addIndicator(item)}
+                  >
                     {item}
                   </div>
                 ))}
@@ -313,7 +387,11 @@ export default function MainChart() {
                   "Standard Deviation Channel",
                   "Chaikin Volatility",
                 ].map((item) => (
-                  <div key={item} style={styles.dropdownItem}>
+                  <div 
+                    key={item} 
+                    style={styles.dropdownItem}
+                    onClick={() => addIndicator(item)}
+                  >
                     {item}
                   </div>
                 ))}
@@ -326,7 +404,11 @@ export default function MainChart() {
                   "Chaikin Money Flow (CMF)",
                   "Volume Oscillator",
                 ].map((item) => (
-                  <div key={item} style={styles.dropdownItem}>
+                  <div 
+                    key={item} 
+                    style={styles.dropdownItem}
+                    onClick={() => addIndicator(item)}
+                  >
                     {item}
                   </div>
                 ))}
@@ -339,18 +421,7 @@ export default function MainChart() {
                   <div 
                     key={item} 
                     style={styles.dropdownItem}
-                    onClick={() => {
-                      if (item === "Candlestick Pattern Recognition") {
-                        handlePatternRecognition();
-                        setOpenMenu(null);
-                      } else if (item === "Chart Pattern Recognition") {
-                        handleChartPatternRecognition();
-                        setOpenMenu(null);
-                      } else if (item === "Harmonic Pattern Recognition") {
-                        handleHarmonicPatternRecognition();
-                        setOpenMenu(null);
-                      }
-                    }}
+                    onClick={() => addIndicator(item)}
                   >
                     {item}
                   </div>
@@ -1131,12 +1202,30 @@ export default function MainChart() {
         )}
 
         <div style={styles.mainChart}>
+          {/* Applied Indicators Display */}
+          {appliedIndicators.length > 0 && (
+            <div style={styles.indicatorsPanel}>
+              <div style={styles.indicatorsPanelTitle}>Applied Indicators</div>
+              <div style={styles.indicatorsList}>
+                {appliedIndicators.map((indicator) => (
+                  <div key={indicator.id} style={styles.indicatorChip}>
+                    <span style={styles.indicatorName}>{indicator.name}</span>
+                    <button 
+                      style={styles.removeButton}
+                      onClick={() => removeIndicator(indicator.id)}
+                      title="Remove indicator"
+                    >
+                      ×
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
           
-            
-            <OIChartAlpha5 showOiData={oiData} onChartReady={(chart) => {
-              chartInstanceRef.current = chart;
-            }} />
-          
+          <OIChartAlpha5 showOiData={oiData} onChartReady={(chart) => {
+            chartInstanceRef.current = chart;
+          }} />
         </div>
       </div>
     </div>
@@ -1303,8 +1392,65 @@ const styles = {
     flex: 1,
     background: "#f9f9f9",
     display: "flex",
+    flexDirection: "column",
+    position: "relative",
+  },
+  indicatorsPanel: {
+    position: "absolute",
+    top: "10px",
+    left: "10px",
+    backgroundColor: "rgba(255, 255, 255, 0.95)",
+    border: "1px solid #ddd",
+    borderRadius: "6px",
+    padding: "8px",
+    zIndex: 1000,
+    maxWidth: "300px",
+    boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)",
+  },
+  indicatorsPanelTitle: {
+    fontSize: "12px",
+    fontWeight: "bold",
+    color: "#666",
+    marginBottom: "6px",
+    borderBottom: "1px solid #eee",
+    paddingBottom: "4px",
+  },
+  indicatorsList: {
+    display: "flex",
+    flexWrap: "wrap",
+    gap: "4px",
+  },
+  indicatorChip: {
+    display: "flex",
+    alignItems: "center",
+    backgroundColor: "#f0f0f0",
+    border: "1px solid #ccc",
+    borderRadius: "12px",
+    padding: "4px 8px",
+    fontSize: "11px",
+    maxWidth: "200px",
+  },
+  indicatorName: {
+    color: "#333",
+    marginRight: "6px",
+    whiteSpace: "nowrap",
+    overflow: "hidden",
+    textOverflow: "ellipsis",
+    flex: 1,
+  },
+  removeButton: {
+    background: "#ff4757",
+    color: "white",
+    border: "none",
+    borderRadius: "50%",
+    width: "16px",
+    height: "16px",
+    fontSize: "12px",
+    cursor: "pointer",
+    display: "flex",
     alignItems: "center",
     justifyContent: "center",
-    position: "relative",
+    lineHeight: "1",
+    padding: "0",
   },
 };
