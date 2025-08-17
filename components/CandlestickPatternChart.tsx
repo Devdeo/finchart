@@ -1,10 +1,6 @@
 "use client";
-import { useEffect, useRef } from "react";
 import { 
-  init, 
-  dispose, 
   registerOverlay, 
-  type KLineChart, 
   type OverlayTemplate, 
   type KLineData 
 } from "klinecharts";
@@ -31,7 +27,7 @@ const isPiercingLine = (prev: KLineData, curr: KLineData) =>
   curr.close > prev.close + (prev.open - prev.close) / 2;
 
 // Pattern detection - over 30 patterns
-function detectPatterns(data: KLineData[]): { index: number; name: string }[] {
+export function detectPatterns(data: KLineData[]): { index: number; name: string }[] {
   const results: { index: number; name: string }[] = [];
   if (data.length < 3) return results;
 
@@ -293,7 +289,7 @@ function detectPatterns(data: KLineData[]): { index: number; name: string }[] {
 }
 
 // Overlay registration
-const CandlestickPatternOverlay: OverlayTemplate = {
+export const CandlestickPatternOverlay: OverlayTemplate = {
   name: "candlestick-pattern",
   needDefaultPointFigure: false,
   createPointFigures: ({ coordinates, overlay }) => {
@@ -344,182 +340,37 @@ const CandlestickPatternOverlay: OverlayTemplate = {
   },
 };
 
-// Sample data generator with more patterns
-function generateSampleData() {
-  const now = Date.now();
-  const data: KLineData[] = [];
-  let price = 100;
+// Register the overlay
+export const registerCandlestickPatternOverlay = () => {
+  registerOverlay(CandlestickPatternOverlay);
+};
 
-  for (let i = 0; i < 100; i++) {
-    let o, h, l, c;
+// Apply pattern detection to a chart
+export const applyCandlestickPatternRecognition = (chart: any, data: KLineData[]) => {
+  // Register overlay if not already registered
+  registerCandlestickPatternOverlay();
 
-    // Pattern 1: Hammer (index 5)
-    if (i === 5) {
-      o = price;
-      c = price + 0.5;
-      l = price - 2;
-      h = price + 0.2;
-    } 
-    // Pattern 2: Bullish Engulfing (index 10-11)
-    else if (i === 10) {
-      o = price + 1;
-      c = price - 0.5;
-      h = price + 1.1;
-      l = price - 0.6;
-    } else if (i === 11) {
-      o = price - 0.7;
-      c = price + 1.2;
-      h = price + 1.3;
-      l = price - 0.8;
-    }
-    // Pattern 3: Morning Star (index 20-22)
-    else if (i === 20) {
-      o = price + 1;
-      c = price - 1;
-      h = price + 1.1;
-      l = price - 1.1;
-    } else if (i === 21) {
-      o = price - 1.2;
-      c = price - 1.1;
-      h = price - 1.0;
-      l = price - 1.3;
-    } else if (i === 22) {
-      o = price - 1.1;
-      c = price + 1.5;
-      h = price + 1.6;
-      l = price - 1.2;
-    }
-    // Pattern 4: Three White Soldiers (30-32)
-    else if (i === 30) {
-      o = price;
-      c = price + 2;
-      h = price + 2.1;
-      l = price - 0.2;
-    } else if (i === 31) {
-      o = price + 0.5;
-      c = price + 2.5;
-      h = price + 2.6;
-      l = price + 0.4;
-    } else if (i === 32) {
-      o = price + 1;
-      c = price + 3;
-      h = price + 3.1;
-      l = price + 0.9;
-    }
-    // Pattern 5: Tweezer Top (40-41)
-    else if (i === 40) {
-      o = price;
-      c = price + 2;
-      h = price + 2.5;
-      l = price - 0.5;
-    } else if (i === 41) {
-      o = price + 2.4;
-      c = price + 0.5;
-      h = price + 2.5;
-      l = price;
-    }
-    // Pattern 6: Abandoned Baby (50-52)
-    else if (i === 50) {
-      o = price;
-      c = price - 2;
-      h = price + 0.2;
-      l = price - 2.1;
-    } else if (i === 51) {
-      o = price - 2.2;
-      c = price - 2.1;
-      h = price - 2.0;
-      l = price - 2.3;
-    } else if (i === 52) {
-      o = price - 1.8;
-      c = price + 1;
-      h = price + 1.1;
-      l = price - 1.9;
-    }
-    // Default random candle
-    else {
-      o = price;
-      c = price + (Math.random() - 0.5) * 3;
-      h = Math.max(o, c) + Math.random() * 2;
-      l = Math.min(o, c) - Math.random() * 2;
-    }
+  // Remove any existing pattern overlays
+  chart.removeOverlay({ name: "candlestick-pattern" });
 
-    data.push({
-      timestamp: now + i * 60000,
-      open: o,
-      high: h,
-      low: l,
-      close: c,
-    });
+  // Detect patterns
+  const patterns = detectPatterns(data);
 
-    price = c + (Math.random() - 0.4);
-  }
-  return data;
-}
+  // Create points for overlay
+  const points = patterns.map(p => ({
+    timestamp: data[p.index].timestamp,
+    value: data[p.index].low - 2 - (Math.random() * 2),
+    text: p.name
+  }));
 
-export default function CandlestickPatternOverlayComponent() {
-  const chartRef = useRef<KLineChart | null>(null);
-  const overlayIdRef = useRef<string | null>(null);
-  const pointsRef = useRef<any[]>([]);
-
-  useEffect(() => {
-    const chart = init("pattern-chart");
-    chartRef.current = chart;
-
-    registerOverlay(CandlestickPatternOverlay);
-
-    // Apply theme
-    chart.setStyles({
-      grid: {
-        horizontal: { color: "#2a2e39" },
-        vertical: { color: "#2a2e39" }
-      },
-      candle: {
-        bar: {
-          upColor: "#26a69a",
-          downColor: "#ef5350",
-          noChangeColor: "#888"
-        },
-        priceMark: {
-          last: {
-            text: { color: "#ddd" }
-          }
-        }
-      }
-    });
-
-    // Generate sample data with intentional patterns
-    const data = generateSampleData();
-    chart.applyNewData(data);
-
-    // Detect and display patterns
-    const patterns = detectPatterns(data);
-    pointsRef.current = patterns.map(p => ({
-      timestamp: data[p.index].timestamp,
-      value: data[p.index].low - 2 - (Math.random() * 2),
-      text: p.name
-    }));
-
-    // Create overlay and store its ID
-    overlayIdRef.current = chart.createOverlay({
+  // Create overlay
+  if (points.length > 0) {
+    chart.createOverlay({
       name: "candlestick-pattern",
-      points: pointsRef.current,
+      points: points,
       styles: { point: { visible: false } }
     });
+  }
 
-    return () => dispose("pattern-chart");
-  }, []);
-
-  return (
-    <div 
-      id="pattern-chart" 
-      style={{ 
-        width: "100%", 
-        height: "85vh",
-        borderRadius: "8px",
-        overflow: "hidden",
-        background: "#1e1f29",
-        boxShadow: "0 4px 12px rgba(0,0,0,0.15)"
-      }} 
-    />
-  );
-}
+  return patterns;
+};

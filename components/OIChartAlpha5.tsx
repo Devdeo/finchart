@@ -6,9 +6,10 @@ import { registerOIOverlay } from './OIOverlay';
 
 interface OIChartAlpha5Props {
   showOiData?: boolean;
+  onChartReady?: (chart: any) => void;
 }
 
-export default function OIChartAlpha5({ showOiData = true }: OIChartAlpha5Props) {
+export default function OIChartAlpha5({ showOiData = true, onChartReady }: OIChartAlpha5Props) {
   const ref = useRef<HTMLDivElement | null>(null);
   const chartRef = useRef<any>(null);
 
@@ -31,6 +32,11 @@ export default function OIChartAlpha5({ showOiData = true }: OIChartAlpha5Props)
       return { timestamp: ts, open, high, low, close, volume: Math.round(Math.random() * 1000) };
     });
     chart.applyNewData(candles);
+
+    // Call the onChartReady callback if provided
+    if (onChartReady) {
+      onChartReady(chart);
+    }
 
     return () => {
       try {

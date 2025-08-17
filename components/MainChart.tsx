@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import OIChartAlpha5 from "./OIChartAlpha5";
+import { applyCandlestickPatternRecognition } from "./CandlestickPatternChart";
 
 export default function MainChart() {
   const [openMenu, setOpenMenu] = useState(null);
@@ -16,6 +17,9 @@ export default function MainChart() {
   const patternSubmenuRef = useRef(null);
   const projectionSubmenuRef = useRef(null);
   const brushesSubmenuRef = useRef(null);
+
+  // Chart reference for pattern recognition
+  const chartInstanceRef = useRef(null);
 
   // OI Data state
   const [oiData, setOiData] = useState(true);
@@ -124,6 +128,16 @@ export default function MainChart() {
 
   const toggleSetting = (key) => {
     setSettings((prev) => ({ ...prev, [key]: !prev[key] }));
+  };
+
+  const handlePatternRecognition = () => {
+    if (chartInstanceRef.current) {
+      const chartData = chartInstanceRef.current.getDataList();
+      if (chartData && chartData.length > 0) {
+        const patterns = applyCandlestickPatternRecognition(chartInstanceRef.current, chartData);
+        console.log(`Applied ${patterns.length} candlestick patterns to chart`);
+      }
+    }
   };
 
   return (
@@ -300,7 +314,16 @@ export default function MainChart() {
                   "Candlestick Pattern Recognition",
                   "Harmonic Pattern Recognition",
                 ].map((item) => (
-                  <div key={item} style={styles.dropdownItem}>
+                  <div 
+                    key={item} 
+                    style={styles.dropdownItem}
+                    onClick={() => {
+                      if (item === "Candlestick Pattern Recognition") {
+                        handlePatternRecognition();
+                        setOpenMenu(null);
+                      }
+                    }}
+                  >
                     {item}
                   </div>
                 ))}
@@ -1082,7 +1105,9 @@ export default function MainChart() {
         <div style={styles.mainChart}>
           
             
-            <OIChartAlpha5 showOiData={oiData} />
+            <OIChartAlpha5 showOiData={oiData} onChartReady={(chart) => {
+              chartInstanceRef.current = chart;
+            }} />
           
         </div>
       </div>
