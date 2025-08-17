@@ -28,6 +28,7 @@ export default function MainChart() {
 
   // Applied indicators state
   const [appliedIndicators, setAppliedIndicators] = useState([]);
+  const [hoveredIndicator, setHoveredIndicator] = useState(null);
 
   // Settings state
   const [settings, setSettings] = useState({
@@ -1208,14 +1209,26 @@ export default function MainChart() {
               <div style={styles.indicatorsPanelTitle}>Applied Indicators</div>
               <div style={styles.indicatorsList}>
                 {appliedIndicators.map((indicator) => (
-                  <div key={indicator.id} style={styles.indicatorChip}>
+                  <div 
+                    key={indicator.id} 
+                    style={{
+                      ...styles.indicatorChip,
+                      ...(hoveredIndicator === indicator.id ? styles.indicatorChipHover : {})
+                    }}
+                    onMouseEnter={() => setHoveredIndicator(indicator.id)}
+                    onMouseLeave={() => setHoveredIndicator(null)}
+                  >
                     <span style={styles.indicatorName}>{indicator.name}</span>
                     <button 
-                      style={styles.removeButton}
-                      onClick={() => removeIndicator(indicator.id)}
+                      style={{
+                        ...styles.removeButton,
+                        ...(hoveredIndicator === indicator.id ? styles.removeButtonVisible : {})
+                      }}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        removeIndicator(indicator.id);
+                      }}
                       title="Remove indicator"
-                      onMouseEnter={(e) => e.target.style.opacity = "1"}
-                      onMouseLeave={(e) => e.target.style.opacity = "0.7"}
                     >
                       ×
                     </button>
@@ -1481,46 +1494,56 @@ const styles = {
   indicatorsList: {
     display: "flex",
     flexDirection: "column",
-    gap: "2px",
+    gap: "1px",
     alignItems: "flex-start",
   },
   indicatorChip: {
     display: "flex",
     alignItems: "center",
-    backgroundColor: "transparent",
-    border: "none",
-    borderRadius: "0",
-    padding: "1px 0",
+    backgroundColor: "rgba(255, 255, 255, 0.9)",
+    border: "1px solid rgba(0, 0, 0, 0.1)",
+    borderRadius: "3px",
+    padding: "2px 4px",
     fontSize: "11px",
     maxWidth: "200px",
     pointerEvents: "auto",
+    cursor: "pointer",
+    transition: "background-color 0.2s",
+    boxShadow: "0 1px 2px rgba(0, 0, 0, 0.1)",
   },
   indicatorName: {
-    color: "#333",
+    color: "#131722",
     marginRight: "4px",
     whiteSpace: "nowrap",
     overflow: "hidden",
     textOverflow: "ellipsis",
     flex: 1,
-    fontWeight: "500",
+    fontWeight: "400",
     fontSize: "11px",
-    textShadow: "0 0 3px rgba(255, 255, 255, 0.8)",
+    fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', sans-serif",
   },
   removeButton: {
-    background: "rgba(255, 71, 87, 0.8)",
+    background: "#f23645",
     color: "white",
     border: "none",
     borderRadius: "2px",
-    width: "12px",
-    height: "12px",
-    fontSize: "10px",
+    width: "14px",
+    height: "14px",
+    fontSize: "12px",
     cursor: "pointer",
-    display: "flex",
+    display: "none",
     alignItems: "center",
     justifyContent: "center",
     lineHeight: "1",
     padding: "0",
-    opacity: "0.7",
-    transition: "opacity 0.2s",
+    fontWeight: "bold",
+    transition: "all 0.2s",
+  },
+  indicatorChipHover: {
+    backgroundColor: "rgba(255, 255, 255, 1)",
+    borderColor: "rgba(0, 0, 0, 0.2)",
+  },
+  removeButtonVisible: {
+    display: "flex",
   },
 };
