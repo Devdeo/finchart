@@ -3,6 +3,7 @@ import OIChartAlpha5 from "./OIChartAlpha5";
 import { applyCandlestickPatternRecognition } from "./CandlestickPatternChart";
 import { applyChartPatternRecognition } from "./ChartPatternRecognition";
 import { applyHarmonicPatternRecognition } from "./DetectHarmonicPatterns";
+import SMAIndicator from "./SMAIndicator";
 
 export default function MainChart() {
   const [openMenu, setOpenMenu] = useState(null);
@@ -32,6 +33,7 @@ export default function MainChart() {
   // Applied indicators state
   const [appliedIndicators, setAppliedIndicators] = useState([]);
   const [hoveredIndicator, setHoveredIndicator] = useState(null);
+  const [smaIndicators, setSmaIndicators] = useState([]);
 
   // Settings state
   const [settings, setSettings] = useState({
@@ -186,6 +188,10 @@ export default function MainChart() {
         handleChartPatternRecognition();
       } else if (indicatorName === "Harmonic Pattern Recognition") {
         handleHarmonicPatternRecognition();
+      } else if (indicatorName === "SMA – Simple Moving Average") {
+        // Add SMA indicator
+        const smaId = `sma-${Date.now()}`;
+        setSmaIndicators(prev => [...prev, { id: smaId, chart: chartInstanceRef.current }]);
       } else {
         // For other indicators, you can add chart indicators here
         // chartInstanceRef.current.createIndicator(indicatorType, options);
@@ -207,6 +213,9 @@ export default function MainChart() {
         chartInstanceRef.current.removeOverlay({ name: "chart-patterns" });
       } else if (indicator.name === "Harmonic Pattern Recognition") {
         chartInstanceRef.current.removeOverlay({ name: "harmonic-pattern" });
+      } else if (indicator.name === "SMA – Simple Moving Average") {
+        // Remove SMA indicator - this will be handled by the SMAIndicator component
+        setSmaIndicators(prev => prev.filter(sma => sma.id !== indicatorId));
       } else {
         // For other indicators, remove them by ID
         // chartInstanceRef.current.removeIndicator(indicatorId);
@@ -214,6 +223,11 @@ export default function MainChart() {
     }
 
     setAppliedIndicators(prev => prev.filter(ind => ind.id !== indicatorId));
+  };
+
+  const removeSmaIndicator = (smaId) => {
+    setSmaIndicators(prev => prev.filter(sma => sma.id !== smaId));
+    setAppliedIndicators(prev => prev.filter(ind => ind.id !== smaId));
   };
 
   const getIndicatorType = (indicatorName) => {
@@ -1253,11 +1267,11 @@ export default function MainChart() {
 
         <div style={styles.mainChart}>
           {/* Applied Indicators Display */}
-          {appliedIndicators.length > 0 && (
+          {(appliedIndicators.length > 0 || smaIndicators.length > 0) && (
             <div style={styles.indicatorsPanel}>
               <div style={styles.indicatorsPanelTitle}>Applied Indicators</div>
               <div style={styles.indicatorsList}>
-                {appliedIndicators.map((indicator) => (
+                {appliedIndicators.filter(indicator => indicator.name !== "SMA – Simple Moving Average").map((indicator) => (
                   <div 
                     key={indicator.id} 
                     style={{
@@ -1282,6 +1296,13 @@ export default function MainChart() {
                       ×
                     </button>
                   </div>
+                ))}
+                {smaIndicators.map((sma) => (
+                  <SMAIndicator
+                    key={sma.id}
+                    chart={sma.chart}
+                    onRemove={() => removeSmaIndicator(sma.id)}
+                  />
                 ))}
               </div>
             </div>
