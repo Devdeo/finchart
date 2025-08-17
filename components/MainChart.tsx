@@ -5,6 +5,7 @@ import { applyChartPatternRecognition } from "./ChartPatternRecognition";
 import { applyHarmonicPatternRecognition } from "./DetectHarmonicPatterns";
 import SMAIndicator from "./SMAIndicator";
 import EMAIndicator from "./EMAIndicator";
+import WMAIndicator from "./WMAIndicator";
 
 export default function MainChart() {
   const [openMenu, setOpenMenu] = useState(null);
@@ -36,6 +37,7 @@ export default function MainChart() {
   const [hoveredIndicator, setHoveredIndicator] = useState(null);
   const [smaIndicators, setSmaIndicators] = useState([]);
   const [emaIndicators, setEmaIndicators] = useState([]);
+  const [wmaIndicators, setWmaIndicators] = useState([]);
   const [showIndicatorControls, setShowIndicatorControls] = useState(null);
 
   // Settings state
@@ -219,6 +221,15 @@ export default function MainChart() {
           name: indicatorName
         }]);
         // Don't add EMA to appliedIndicators as it manages itself
+      } else if (indicatorName === "WMA – Weighted Moving Average") {
+        // For WMA, create the component with unique ID
+        const wmaId = indicatorId;
+        setWmaIndicators(prev => [...prev, { 
+          id: wmaId, 
+          chart: chartInstanceRef.current,
+          name: indicatorName
+        }]);
+        // Don't add WMA to appliedIndicators as it manages itself
       } else {
         console.log(`Applied ${indicatorName} to chart`);
         setAppliedIndicators(prev => [...prev, newIndicator]);
@@ -244,6 +255,9 @@ export default function MainChart() {
       } else if (indicator.name === "EMA – Exponential Moving Average") {
         // Remove EMA indicator - this will be handled by the EMAIndicator component
         setEmaIndicators(prev => prev.filter(ema => ema.id !== indicatorId));
+      } else if (indicator.name === "WMA – Weighted Moving Average") {
+        // Remove WMA indicator - this will be handled by the WMAIndicator component
+        setWmaIndicators(prev => prev.filter(wma => wma.id !== indicatorId));
       } else {
         // For other indicators, remove them by ID
         // chartInstanceRef.current.removeIndicator(indicatorId);
@@ -263,10 +277,15 @@ export default function MainChart() {
     // EMA indicators are not in appliedIndicators, so no need to remove from there
   };
 
+  const removeWmaIndicator = (wmaId) => {
+    setWmaIndicators(prev => prev.filter(wma => wma.id !== wmaId));
+    // WMA indicators are not in appliedIndicators, so no need to remove from there
+  };
+
   const getIndicatorType = (indicatorName) => {
     // Map indicator names to types for categorization
     const patternIndicators = ["Candlestick Pattern Recognition", "Chart Pattern Recognition", "Harmonic Pattern Recognition"];
-    const trendIndicators = ["SMA – Simple Moving Average", "EMA – Exponential Moving Average", "MACD – Moving Average Convergence Divergence"];
+    const trendIndicators = ["SMA – Simple Moving Average", "EMA – Exponential Moving Average", "WMA – Weighted Moving Average", "MACD – Moving Average Convergence Divergence"];
     const momentumIndicators = ["RSI – Relative Strength Index", "Stochastic Oscillator"];
     const volatilityIndicators = ["Bollinger Bands", "ATR – Average True Range"];
     const volumeIndicators = ["Volume Histogram", "OBV – On-Balance Volume"];
@@ -1300,7 +1319,7 @@ export default function MainChart() {
 
         <div style={styles.mainChart}>
           {/* Applied Indicators Display */}
-          {(appliedIndicators.length > 0 || smaIndicators.length > 0 || emaIndicators.length > 0) && (
+          {(appliedIndicators.length > 0 || smaIndicators.length > 0 || emaIndicators.length > 0 || wmaIndicators.length > 0) && (
             <div style={styles.indicatorsPanel}>
               <div style={styles.indicatorsPanelTitle}>Applied Indicators</div>
               <div style={styles.indicatorsList}>
@@ -1354,6 +1373,13 @@ export default function MainChart() {
                     key={ema.id}
                     chart={ema.chart}
                     onRemove={() => removeEmaIndicator(ema.id)}
+                  />
+                ))}
+                {wmaIndicators.map((wma) => (
+                  <WMAIndicator
+                    key={wma.id}
+                    chart={wma.chart}
+                    onRemove={() => removeWmaIndicator(wma.id)}
                   />
                 ))}
               </div>
