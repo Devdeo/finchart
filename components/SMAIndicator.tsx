@@ -17,6 +17,7 @@ const SMAIndicator: React.FC<SMAIndicatorProps> = ({
   const indicatorIdRef = useRef<string | null>(null);
   const [period, setPeriod] = useState(initialPeriod);
   const [color, setColor] = useState(initialColor);
+  const [thickness, setThickness] = useState(2);
   const [showSettings, setShowSettings] = useState(false);
 
   const registerSMA = (klinecharts: any) => {
@@ -53,7 +54,7 @@ const SMAIndicator: React.FC<SMAIndicatorProps> = ({
             {
               key: "sma",
               color: color,
-              size: 2,
+              size: thickness,
               style: "solid",
             },
           ],
@@ -95,9 +96,9 @@ const SMAIndicator: React.FC<SMAIndicatorProps> = ({
     if (!chart || !indicatorIdRef.current) return;
     chart.overrideIndicator({
       id: indicatorIdRef.current,
-      styles: { lines: [{ key: "sma", color }] },
+      styles: { lines: [{ key: "sma", color, size: thickness }] },
     });
-  }, [color, chart]);
+  }, [color, thickness, chart]);
 
   const handleTextClick = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -294,6 +295,46 @@ const SMAIndicator: React.FC<SMAIndicatorProps> = ({
                 boxSizing: "border-box",
               }}
             />
+          </div>
+          
+          <div style={{ marginBottom: "12px" }}>
+            <label style={{ 
+              display: "block", 
+              fontSize: "12px", 
+              marginBottom: "4px",
+              fontWeight: "500",
+              color: "#333"
+            }}>
+              Thickness:
+            </label>
+            <input
+              type="range"
+              min={1}
+              max={8}
+              value={thickness}
+              onChange={(e) => setThickness(Number(e.target.value))}
+              style={{
+                width: "100%",
+                height: "6px",
+                backgroundColor: "#ddd",
+                borderRadius: "3px",
+                outline: "none",
+                cursor: "pointer",
+                appearance: "none",
+                WebkitAppearance: "none",
+              }}
+            />
+            <div style={{
+              display: "flex",
+              justifyContent: "space-between",
+              fontSize: "10px",
+              color: "#666",
+              marginTop: "2px"
+            }}>
+              <span>1</span>
+              <span style={{ fontWeight: "500" }}>{thickness}px</span>
+              <span>8</span>
+            </div>
           </div>
           
           <button
