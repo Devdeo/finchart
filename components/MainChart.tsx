@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import OIChartAlpha5 from "./OIChartAlpha5";
 import { applyCandlestickPatternRecognition } from "./CandlestickPatternChart";
 import { applyChartPatternRecognition } from "./ChartPatternRecognition";
+import { applyHarmonicPatternRecognition } from "./DetectHarmonicPatterns";
 
 export default function MainChart() {
   const [openMenu, setOpenMenu] = useState(null);
@@ -147,6 +148,16 @@ export default function MainChart() {
       if (chartData && chartData.length > 0) {
         const patterns = applyChartPatternRecognition(chartInstanceRef.current, chartData);
         console.log(`Applied ${patterns.length} chart patterns to chart`);
+      }
+    }
+  };
+
+  const handleHarmonicPatternRecognition = () => {
+    if (chartInstanceRef.current) {
+      const chartData = chartInstanceRef.current.getDataList();
+      if (chartData && chartData.length > 0) {
+        const patterns = applyHarmonicPatternRecognition(chartInstanceRef.current, chartData);
+        console.log(`Applied ${patterns.length} harmonic patterns to chart`);
       }
     }
   };
@@ -334,6 +345,9 @@ export default function MainChart() {
                         setOpenMenu(null);
                       } else if (item === "Chart Pattern Recognition") {
                         handleChartPatternRecognition();
+                        setOpenMenu(null);
+                      } else if (item === "Harmonic Pattern Recognition") {
+                        handleHarmonicPatternRecognition();
                         setOpenMenu(null);
                       }
                     }}
