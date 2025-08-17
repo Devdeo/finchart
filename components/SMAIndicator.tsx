@@ -1,3 +1,4 @@
+
 import React, { useEffect, useRef, useState } from "react";
 
 interface SMAIndicatorProps {
@@ -18,6 +19,7 @@ const SMAIndicator: React.FC<SMAIndicatorProps> = ({
   const [color, setColor] = useState(initialColor);
   const [thickness, setThickness] = useState(2);
   const [showSettings, setShowSettings] = useState(false);
+  const settingsRef = useRef<HTMLDivElement>(null);
 
   const registerSMA = (klinecharts: any) => {
     try {
@@ -104,6 +106,23 @@ const SMAIndicator: React.FC<SMAIndicatorProps> = ({
     });
   }, [color, thickness, chart]);
 
+  // Click outside handler
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (settingsRef.current && !settingsRef.current.contains(event.target as Node)) {
+        setShowSettings(false);
+      }
+    };
+
+    if (showSettings) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [showSettings]);
+
   const handleTextClick = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
@@ -122,12 +141,29 @@ const SMAIndicator: React.FC<SMAIndicatorProps> = ({
     onRemove();
   };
 
-  const handleCloseSettings = () => {
+  const handleCloseSettings = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
     setShowSettings(false);
   };
 
+  const handlePeriodChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = parseInt(e.target.value);
+    if (value >= 1 && value <= 200) {
+      setPeriod(value);
+    }
+  };
+
+  const handleColorChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setColor(e.target.value);
+  };
+
+  const handleThicknessChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setThickness(parseInt(e.target.value));
+  };
+
   return (
-    <div style={{ position: "relative", display: "inline-block", margin: "2px" }}>
+    <div style={{ position: "relative", display: "inline-block", margin: "2px" }} ref={settingsRef}>
       <div
         style={{
           display: "flex",
@@ -139,7 +175,6 @@ const SMAIndicator: React.FC<SMAIndicatorProps> = ({
           fontSize: "11px",
           fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', sans-serif",
           boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
-          cursor: "pointer",
           gap: "4px",
           minHeight: "20px",
           backdropFilter: "blur(2px)",
@@ -188,12 +223,11 @@ const SMAIndicator: React.FC<SMAIndicatorProps> = ({
             borderRadius: "2px",
             outline: "none",
             transition: "background-color 0.2s",
-            zIndex: 10,
+            zIndex: 1000,
             position: "relative",
             pointerEvents: "auto",
           }}
           onClick={handleSettingsClick}
-          onMouseDown={(e) => e.stopPropagation()}
           onMouseEnter={(e) => {
             e.currentTarget.style.backgroundColor = "rgba(104, 109, 118, 0.1)";
           }}
@@ -223,12 +257,11 @@ const SMAIndicator: React.FC<SMAIndicatorProps> = ({
             fontWeight: "bold",
             outline: "none",
             transition: "background-color 0.2s",
-            zIndex: 10,
+            zIndex: 1000,
             position: "relative",
             pointerEvents: "auto",
           }}
           onClick={handleRemoveClick}
-          onMouseDown={(e) => e.stopPropagation()}
           onMouseEnter={(e) => {
             e.currentTarget.style.backgroundColor = "#d32f3f";
           }}
@@ -247,90 +280,165 @@ const SMAIndicator: React.FC<SMAIndicatorProps> = ({
             position: "absolute",
             top: "100%",
             left: "0",
-            backgroundColor: "white",
-            border: "1px solid #ccc",
-            borderRadius: "4px",
-            padding: "12px",
-            boxShadow: "0 4px 12px rgba(0,0,0,0.2)",
-            zIndex: 1000,
-            minWidth: "180px",
-            marginTop: "2px",
+            backgroundColor: "#131722",
+            border: "1px solid #434651",
+            borderRadius: "6px",
+            padding: "16px",
+            boxShadow: "0 8px 24px rgba(0,0,0,0.4)",
+            zIndex: 2000,
+            minWidth: "220px",
+            marginTop: "4px",
+            fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', sans-serif",
           }}
         >
-          <div style={{ marginBottom: "12px" }}>
+          <div style={{ 
+            display: "flex", 
+            justifyContent: "space-between", 
+            alignItems: "center",
+            marginBottom: "16px",
+            borderBottom: "1px solid #434651",
+            paddingBottom: "8px"
+          }}>
+            <span style={{
+              color: "#d1d4dc",
+              fontSize: "14px",
+              fontWeight: "600"
+            }}>
+              SMA Settings
+            </span>
+            <button
+              style={{
+                background: "none",
+                border: "none",
+                color: "#868993",
+                fontSize: "16px",
+                cursor: "pointer",
+                padding: "4px",
+                borderRadius: "4px",
+                lineHeight: "1",
+                transition: "color 0.2s",
+              }}
+              onClick={handleCloseSettings}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.color = "#d1d4dc";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.color = "#868993";
+              }}
+              title="Close"
+            >
+              ×
+            </button>
+          </div>
+
+          <div style={{ marginBottom: "16px" }}>
             <label style={{
               display: "block",
               fontSize: "12px",
-              marginBottom: "4px",
+              marginBottom: "6px",
               fontWeight: "500",
-              color: "#333"
+              color: "#d1d4dc"
             }}>
-              Period:
+              Period
             </label>
             <input
               type="number"
               min={1}
               max={200}
               value={period}
-              onChange={(e) => setPeriod(Number(e.target.value))}
+              onChange={handlePeriodChange}
               style={{
                 width: "100%",
-                padding: "4px 6px",
-                border: "1px solid #ccc",
-                borderRadius: "3px",
-                fontSize: "12px",
+                padding: "8px 10px",
+                border: "1px solid #434651",
+                borderRadius: "4px",
+                fontSize: "13px",
                 outline: "none",
                 boxSizing: "border-box",
+                backgroundColor: "#1e222d",
+                color: "#d1d4dc",
+                transition: "border-color 0.2s",
+              }}
+              onFocus={(e) => {
+                e.currentTarget.style.borderColor = "#2962ff";
+              }}
+              onBlur={(e) => {
+                e.currentTarget.style.borderColor = "#434651";
               }}
             />
           </div>
 
-          <div style={{ marginBottom: "12px" }}>
+          <div style={{ marginBottom: "16px" }}>
             <label style={{
               display: "block",
               fontSize: "12px",
-              marginBottom: "4px",
+              marginBottom: "6px",
               fontWeight: "500",
-              color: "#333"
+              color: "#d1d4dc"
             }}>
-              Color:
+              Color
             </label>
-            <input
-              type="color"
-              value={color}
-              onChange={(e) => setColor(e.target.value)}
-              style={{
-                width: "100%",
-                height: "28px",
-                border: "1px solid #ccc",
-                borderRadius: "3px",
-                cursor: "pointer",
-                outline: "none",
-                boxSizing: "border-box",
-              }}
-            />
+            <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+              <input
+                type="color"
+                value={color}
+                onChange={handleColorChange}
+                style={{
+                  width: "40px",
+                  height: "32px",
+                  border: "1px solid #434651",
+                  borderRadius: "4px",
+                  cursor: "pointer",
+                  outline: "none",
+                  backgroundColor: "transparent",
+                  padding: "2px",
+                }}
+              />
+              <input
+                type="text"
+                value={color}
+                onChange={(e) => setColor(e.target.value)}
+                style={{
+                  flex: 1,
+                  padding: "8px 10px",
+                  border: "1px solid #434651",
+                  borderRadius: "4px",
+                  fontSize: "13px",
+                  outline: "none",
+                  backgroundColor: "#1e222d",
+                  color: "#d1d4dc",
+                  fontFamily: "monospace",
+                }}
+                onFocus={(e) => {
+                  e.currentTarget.style.borderColor = "#2962ff";
+                }}
+                onBlur={(e) => {
+                  e.currentTarget.style.borderColor = "#434651";
+                }}
+              />
+            </div>
           </div>
 
-          <div style={{ marginBottom: "12px" }}>
+          <div style={{ marginBottom: "16px" }}>
             <label style={{
               display: "block",
               fontSize: "12px",
-              marginBottom: "4px",
+              marginBottom: "6px",
               fontWeight: "500",
-              color: "#333"
+              color: "#d1d4dc"
             }}>
-              Thickness:
+              Line Width
             </label>
             <input
               type="range"
               min={1}
               max={8}
               value={thickness}
-              onChange={(e) => setThickness(Number(e.target.value))}
+              onChange={handleThicknessChange}
               style={{
                 width: "100%",
                 height: "6px",
-                backgroundColor: "#ddd",
+                backgroundColor: "#434651",
                 borderRadius: "3px",
                 outline: "none",
                 cursor: "pointer",
@@ -341,12 +449,12 @@ const SMAIndicator: React.FC<SMAIndicatorProps> = ({
             <div style={{
               display: "flex",
               justifyContent: "space-between",
-              fontSize: "10px",
-              color: "#666",
-              marginTop: "2px"
+              fontSize: "11px",
+              color: "#868993",
+              marginTop: "4px"
             }}>
               <span>1</span>
-              <span style={{ fontWeight: "500" }}>{thickness}px</span>
+              <span style={{ fontWeight: "500", color: "#d1d4dc" }}>{thickness}px</span>
               <span>8</span>
             </div>
           </div>
@@ -354,24 +462,25 @@ const SMAIndicator: React.FC<SMAIndicatorProps> = ({
           <button
             style={{
               width: "100%",
-              padding: "6px",
-              backgroundColor: "#f8f9fa",
-              border: "1px solid #dee2e6",
-              borderRadius: "3px",
-              fontSize: "12px",
+              padding: "10px",
+              backgroundColor: "#2962ff",
+              border: "none",
+              borderRadius: "4px",
+              fontSize: "13px",
               cursor: "pointer",
-              color: "#495057",
-              fontWeight: "500",
+              color: "white",
+              fontWeight: "600",
+              transition: "background-color 0.2s",
             }}
             onClick={handleCloseSettings}
             onMouseOver={(e) => {
-              e.currentTarget.style.backgroundColor = "#e9ecef";
+              e.currentTarget.style.backgroundColor = "#1e53e5";
             }}
             onMouseOut={(e) => {
-              e.currentTarget.style.backgroundColor = "#f8f9fa";
+              e.currentTarget.style.backgroundColor = "#2962ff";
             }}
           >
-            Close
+            Apply
           </button>
         </div>
       )}
