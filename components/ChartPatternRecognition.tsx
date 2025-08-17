@@ -1,10 +1,7 @@
+
 "use client";
-import { useEffect, useRef } from "react";
 import {
-  init,
-  dispose,
   registerOverlay,
-  type KLineChart,
   type OverlayTemplate,
   type KLineData,
 } from "klinecharts";
@@ -22,7 +19,7 @@ type PatternDetection = {
 };
 
 // Detect Head and Shoulders
-function detectHeadAndShoulders(data: KLineData[]): PatternDetection[] {
+export function detectHeadAndShoulders(data: KLineData[]): PatternDetection[] {
   const results: PatternDetection[] = [];
   if (data.length < 7) return results;
 
@@ -58,7 +55,7 @@ function detectHeadAndShoulders(data: KLineData[]): PatternDetection[] {
 }
 
 // Detect Inverse Head and Shoulders
-function detectInverseHeadShoulders(data: KLineData[]): PatternDetection[] {
+export function detectInverseHeadShoulders(data: KLineData[]): PatternDetection[] {
   const results: PatternDetection[] = [];
   if (data.length < 7) return results;
 
@@ -93,7 +90,7 @@ function detectInverseHeadShoulders(data: KLineData[]): PatternDetection[] {
 }
 
 // Detect Double Top
-function detectDoubleTop(data: KLineData[]): PatternDetection[] {
+export function detectDoubleTop(data: KLineData[]): PatternDetection[] {
   const results: PatternDetection[] = [];
   if (data.length < 5) return results;
 
@@ -121,7 +118,7 @@ function detectDoubleTop(data: KLineData[]): PatternDetection[] {
 }
 
 // Detect Double Bottom
-function detectDoubleBottom(data: KLineData[]): PatternDetection[] {
+export function detectDoubleBottom(data: KLineData[]): PatternDetection[] {
   const results: PatternDetection[] = [];
   if (data.length < 5) return results;
 
@@ -149,7 +146,7 @@ function detectDoubleBottom(data: KLineData[]): PatternDetection[] {
 }
 
 // Detect Triple Top
-function detectTripleTop(data: KLineData[]): PatternDetection[] {
+export function detectTripleTop(data: KLineData[]): PatternDetection[] {
   const results: PatternDetection[] = [];
   if (data.length < 7) return results;
 
@@ -183,7 +180,7 @@ function detectTripleTop(data: KLineData[]): PatternDetection[] {
 }
 
 // Detect Triple Bottom
-function detectTripleBottom(data: KLineData[]): PatternDetection[] {
+export function detectTripleBottom(data: KLineData[]): PatternDetection[] {
   const results: PatternDetection[] = [];
   if (data.length < 7) return results;
 
@@ -217,7 +214,7 @@ function detectTripleBottom(data: KLineData[]): PatternDetection[] {
 }
 
 // Detect Rising Wedge
-function detectRisingWedge(data: KLineData[]): PatternDetection[] {
+export function detectRisingWedge(data: KLineData[]): PatternDetection[] {
   const results: PatternDetection[] = [];
   if (data.length < 5) return results;
 
@@ -254,7 +251,7 @@ function detectRisingWedge(data: KLineData[]): PatternDetection[] {
 }
 
 // Detect Falling Wedge
-function detectFallingWedge(data: KLineData[]): PatternDetection[] {
+export function detectFallingWedge(data: KLineData[]): PatternDetection[] {
   const results: PatternDetection[] = [];
   if (data.length < 5) return results;
 
@@ -291,7 +288,7 @@ function detectFallingWedge(data: KLineData[]): PatternDetection[] {
 }
 
 // Pattern overlay registration
-const PatternOverlay: OverlayTemplate = {
+export const ChartPatternOverlay: OverlayTemplate = {
   name: "chart-patterns",
   needDefaultPointFigure: false,
   createPointFigures: ({ coordinates, overlay }) => {
@@ -671,391 +668,40 @@ const PatternOverlay: OverlayTemplate = {
   },
 };
 
-// Generate sample data with all patterns
-function generateSampleData(): KLineData[] {
-  const now = Date.now();
-  const data: KLineData[] = [];
-  let price = 100;
+// Register the chart pattern overlay
+export const registerChartPatternOverlay = () => {
+  registerOverlay(ChartPatternOverlay);
+};
 
-  // Helper function for random candle
-  const randomCandle = (): KLineData => {
-    const o = price;
-    const c = o + (Math.random() - 0.5) * 4;
-    const h = Math.max(o, c) + Math.random() * 3;
-    const l = Math.min(o, c) - Math.random() * 3;
-    return { timestamp: now + data.length * 60000, open: o, high: h, low: l, close: c };
-  };
+// Apply chart pattern detection to a chart
+export const applyChartPatternRecognition = (chart: any, data: KLineData[]) => {
+  // Register overlay if not already registered
+  registerChartPatternOverlay();
 
-  // Phase 1: Head & Shoulders (indices 10-20)
-  for (let i = 0; i < 10; i++) data.push(randomCandle());
+  // Remove any existing chart pattern overlays
+  chart.removeOverlay({ name: "chart-patterns" });
 
-  // Left Shoulder
-  data.push({
-    timestamp: now + data.length * 60000,
-    open: price,
-    high: price + 15,
-    low: price - 3,
-    close: price + 5,
-  });
+  // Detect all patterns
+  const allPatterns = [
+    ...detectHeadAndShoulders(data),
+    ...detectInverseHeadShoulders(data),
+    ...detectDoubleTop(data),
+    ...detectDoubleBottom(data),
+    ...detectTripleTop(data),
+    ...detectTripleBottom(data),
+    ...detectRisingWedge(data),
+    ...detectFallingWedge(data),
+  ];
 
-  // Left Trough
-  data.push({
-    timestamp: now + data.length * 60000,
-    open: price + 3,
-    high: price + 4,
-    low: price - 8,
-    close: price - 2,
-  });
-
-  // Head
-  price -= 2;
-  data.push({
-    timestamp: now + data.length * 60000,
-    open: price,
-    high: price + 22,
-    low: price - 5,
-    close: price + 8,
-  });
-
-  // Right Trough
-  price += 8;
-  data.push({
-    timestamp: now + data.length * 60000,
-    open: price,
-    high: price + 2,
-    low: price - 10,
-    close: price - 1,
-  });
-
-  // Right Shoulder
-  price -= 1;
-  data.push({
-    timestamp: now + data.length * 60000,
-    open: price,
-    high: price + 14,
-    low: price - 3,
-    close: price + 4,
-  });
-
-  // Phase 2: Double Top (indices 25-30)
-  price += 4;
-  for (let i = 0; i < 3; i++) data.push(randomCandle());
-
-  // First Top
-  data.push({
-    timestamp: now + data.length * 60000,
-    open: price,
-    high: price + 18,
-    low: price - 3,
-    close: price + 2,
-  });
-
-  // Trough
-  price += 2;
-  data.push({
-    timestamp: now + data.length * 60000,
-    open: price,
-    high: price + 1,
-    low: price - 7,
-    close: price - 3,
-  });
-
-  // Second Top
-  price -= 3;
-  data.push({
-    timestamp: now + data.length * 60000,
-    open: price,
-    high: price + 17,
-    low: price - 4,
-    close: price + 1,
-  });
-
-  // Phase 3: Double Bottom (indices 35-40)
-  price += 1;
-  for (let i = 0; i < 3; i++) data.push(randomCandle());
-
-  // First Bottom
-  data.push({
-    timestamp: now + data.length * 60000,
-    open: price,
-    high: price + 3,
-    low: price - 15,
-    close: price - 2,
-  });
-
-  // Peak
-  price -= 2;
-  data.push({
-    timestamp: now + data.length * 60000,
-    open: price,
-    high: price + 8,
-    low: price - 1,
-    close: price + 4,
-  });
-
-  // Second Bottom
-  price += 4;
-  data.push({
-    timestamp: now + data.length * 60000,
-    open: price,
-    high: price + 2,
-    low: price - 16,
-    close: price - 1,
-  });
-
-  // Phase 4: Inverse Head & Shoulders (indices 45-55)
-  price -= 1;
-  for (let i = 0; i < 5; i++) data.push(randomCandle());
-
-  // Left Shoulder (inverse)
-  data.push({
-    timestamp: now + data.length * 60000,
-    open: price,
-    high: price + 3,
-    low: price - 14,
-    close: price - 2,
-  });
-
-  // Left Peak
-  price -= 2;
-  data.push({
-    timestamp: now + data.length * 60000,
-    open: price,
-    high: price + 10,
-    low: price - 1,
-    close: price + 3,
-  });
-
-  // Head (inverse)
-  price += 3;
-  data.push({
-    timestamp: now + data.length * 60000,
-    open: price,
-    high: price + 2,
-    low: price - 22,
-    close: price - 8,
-  });
-
-  // Right Peak
-  price -= 8;
-  data.push({
-    timestamp: now + data.length * 60000,
-    open: price,
-    high: price + 12,
-    low: price - 2,
-    close: price + 4,
-  });
-
-  // Right Shoulder (inverse)
-  price += 4;
-  data.push({
-    timestamp: now + data.length * 60000,
-    open: price,
-    high: price + 1,
-    low: price - 15,
-    close: price - 3,
-  });
-
-  // Phase 5: Triple Top (indices 60-70)
-  price -= 3;
-  for (let i = 0; i < 5; i++) data.push(randomCandle());
-
-  // First Top
-  data.push({
-    timestamp: now + data.length * 60000,
-    open: price,
-    high: price + 18,
-    low: price - 4,
-    close: price + 2,
-  });
-
-  // First Trough
-  price += 2;
-  data.push({
-    timestamp: now + data.length * 60000,
-    open: price,
-    high: price + 1,
-    low: price - 6,
-    close: price - 2,
-  });
-
-  // Second Top
-  price -= 2;
-  data.push({
-    timestamp: now + data.length * 60000,
-    open: price,
-    high: price + 17,
-    low: price - 3,
-    close: price + 1,
-  });
-
-  // Second Trough
-  price += 1;
-  data.push({
-    timestamp: now + data.length * 60000,
-    open: price,
-    high: price + 1,
-    low: price - 7,
-    close: price - 3,
-  });
-
-  // Third Top
-  price -= 3;
-  data.push({
-    timestamp: now + data.length * 60000,
-    open: price,
-    high: price + 16,
-    low: price - 2,
-    close: price + 2,
-  });
-
-  // Phase 6: Triple Bottom (indices 75-85)
-  price += 2;
-  for (let i = 0; i < 5; i++) data.push(randomCandle());
-
-  // First Bottom
-  data.push({
-    timestamp: now + data.length * 60000,
-    open: price,
-    high: price + 3,
-    low: price - 16,
-    close: price - 2,
-  });
-
-  // First Peak
-  price -= 2;
-  data.push({
-    timestamp: now + data.length * 60000,
-    open: price,
-    high: price + 8,
-    low: price - 1,
-    close: price + 4,
-  });
-
-  // Second Bottom
-  price += 4;
-  data.push({
-    timestamp: now + data.length * 60000,
-    open: price,
-    high: price + 1,
-    low: price - 17,
-    close: price - 3,
-  });
-
-  // Second Peak
-  price -= 3;
-  data.push({
-    timestamp: now + data.length * 60000,
-    open: price,
-    high: price + 9,
-    low: price - 1,
-    close: price + 3,
-  });
-
-  // Third Bottom
-  price += 3;
-  data.push({
-    timestamp: now + data.length * 60000,
-    open: price,
-    high: price + 2,
-    low: price - 18,
-    close: price - 1,
-  });
-
-  // Phase 7: Rising Wedge (indices 90-100)
-  price -= 1;
-  // Start of wedge
-  const wedgeStartPrice = price;
-  for (let i = 0; i < 10; i++) {
-    const progress = i / 10;
-    const amplitude = 10 * (1 - progress * 0.7); // Decreasing range
-    const base = wedgeStartPrice + 15 * progress; // Upward drift
-
-    data.push({
-      timestamp: now + data.length * 60000,
-      open: base,
-      high: base + amplitude * 0.8,
-      low: base - amplitude * 0.2,
-      close: base + amplitude * 0.3,
+  // Create overlays for each pattern
+  allPatterns.forEach((pattern) => {
+    chart.createOverlay({
+      name: "chart-patterns",
+      points: pattern.points,
+      extendData: { pattern: pattern.pattern },
+      styles: { point: { visible: false } },
     });
-    price = base + amplitude * 0.3;
-  }
+  });
 
-  // Phase 8: Falling Wedge (indices 100-110)
-  // Start of wedge
-  const fallingWedgeStartPrice = price;
-  for (let i = 0; i < 10; i++) {
-    const progress = i / 10;
-    const amplitude = 12 * (1 - progress * 0.7); // Decreasing range
-    const base = fallingWedgeStartPrice - 12 * progress; // Downward drift
-
-    data.push({
-      timestamp: now + data.length * 60000,
-      open: base,
-      high: base + amplitude * 0.3,
-      low: base - amplitude * 0.8,
-      close: base - amplitude * 0.2,
-    });
-    price = base - amplitude * 0.2;
-  }
-
-  // Fill remaining data
-  while (data.length < 120) data.push(randomCandle());
-
-  return data;
-}
-
-export default function PatternRecognitionChart() {
-  const chartRef = useRef<KLineChart | null>(null);
-  const overlayIdsRef = useRef<string[]>([]);
-
-  useEffect(() => {
-    const chart = init("pattern-chart");
-    chartRef.current = chart;
-
-    registerOverlay(PatternOverlay);
-
-    const data = generateSampleData();
-    chart.applyNewData(data);
-
-    // Detect all patterns
-    const allPatterns = [
-      ...detectHeadAndShoulders(data),
-      ...detectInverseHeadShoulders(data),
-      ...detectDoubleTop(data),
-      ...detectDoubleBottom(data),
-      ...detectTripleTop(data),
-      ...detectTripleBottom(data),
-      ...detectRisingWedge(data),
-      ...detectFallingWedge(data),
-    ];
-
-    // Create overlays for each pattern
-    allPatterns.forEach((pattern) => {
-      const overlayId = chart.createOverlay({
-        name: "chart-patterns",
-        points: pattern.points,
-        extendData: { pattern: pattern.pattern },
-        styles: { point: { visible: false } },
-      });
-      overlayIdsRef.current.push(overlayId);
-    });
-
-    return () => {
-      dispose("pattern-chart");
-      overlayIdsRef.current = [];
-    };
-  }, []);
-
-  return (
-    <div
-      id="pattern-chart"
-      style={{
-        width: "100%",
-        height: "80vh",
-        borderRadius: "8px",
-        background: "#1e1f29",
-      }}
-    />
-  );
-}
+  return allPatterns;
+};

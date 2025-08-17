@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import OIChartAlpha5 from "./OIChartAlpha5";
 import { applyCandlestickPatternRecognition } from "./CandlestickPatternChart";
+import { applyChartPatternRecognition } from "./ChartPatternRecognition";
 
 export default function MainChart() {
   const [openMenu, setOpenMenu] = useState(null);
@@ -136,6 +137,16 @@ export default function MainChart() {
       if (chartData && chartData.length > 0) {
         const patterns = applyCandlestickPatternRecognition(chartInstanceRef.current, chartData);
         console.log(`Applied ${patterns.length} candlestick patterns to chart`);
+      }
+    }
+  };
+
+  const handleChartPatternRecognition = () => {
+    if (chartInstanceRef.current) {
+      const chartData = chartInstanceRef.current.getDataList();
+      if (chartData && chartData.length > 0) {
+        const patterns = applyChartPatternRecognition(chartInstanceRef.current, chartData);
+        console.log(`Applied ${patterns.length} chart patterns to chart`);
       }
     }
   };
@@ -320,6 +331,9 @@ export default function MainChart() {
                     onClick={() => {
                       if (item === "Candlestick Pattern Recognition") {
                         handlePatternRecognition();
+                        setOpenMenu(null);
+                      } else if (item === "Chart Pattern Recognition") {
+                        handleChartPatternRecognition();
                         setOpenMenu(null);
                       }
                     }}
