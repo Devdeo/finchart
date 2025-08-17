@@ -1285,37 +1285,120 @@ export default function MainChart() {
                     key={indicator.id} 
                     data-indicator-chip
                     style={{
-                      ...styles.indicatorChip,
-                      ...(showIndicatorControls === indicator.id ? styles.indicatorChipHover : {})
+                      display: "flex",
+                      alignItems: "center",
+                      backgroundColor: "rgba(255, 255, 255, 0.9)",
+                      border: "1px solid rgba(0, 0, 0, 0.1)",
+                      borderRadius: "3px",
+                      padding: "4px 6px",
+                      fontSize: "11px",
+                      fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', sans-serif",
+                      boxShadow: "0 1px 2px rgba(0, 0, 0, 0.1)",
+                      cursor: "pointer",
+                      gap: "4px",
+                      margin: "2px",
+                      position: "relative",
+                      display: "inline-block"
                     }}
-                    onClick={() => setShowIndicatorControls(showIndicatorControls === indicator.id ? null : indicator.id)}
                   >
-                    <span style={styles.indicatorName}>{indicator.name}</span>
-                    {showIndicatorControls === indicator.id && (
-                      <>
-                        <button 
-                          style={styles.settingsButton}
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            // Settings functionality can be added here
-                            console.log(`Settings for ${indicator.name}`);
-                          }}
-                          title="Settings"
-                        >
-                          <i className="fa-solid fa-gear"></i>
-                        </button>
-                        <button 
-                          style={styles.removeButton}
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            removeIndicator(indicator.id);
-                          }}
-                          title="Remove indicator"
-                        >
-                          ×
-                        </button>
-                      </>
-                    )}
+                    <span 
+                      style={{ 
+                        color: "#131722", 
+                        cursor: "pointer",
+                        userSelect: "none",
+                        padding: "2px",
+                        borderRadius: "2px",
+                        transition: "background-color 0.2s",
+                      }}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        setShowIndicatorControls(showIndicatorControls === indicator.id ? null : indicator.id);
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.backgroundColor = "rgba(19, 23, 34, 0.1)";
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.backgroundColor = "transparent";
+                      }}
+                      title="Click to show controls"
+                    >
+                      {indicator.name}
+                    </span>
+                    
+                    <button
+                      style={{
+                        background: "none",
+                        border: "none",
+                        color: "#686d76",
+                        fontSize: "10px",
+                        cursor: "pointer",
+                        padding: "2px",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        width: "16px",
+                        height: "16px",
+                        borderRadius: "2px",
+                        outline: "none",
+                        transition: "background-color 0.2s",
+                        zIndex: 10,
+                        position: "relative",
+                      }}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        setShowIndicatorControls(showIndicatorControls === indicator.id ? null : indicator.id);
+                      }}
+                      onMouseDown={(e) => e.stopPropagation()}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.backgroundColor = "rgba(104, 109, 118, 0.1)";
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.backgroundColor = "transparent";
+                      }}
+                      title="Settings"
+                    >
+                      <i className="fa-solid fa-gear"></i>
+                    </button>
+                    
+                    <button
+                      style={{
+                        background: "#f23645",
+                        color: "white",
+                        border: "none",
+                        borderRadius: "2px",
+                        width: "16px",
+                        height: "16px",
+                        fontSize: "10px",
+                        cursor: "pointer",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        lineHeight: "1",
+                        padding: "0",
+                        fontWeight: "bold",
+                        outline: "none",
+                        transition: "background-color 0.2s",
+                        zIndex: 10,
+                        position: "relative",
+                      }}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        removeIndicator(indicator.id);
+                      }}
+                      onMouseDown={(e) => e.stopPropagation()}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.backgroundColor = "#d32f3f";
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.backgroundColor = "#f23645";
+                      }}
+                      title="Remove"
+                    >
+                      ×
+                    </button>
                   </div>
                 ))}
                 {smaIndicators.map((sma) => (
