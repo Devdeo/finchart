@@ -6,6 +6,8 @@ import { applyHarmonicPatternRecognition } from "./DetectHarmonicPatterns";
 import SMAIndicator from "./SMAIndicator";
 import EMAIndicator from "./EMAIndicator";
 import WMAIndicator from "./WMAIndicator";
+// Import IchimokuIndicator here, assuming it's in a separate file
+// import IchimokuIndicator from "./IchimokuIndicator"; 
 
 export default function MainChart() {
   const [openMenu, setOpenMenu] = useState(null);
@@ -35,9 +37,10 @@ export default function MainChart() {
   // Applied indicators state
   const [appliedIndicators, setAppliedIndicators] = useState([]);
   const [hoveredIndicator, setHoveredIndicator] = useState(null);
-  const [smaIndicators, setSmaIndicators] = useState([]);
-  const [emaIndicators, setEmaIndicators] = useState([]);
-  const [wmaIndicators, setWmaIndicators] = useState([]);
+  const [smaIndicators, setSmaIndicators] = useState<any[]>([]);
+  const [emaIndicators, setEmaIndicators] = useState<any[]>([]);
+  const [wmaIndicators, setWmaIndicators] = useState<any[]>([]);
+  const [ichimokuIndicators, setIchimokuIndicators] = useState<any[]>([]);
   const [showIndicatorControls, setShowIndicatorControls] = useState(null);
 
   // Settings state
@@ -230,7 +233,17 @@ export default function MainChart() {
           name: indicatorName
         }]);
         // Don't add WMA to appliedIndicators as it manages itself
-      } else {
+      } else if (indicatorName === "Ichimoku Cloud") {
+        // For Ichimoku Cloud, create the component with unique ID
+        const ichimokuId = indicatorId;
+        setIchimokuIndicators(prev => [...prev, {
+          id: ichimokuId,
+          chart: chartInstanceRef.current,
+          name: indicatorName
+        }]);
+        // Don't add Ichimoku to appliedIndicators as it manages itself
+      }
+       else {
         console.log(`Applied ${indicatorName} to chart`);
         setAppliedIndicators(prev => [...prev, newIndicator]);
       }
@@ -258,6 +271,9 @@ export default function MainChart() {
       } else if (indicator.name === "WMA – Weighted Moving Average") {
         // Remove WMA indicator - this will be handled by the WMAIndicator component
         setWmaIndicators(prev => prev.filter(wma => wma.id !== indicatorId));
+      } else if (indicator.name === "Ichimoku Cloud") {
+        // Remove Ichimoku indicator - this will be handled by the IchimokuIndicator component
+        setIchimokuIndicators(prev => prev.filter(ichimoku => ichimoku.id !== indicatorId));
       } else {
         // For other indicators, remove them by ID
         // chartInstanceRef.current.removeIndicator(indicatorId);
@@ -282,13 +298,20 @@ export default function MainChart() {
     // WMA indicators are not in appliedIndicators, so no need to remove from there
   };
 
+  // Function to remove Ichimoku indicator
+  const removeIchimokuIndicator = (ichimokuId) => {
+    setIchimokuIndicators(prev => prev.filter(ichimoku => ichimoku.id !== ichimokuId));
+    // Ichimoku indicators are not in appliedIndicators, so no need to remove from there
+  };
+
+
   const getIndicatorType = (indicatorName) => {
     // Map indicator names to types for categorization
     const patternIndicators = ["Candlestick Pattern Recognition", "Chart Pattern Recognition", "Harmonic Pattern Recognition"];
-    const trendIndicators = ["SMA – Simple Moving Average", "EMA – Exponential Moving Average", "WMA – Weighted Moving Average", "MACD – Moving Average Convergence Divergence"];
-    const momentumIndicators = ["RSI – Relative Strength Index", "Stochastic Oscillator"];
-    const volatilityIndicators = ["Bollinger Bands", "ATR – Average True Range"];
-    const volumeIndicators = ["Volume Histogram", "OBV – On-Balance Volume"];
+    const trendIndicators = ["SMA – Simple Moving Average", "EMA – Exponential Moving Average", "WMA – Weighted Moving Average", "MACD – Moving Average Convergence Divergence", "Ichimoku Cloud", "Supertrend", "Parabolic SAR", "ADX – Average Directional Index", "HMA – Hull Moving Average", "Gann HiLo Activator"];
+    const momentumIndicators = ["RSI – Relative Strength Index", "Stochastic Oscillator", "Stochastic RSI", "CCI – Commodity Channel Index", "Williams %R", "ROC – Rate of Change", "Awesome Oscillator", "Elder Impulse System"];
+    const volatilityIndicators = ["Bollinger Bands", "Keltner Channels", "ATR – Average True Range", "Donchian Channels", "Standard Deviation Channel", "Chaikin Volatility"];
+    const volumeIndicators = ["Volume Histogram", "OBV – On-Balance Volume", "MFI – Money Flow Index", "Accumulation/Distribution Line", "Chaikin Money Flow (CMF)", "Volume Oscillator"];
 
     if (patternIndicators.includes(indicatorName)) return "pattern";
     if (trendIndicators.includes(indicatorName)) return "trend";
@@ -324,7 +347,7 @@ export default function MainChart() {
         default:
           klineType = "candle_solid";
       }
-      
+
       chartInstanceRef.current.setStyles({
         candle: {
           type: klineType,
@@ -1049,7 +1072,7 @@ export default function MainChart() {
                   <path d="M14 5h1v6h-1z"></path>
                   <path d="M7 19h1v3h-1z"></path>
                   <path d="M7 6h1v7h-1z"></path>
-                  <path fillRule="nonzero" d="M7 13v6h1v-6h-1zm-1-1h3v8h-3v-8zM14 18h1v-7h-1v7zm-1-8h3v9h-3v-9z"></path>
+                  <path fillRule="nonzero" d="M8 18h1v-4h-1v4zm-1-5h3v6h-3v-6zM14 18h1v-7h-1v7zm-1-8h3v9h-3v-9z"></path>
                 </g>
               </svg>
               <span style={styles.submenuText}>Forecast</span>
@@ -1133,7 +1156,7 @@ export default function MainChart() {
             {/* Anchored Volume Profile */}
             <div style={styles.submenuItem}>
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 28" width="20" height="20">
-                <path fill="currentColor" fillRule="evenodd" d="M24 3h-1v4h-6v3h-5v3H8.95a2.5 2.5 0 1 0 0 1H15v3h5v3h3v4h1V3Zm-6 7h5V8h-5v2Zm-1 1h-4v2h10v-2h-6Zm4 5h-5v-2h7v2h-2Zm0 3v-2h2v2h-2ZM6.5 15a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3Z"></path>
+                <path fill="currentColor" fillRule="evenodd" d="M24 3h-1v4h-6v3h-5v3H8.95a2.5 2.5 0 1 0 0 1H15v3h5v3h3v4h1V3Zm-6 7h5V8h-5v2Zm-1 1h-4v2h10v-2h-6Zm4 5h-5v-2h7v2h-2ZM6.5 15a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3Z"></path>
               </svg>
               <span style={styles.submenuText}>Anchored Volume Profile</span>
             </div>
@@ -1319,7 +1342,7 @@ export default function MainChart() {
 
         <div style={styles.mainChart}>
           {/* Applied Indicators Display */}
-          {(appliedIndicators.length > 0 || smaIndicators.length > 0 || emaIndicators.length > 0 || wmaIndicators.length > 0) && (
+          {(appliedIndicators.length > 0 || smaIndicators.length > 0 || emaIndicators.length > 0 || wmaIndicators.length > 0 || ichimokuIndicators.length > 0) && (
             <div style={styles.indicatorsPanel}>
               <div style={styles.indicatorsPanelTitle}>Applied Indicators</div>
               <div style={styles.indicatorsList}>
@@ -1382,10 +1405,17 @@ export default function MainChart() {
                     onRemove={() => removeWmaIndicator(wma.id)}
                   />
                 ))}
+                {ichimokuIndicators.map((ichimoku) => (
+                  <IchimokuIndicator 
+                    key={ichimoku.id}
+                    chart={ichimoku.chart}
+                    onRemove={() => removeIchimokuIndicator(ichimoku.id)}
+                  />
+                ))}
               </div>
             </div>
           )}
-          
+
           {/* Symbol and Price Display */}
           <div style={styles.symbolPriceDisplay}>
             <div style={styles.symbolName}>NIFTY 50</div>
