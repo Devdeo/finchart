@@ -9,7 +9,8 @@ import WMAIndicator from "./WMAIndicator";
 import IchimokuIndicator from "./IchimokuIndicator";
 import SupertrendIndicator from "./SupertrendIndicator";
 import PSARIndicator from "./PSARIndicator";
-import MACDIndicator from "./MACDIndicator"; 
+import MACDIndicator from "./MACDIndicator";
+import ADXIndicator from "./ADXIndicator"; 
 
 export default function MainChart() {
   const [openMenu, setOpenMenu] = useState(null);
@@ -46,6 +47,7 @@ export default function MainChart() {
   const [supertrendIndicators, setSupertrendIndicators] = useState<any[]>([]);
   const [psarIndicators, setPsarIndicators] = useState<any[]>([]);
   const [macdIndicators, setMacdIndicators] = useState<any[]>([]);
+  const [adxIndicators, setAdxIndicators] = useState<any[]>([]);
   const [showIndicatorControls, setShowIndicatorControls] = useState(null);
 
   // Settings state
@@ -274,6 +276,15 @@ export default function MainChart() {
           name: indicatorName
         }]);
         // Don't add MACD to appliedIndicators as it manages itself
+      } else if (indicatorName === "ADX – Average Directional Index") {
+        // For ADX, create the component with unique ID
+        const adxId = indicatorId;
+        setAdxIndicators(prev => [...prev, {
+          id: adxId,
+          chart: chartInstanceRef.current,
+          name: indicatorName
+        }]);
+        // Don't add ADX to appliedIndicators as it manages itself
       } else {
         console.log(`Applied ${indicatorName} to chart`);
         setAppliedIndicators(prev => [...prev, newIndicator]);
@@ -314,6 +325,9 @@ export default function MainChart() {
       } else if (indicator.name === "MACD – Moving Average Convergence Divergence") {
         // Remove MACD indicator - this will be handled by the MACDIndicator component
         setMacdIndicators(prev => prev.filter(macd => macd.id !== indicatorId));
+      } else if (indicator.name === "ADX – Average Directional Index") {
+        // Remove ADX indicator - this will be handled by the ADXIndicator component
+        setAdxIndicators(prev => prev.filter(adx => adx.id !== indicatorId));
       } else {
         // For other indicators, remove them by ID
         // chartInstanceRef.current.removeIndicator(indicatorId);
@@ -360,6 +374,12 @@ export default function MainChart() {
   const removeMacdIndicator = (macdId) => {
     setMacdIndicators(prev => prev.filter(macd => macd.id !== macdId));
     // MACD indicators are not in appliedIndicators, so no need to remove from there
+  };
+
+  // Function to remove ADX indicator
+  const removeAdxIndicator = (adxId) => {
+    setAdxIndicators(prev => prev.filter(adx => adx.id !== adxId));
+    // ADX indicators are not in appliedIndicators, so no need to remove from there
   };
 
 
@@ -1400,7 +1420,7 @@ export default function MainChart() {
 
         <div style={styles.mainChart}>
           {/* Applied Indicators Display */}
-          {(appliedIndicators.length > 0 || smaIndicators.length > 0 || emaIndicators.length > 0 || wmaIndicators.length > 0 || ichimokuIndicators.length > 0 || supertrendIndicators.length > 0 || psarIndicators.length > 0 || macdIndicators.length > 0) && (
+          {(appliedIndicators.length > 0 || smaIndicators.length > 0 || emaIndicators.length > 0 || wmaIndicators.length > 0 || ichimokuIndicators.length > 0 || supertrendIndicators.length > 0 || psarIndicators.length > 0 || macdIndicators.length > 0 || adxIndicators.length > 0) && (
             <div style={styles.indicatorsPanel}>
               <div style={styles.indicatorsPanelTitle}>Applied Indicators</div>
               <div style={styles.indicatorsList}>
@@ -1489,6 +1509,13 @@ export default function MainChart() {
                     key={macd.id}
                     chart={macd.chart}
                     onRemove={() => removeMacdIndicator(macd.id)}
+                  />
+                ))}
+                {adxIndicators.map((adx) => (
+                  <ADXIndicator 
+                    key={adx.id}
+                    chart={adx.chart}
+                    onRemove={() => removeAdxIndicator(adx.id)}
                   />
                 ))}
               </div>
