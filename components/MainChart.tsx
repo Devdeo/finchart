@@ -78,11 +78,28 @@ export default function MainChart() {
 
   // Settings state
   const [settings, setSettings] = useState({
+    // Price Display
     lastPrice: true,
     highPrice: true,
     lowPrice: true,
-    reverseCoord: false,
+    openPrice: false,
+    
+    // Chart Display
     gridShow: true,
+    crosshairShow: true,
+    volumeShow: true,
+    reverseCoord: false,
+    
+    // Chart Appearance
+    candleStyle: 'candle_solid',
+    theme: 'light',
+    
+    // Technical Analysis
+    autoScale: true,
+    logScale: false,
+    
+    // Performance
+    animationEnabled: true,
   });
 
   useEffect(() => {
@@ -187,7 +204,76 @@ export default function MainChart() {
   };
 
   const toggleSetting = (key) => {
-    setSettings((prev) => ({ ...prev, [key]: !prev[key] }));
+    setSettings((prev) => {
+      const newSettings = { ...prev, [key]: !prev[key] };
+      
+      // Apply changes to chart immediately
+      if (chartInstanceRef.current) {
+        switch (key) {
+          case 'gridShow':
+            chartInstanceRef.current.setStyles({
+              grid: { show: newSettings.gridShow }
+            });
+            break;
+          case 'crosshairShow':
+            chartInstanceRef.current.setStyles({
+              crosshair: { show: newSettings.crosshairShow }
+            });
+            break;
+          case 'autoScale':
+            // Toggle auto scale
+            chartInstanceRef.current.getVisibleRange();
+            break;
+          case 'logScale':
+            chartInstanceRef.current.setStyles({
+              yAxis: { type: newSettings.logScale ? 'log' : 'normal' }
+            });
+            break;
+          case 'animationEnabled':
+            chartInstanceRef.current.setStyles({
+              candle: { animation: newSettings.animationEnabled }
+            });
+            break;
+        }
+      }
+      
+      return newSettings;
+    });
+  };
+
+  const changeSetting = (key, value) => {
+    setSettings((prev) => {
+      const newSettings = { ...prev, [key]: value };
+      
+      // Apply changes to chart immediately
+      if (chartInstanceRef.current) {
+        switch (key) {
+          case 'theme':
+            // Apply theme changes
+            const isDark = value === 'dark';
+            chartInstanceRef.current.setStyles({
+              grid: {
+                horizontal: { color: isDark ? '#333' : '#f0f0f0' },
+                vertical: { color: isDark ? '#333' : '#f0f0f0' }
+              },
+              candle: {
+                bar: {
+                  upColor: isDark ? '#26a69a' : '#4CAF50',
+                  downColor: isDark ? '#ef5350' : '#f44336'
+                }
+              }
+            });
+            break;
+          case 'candleStyle':
+            chartInstanceRef.current.setStyles({
+              candle: { type: value }
+            });
+            break;
+        }
+      }
+      
+      return newSettings;
+    });
   };
 
   const handlePatternRecognition = () => {
@@ -907,19 +993,171 @@ export default function MainChart() {
               </>
             )}
 
-            {openMenu === "settings" &&
-              Object.entries(settings).map(([key, value]) => (
-                <label key={key} style={styles.toggleItem}>
-                  <input
-                    type="checkbox"
-                    checked={value}
-                    onChange={() => toggleSetting(key)}
-                  />
-                  {key
-                    .replace(/([A-Z])/g, " $1")
-                    .replace(/^./, (c) => c.toUpperCase())}
-                </label>
-              ))}
+            {openMenu === "settings" && (
+              <>
+                <div style={styles.settingsSection}>
+                  <div style={styles.sectionHeader}>Price Display</div>
+                  <label style={styles.toggleItem}>
+                    <input
+                      type="checkbox"
+                      checked={settings.lastPrice}
+                      onChange={() => toggleSetting('lastPrice')}
+                    />
+                    Show Last Price
+                  </label>
+                  <label style={styles.toggleItem}>
+                    <input
+                      type="checkbox"
+                      checked={settings.highPrice}
+                      onChange={() => toggleSetting('highPrice')}
+                    />
+                    Show High Price
+                  </label>
+                  <label style={styles.toggleItem}>
+                    <input
+                      type="checkbox"
+                      checked={settings.lowPrice}
+                      onChange={() => toggleSetting('lowPrice')}
+                    />
+                    Show Low Price
+                  </label>
+                  <label style={styles.toggleItem}>
+                    <input
+                      type="checkbox"
+                      checked={settings.openPrice}
+                      onChange={() => toggleSetting('openPrice')}
+                    />
+                    Show Open Price
+                  </label>
+                </div>
+
+                <div style={styles.settingsSection}>
+                  <div style={styles.sectionHeader}>Chart Display</div>
+                  <label style={styles.toggleItem}>
+                    <input
+                      type="checkbox"
+                      checked={settings.gridShow}
+                      onChange={() => toggleSetting('gridShow')}
+                    />
+                    Show Grid
+                  </label>
+                  <label style={styles.toggleItem}>
+                    <input
+                      type="checkbox"
+                      checked={settings.crosshairShow}
+                      onChange={() => toggleSetting('crosshairShow')}
+                    />
+                    Show Crosshair
+                  </label>
+                  <label style={styles.toggleItem}>
+                    <input
+                      type="checkbox"
+                      checked={settings.volumeShow}
+                      onChange={() => toggleSetting('volumeShow')}
+                    />
+                    Show Volume
+                  </label>
+                  <label style={styles.toggleItem}>
+                    <input
+                      type="checkbox"
+                      checked={settings.reverseCoord}
+                      onChange={() => toggleSetting('reverseCoord')}
+                    />
+                    Reverse Y-Axis
+                  </label>
+                </div>
+
+                <div style={styles.settingsSection}>
+                  <div style={styles.sectionHeader}>Chart Appearance</div>
+                  <div style={styles.selectItem}>
+                    <label>Theme:</label>
+                    <select
+                      value={settings.theme}
+                      onChange={(e) => changeSetting('theme', e.target.value)}
+                      style={styles.selectInput}
+                    >
+                      <option value="light">Light</option>
+                      <option value="dark">Dark</option>
+                    </select>
+                  </div>
+                  <div style={styles.selectItem}>
+                    <label>Candle Style:</label>
+                    <select
+                      value={settings.candleStyle}
+                      onChange={(e) => changeSetting('candleStyle', e.target.value)}
+                      style={styles.selectInput}
+                    >
+                      <option value="candle_solid">Solid Candles</option>
+                      <option value="candle_stroke">Stroke Candles</option>
+                      <option value="candle_up_stroke">Up Stroke Only</option>
+                      <option value="candle_down_stroke">Down Stroke Only</option>
+                      <option value="ohlc">OHLC Bars</option>
+                      <option value="area">Area Chart</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div style={styles.settingsSection}>
+                  <div style={styles.sectionHeader}>Technical Analysis</div>
+                  <label style={styles.toggleItem}>
+                    <input
+                      type="checkbox"
+                      checked={settings.autoScale}
+                      onChange={() => toggleSetting('autoScale')}
+                    />
+                    Auto Scale
+                  </label>
+                  <label style={styles.toggleItem}>
+                    <input
+                      type="checkbox"
+                      checked={settings.logScale}
+                      onChange={() => toggleSetting('logScale')}
+                    />
+                    Logarithmic Scale
+                  </label>
+                </div>
+
+                <div style={styles.settingsSection}>
+                  <div style={styles.sectionHeader}>Performance</div>
+                  <label style={styles.toggleItem}>
+                    <input
+                      type="checkbox"
+                      checked={settings.animationEnabled}
+                      onChange={() => toggleSetting('animationEnabled')}
+                    />
+                    Enable Animations
+                  </label>
+                </div>
+
+                <div style={styles.settingsSection}>
+                  <div style={styles.actionButtons}>
+                    <button
+                      style={styles.resetButton}
+                      onClick={() => {
+                        setSettings({
+                          lastPrice: true,
+                          highPrice: true,
+                          lowPrice: true,
+                          openPrice: false,
+                          gridShow: true,
+                          crosshairShow: true,
+                          volumeShow: true,
+                          reverseCoord: false,
+                          candleStyle: 'candle_solid',
+                          theme: 'light',
+                          autoScale: true,
+                          logScale: false,
+                          animationEnabled: true,
+                        });
+                        setOpenMenu(null);
+                      }}
+                    >
+                      Reset to Default
+                    </button>
+                  </div>
+                </div>
+              </>
+            )}
           </div>
         </div>
       )}
@@ -1990,9 +2228,55 @@ const styles = {
   toggleItem: {
     display: "flex",
     alignItems: "center",
-    padding: "5px",
-    borderBottom: "1px solid #eee",
+    padding: "8px 12px",
+    borderBottom: "1px solid #f0f0f0",
     cursor: "pointer",
+    fontSize: "13px",
+    gap: "8px",
+    transition: "background-color 0.2s",
+  },
+  settingsSection: {
+    borderBottom: "1px solid #e0e0e0",
+    paddingBottom: "8px",
+    marginBottom: "8px",
+  },
+  sectionHeader: {
+    fontSize: "12px",
+    fontWeight: "600",
+    color: "#666",
+    padding: "8px 12px 4px 12px",
+    textTransform: "uppercase",
+    letterSpacing: "0.5px",
+  },
+  selectItem: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "space-between",
+    padding: "8px 12px",
+    borderBottom: "1px solid #f0f0f0",
+    fontSize: "13px",
+  },
+  selectInput: {
+    padding: "4px 8px",
+    border: "1px solid #ddd",
+    borderRadius: "4px",
+    fontSize: "12px",
+    backgroundColor: "#fff",
+    minWidth: "120px",
+  },
+  actionButtons: {
+    padding: "8px 12px",
+  },
+  resetButton: {
+    width: "100%",
+    padding: "8px 16px",
+    backgroundColor: "#f5f5f5",
+    border: "1px solid #ddd",
+    borderRadius: "4px",
+    fontSize: "12px",
+    cursor: "pointer",
+    color: "#333",
+    transition: "all 0.2s",
   },
   mainArea: {
     display: "flex",
