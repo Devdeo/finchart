@@ -6,8 +6,7 @@ import { applyHarmonicPatternRecognition } from "./DetectHarmonicPatterns";
 import SMAIndicator from "./SMAIndicator";
 import EMAIndicator from "./EMAIndicator";
 import WMAIndicator from "./WMAIndicator";
-// Import IchimokuIndicator here, assuming it's in a separate file
-// import IchimokuIndicator from "./IchimokuIndicator"; 
+import IchimokuIndicator from "./IchimokuIndicator"; 
 
 export default function MainChart() {
   const [openMenu, setOpenMenu] = useState(null);
