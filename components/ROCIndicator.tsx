@@ -133,9 +133,9 @@ const ROCIndicator: React.FC<ROCIndicatorProps> = ({
         transition: "background-color 0.2s",
         boxShadow: "0 1px 2px rgba(0, 0, 0, 0.1)",
         position: "relative",
-        ...(showSettings ? { backgroundColor: "rgba(255, 255, 255, 1)", borderColor: "rgba(0, 0, 0, 0.2)" } : {})
+        
       }}
-      onClick={() => setShowSettings(!showSettings)}
+      
     >
       <span style={{
         color: "#131722",
@@ -151,60 +151,57 @@ const ROCIndicator: React.FC<ROCIndicatorProps> = ({
         ROC – Rate of Change ({period})
       </span>
       
-      {showSettings && (
-        <>
-          <button 
-            style={{
-              background: "none",
-              border: "none",
-              color: "#686d76",
-              fontSize: "10px",
-              cursor: "pointer",
-              padding: "0 2px",
-              marginRight: "2px",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              width: "14px",
-              height: "14px",
-              borderRadius: "2px",
-              transition: "all 0.2s",
-            }}
-            onClick={(e) => {
-              e.stopPropagation();
-            }}
-            title="Settings"
-          >
-            <i className="fa-solid fa-gear"></i>
-          </button>
-          <button 
-            style={{
-              background: "#f23645",
-              color: "white",
-              border: "none",
-              borderRadius: "2px",
-              width: "14px",
-              height: "14px",
-              fontSize: "10px",
-              cursor: "pointer",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              lineHeight: "1",
-              padding: "0",
-              fontWeight: "bold",
-              transition: "all 0.2s",
-            }}
-            onClick={(e) => {
-              e.stopPropagation();
-              onRemove();
-            }}
-            title="Remove indicator"
-          >
-            ×
-          </button>
-        </>
-      )}
+      <button 
+        style={{
+          background: "none",
+          border: "none",
+          color: "#686d76",
+          fontSize: "10px",
+          cursor: "pointer",
+          padding: "0 2px",
+          marginRight: "2px",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          width: "14px",
+          height: "14px",
+          borderRadius: "2px",
+          transition: "all 0.2s",
+        }}
+        onClick={(e) => {
+          e.stopPropagation();
+          setShowSettings(!showSettings);
+        }}
+        title="Settings"
+      >
+        <i className="fa-solid fa-gear"></i>
+      </button>
+      <button 
+        style={{
+          background: "#f23645",
+          color: "white",
+          border: "none",
+          borderRadius: "2px",
+          width: "14px",
+          height: "14px",
+          fontSize: "10px",
+          cursor: "pointer",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          lineHeight: "1",
+          padding: "0",
+          fontWeight: "bold",
+          transition: "all 0.2s",
+        }}
+        onClick={(e) => {
+          e.stopPropagation();
+          onRemove();
+        }}
+        title="Remove indicator"
+      >
+        ×
+      </button>
 
       {showSettings && (
         <div 
