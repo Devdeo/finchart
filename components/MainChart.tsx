@@ -22,6 +22,7 @@ import BollingerBandsIndicator from "./BollingerBandsIndicator";
 import KeltnerChannelIndicator from "./KeltnerChannelIndicator";
 import DonchianChannelIndicator from "./DonchianChannelIndicator";
 import ATRIndicator from "./ATRIndicator";
+import StandardDeviationChannelIndicator from "./StandardDeviationChannelIndicator";
 
 export default function MainChart() {
   const [openMenu, setOpenMenu] = useState(null);
@@ -70,6 +71,7 @@ export default function MainChart() {
   const [keltnerChannelIndicators, setKeltnerChannelIndicators] = useState<Array<{ id: string; chart: any; name: string }>>([]);
   const [donchianChannelIndicators, setDonchianChannelIndicators] = useState<Array<{ id: string; chart: any; name: string }>>([]);
   const [atrIndicators, setAtrIndicators] = useState<Array<{ id: string; chart: any; name: string }>>([]);
+  const [standardDeviationChannelIndicators, setStandardDeviationChannelIndicators] = useState<Array<{ id: string; chart: any; name: string }>>([]);
   const [showIndicatorControls, setShowIndicatorControls] = useState(null);
 
   // Settings state
@@ -407,6 +409,16 @@ export default function MainChart() {
         }]);
         console.log(`Applied ATR – Average True Range to chart`);
         // Don't add ATR to appliedIndicators as it manages itself
+      } else if (indicatorName === "Standard Deviation Channel") {
+        // For Standard Deviation Channel, create the component with unique ID
+        const sdcId = indicatorId;
+        setStandardDeviationChannelIndicators(prev => [...prev, {
+          id: sdcId,
+          chart: chartInstanceRef.current,
+          name: indicatorName
+        }]);
+        console.log(`Applied Standard Deviation Channel to chart`);
+        // Don't add Standard Deviation Channel to appliedIndicators as it manages itself
       } else {
         console.log(`Applied ${indicatorName} to chart`);
         setAppliedIndicators(prev => [...prev, newIndicator]);
@@ -595,6 +607,12 @@ export default function MainChart() {
   const removeAtrIndicator = (atrId) => {
     setAtrIndicators(prev => prev.filter(atr => atr.id !== atrId));
     // ATR indicators are not in appliedIndicators, so no need to remove from there
+  };
+
+  // Function to remove Standard Deviation Channel indicator
+  const removeStandardDeviationChannelIndicator = (sdcId) => {
+    setStandardDeviationChannelIndicators(prev => prev.filter(sdc => sdc.id !== sdcId));
+    // Standard Deviation Channel indicators are not in appliedIndicators, so no need to remove from there
   };
 
 
@@ -1650,7 +1668,7 @@ export default function MainChart() {
 
         <div style={styles.mainChart}>
           {/* Applied Indicators Display */}
-          {(appliedIndicators.length > 0 || smaIndicators.length > 0 || emaIndicators.length > 0 || wmaIndicators.length > 0 || ichimokuIndicators.length > 0 || supertrendIndicators.length > 0 || psarIndicators.length > 0 || macdIndicators.length > 0 || adxIndicators.length > 0 || hmaIndicators.length > 0 || rsiIndicators.length > 0 || stochasticIndicators.length > 0 || stochasticRsiIndicators.length > 0 || cciIndicators.length > 0 || williamsRIndicators.length > 0 || rocIndicators.length > 0 || bollingerBandsIndicators.length > 0 || keltnerChannelIndicators.length > 0 || donchianChannelIndicators.length > 0 || atrIndicators.length > 0) && (
+          {(appliedIndicators.length > 0 || smaIndicators.length > 0 || emaIndicators.length > 0 || wmaIndicators.length > 0 || ichimokuIndicators.length > 0 || supertrendIndicators.length > 0 || psarIndicators.length > 0 || macdIndicators.length > 0 || adxIndicators.length > 0 || hmaIndicators.length > 0 || rsiIndicators.length > 0 || stochasticIndicators.length > 0 || stochasticRsiIndicators.length > 0 || cciIndicators.length > 0 || williamsRIndicators.length > 0 || rocIndicators.length > 0 || bollingerBandsIndicators.length > 0 || keltnerChannelIndicators.length > 0 || donchianChannelIndicators.length > 0 || atrIndicators.length > 0 || standardDeviationChannelIndicators.length > 0) && (
             <div style={styles.indicatorsPanel}>
               <div style={styles.indicatorsPanelTitle}>Applied Indicators</div>
               <div style={styles.indicatorsList}>
@@ -1829,6 +1847,13 @@ export default function MainChart() {
                     key={indicator.id}
                     chart={indicator.chart}
                     onRemove={() => removeAtrIndicator(indicator.id)}
+                  />
+                ))}
+                {standardDeviationChannelIndicators.map((indicator) => (
+                  <StandardDeviationChannelIndicator
+                    key={indicator.id}
+                    chart={indicator.chart}
+                    onRemove={() => removeStandardDeviationChannelIndicator(indicator.id)}
                   />
                 ))}
               </div>
