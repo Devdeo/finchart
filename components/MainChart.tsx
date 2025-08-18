@@ -72,6 +72,7 @@ export default function MainChart() {
   const [donchianChannelIndicators, setDonchianChannelIndicators] = useState<Array<{ id: string; chart: any; name: string }>>([]);
   const [atrIndicators, setAtrIndicators] = useState<Array<{ id: string; chart: any; name: string }>>([]);
   const [standardDeviationChannelIndicators, setStandardDeviationChannelIndicators] = useState<Array<{ id: string; chart: any; name: string }>>([]);
+  const [volumeHistogramIndicators, setVolumeHistogramIndicators] = useState<Array<{ id: string; chart: any; name: string }>>([]);
   const [showIndicatorControls, setShowIndicatorControls] = useState(null);
 
   // Settings state
@@ -419,6 +420,16 @@ export default function MainChart() {
         }]);
         console.log(`Applied Standard Deviation Channel to chart`);
         // Don't add Standard Deviation Channel to appliedIndicators as it manages itself
+      } else if (indicatorName === "Volume Histogram") {
+        // For Volume Histogram, create the component with unique ID
+        const vhId = indicatorId;
+        setVolumeHistogramIndicators(prev => [...prev, {
+          id: vhId,
+          chart: chartInstanceRef.current,
+          name: indicatorName
+        }]);
+        console.log(`Applied Volume Histogram to chart`);
+        // Don't add Volume Histogram to appliedIndicators as it manages itself
       } else {
         console.log(`Applied ${indicatorName} to chart`);
         setAppliedIndicators(prev => [...prev, newIndicator]);
@@ -489,6 +500,18 @@ export default function MainChart() {
       } else if (indicator.name === "Keltner Channels") {
         // Remove Keltner Channels indicator - this will be handled by the KeltnerChannelIndicator component
         setKeltnerChannelIndicators(prev => prev.filter(kc => kc.id !== indicatorId));
+      } else if (indicator.name === "Donchian Channels") {
+        // Remove Donchian Channel indicator - this will be handled by the DonchianChannelIndicator component
+        setDonchianChannelIndicators(prev => prev.filter(dc => dc.id !== indicatorId));
+      } else if (indicator.name === "ATR – Average True Range") {
+        // Remove ATR indicator - this will be handled by the ATRIndicator component
+        setAtrIndicators(prev => prev.filter(atr => atr.id !== indicatorId));
+      } else if (indicator.name === "Standard Deviation Channel") {
+        // Remove Standard Deviation Channel indicator - this will be handled by the StandardDeviationChannelIndicator component
+        setStandardDeviationChannelIndicators(prev => prev.filter(sdc => sdc.id !== indicatorId));
+      } else if (indicator.name === "Volume Histogram") {
+        // Remove Volume Histogram indicator - this will be handled by the VolumeHistogramIndicator component
+        setVolumeHistogramIndicators(prev => prev.filter(vh => vh.id !== indicatorId));
       } else {
         // For other indicators, remove them by ID
         // chartInstanceRef.current.removeIndicator(indicatorId);
@@ -613,6 +636,12 @@ export default function MainChart() {
   const removeStandardDeviationChannelIndicator = (sdcId) => {
     setStandardDeviationChannelIndicators(prev => prev.filter(sdc => sdc.id !== sdcId));
     // Standard Deviation Channel indicators are not in appliedIndicators, so no need to remove from there
+  };
+
+  // Function to remove Volume Histogram indicator
+  const removeVolumeHistogramIndicator = (vhId) => {
+    setVolumeHistogramIndicators(prev => prev.filter(vh => vh.id !== vhId));
+    // Volume Histogram indicators are not in appliedIndicators, so no need to remove from there
   };
 
 
@@ -1383,7 +1412,7 @@ export default function MainChart() {
                   <path d="M14 5h1v6h-1z"></path>
                   <path d="M7 19h1v3h-1z"></path>
                   <path d="M7 6h1v7h-1z"></path>
-                  <path fillRule="nonzero" d="M8 18h1v-4h-1v4zm-1-5h3v6h-3v-6zM14 18h1v-7h-1v7zm-1-8h3v9h-3v-9z"></path>
+                  <path fillRule="nonzero" d="M8 18h1v3h-1zM8 9h1v5h-1zM8 18h1v-4h-1v4zm-1-5h3v6h-3v-6zM14 18h1v3h-1zM14 3h1v6h-1zM14 18h1v-7h-1v7zm-1-8h3v9h-3v-9zM7 19h1v3h-1zM7 6h1v7h-1z"></path>
                 </g>
               </svg>
               <span style={styles.submenuText}>Forecast</span>
@@ -1458,7 +1487,7 @@ export default function MainChart() {
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 28" width="20" height="20" fill="none">
                 <path fill="currentColor" fillRule="evenodd" clipRule="evenodd" d="M5 21.5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0zM3.5 24a2.5 2.5 0 0 0 .5-4.95V3H3v16.05A2.5 2.5 0 0 0 3.5 24zM25 5.5a1.5 1.5 0 1 0-3 0 1.5 1.5 0 0 0 3 0zM23.5 3a2.5 2.5 0 0 1 .5 4.95V24h-1V7.95A2.5 2.5 0 0 1 23.5 3z"></path>
                 <path fill="currentColor" fillRule="evenodd" clipRule="evenodd" d="M9 7H4v2h5V7zM3 6v4h7V6H3z"></path>
-                <path fill="currentColor" fillRule="evenodd" clipRule="evenodd" d="M12 10H4v2h8v-2zM3 9v4h10V9H3z"></path>
+                <path fill="currentColor" fillRule="evenodd" clipRule="evenodd" d="M12 10H4v2h8v-2zm-4-1v4h10v-4H3z"></path>
                 <path fill="currentColor" fillRule="evenodd" clipRule="evenodd" d="M7 13H4v2h3v-2zm-4-1v4h5v-4H3z"></path>
               </svg>
               <span style={styles.submenuText}>Fixed Range Volume Profile</span>
@@ -1545,11 +1574,11 @@ export default function MainChart() {
             {/* Arrow Marker */}
             <div style={styles.submenuItem}>
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 28" width="20" height="20">
-                <g fill="currentColor">
-                  <path fillRule="nonzero" d="M4.529 18.21l3.157-1.292-.379-.926-3.157 1.292z"></path>
-                  <path fillRule="nonzero" d="M9.734 16.081l2.97-1.215-.379-.926-2.97 1.215z"></path>
-                  <path fillRule="nonzero" d="M14.725 14.039l2.957-1.21-.379-.926-2.957 1.21z"></path>
-                  <path fillRule="nonzero" d="M19.708 12.001l3.114-1.274-.379-.926-3.114 1.274z"></path>
+                <g fill="currentColor" fillRule="nonzero">
+                  <path d="M4.529 18.21l3.157-1.292-.379-.926-3.157 1.292z"></path>
+                  <path d="M9.734 16.081l2.97-1.215-.379-.926-2.97 1.215z"></path>
+                  <path d="M14.725 14.039l2.957-1.21-.379-.926-2.957 1.21z"></path>
+                  <path d="M19.708 12.001l3.114-1.274-.379-.926-3.114 1.274z"></path>
                   <path d="M8 18h1v3h-1z"></path>
                   <path d="M8 9h1v5h-1z"></path>
                   <path fillRule="nonzero" d="M8 18h1v-4h-1v4zm-1-5h3v6h-3v-6z"></path>
@@ -1632,7 +1661,8 @@ export default function MainChart() {
             <div style={styles.submenuItem}>
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 28" width="20" height="20" fill="none">
                 <path stroke="currentColor" d="M16 14a2 2 0 1 1-4 0 2 2 0 0 1 4 0Z"></path>
-                <path fill="currentColor" fillRule="evenodd" d="M4.5 14a9.5 9.5 0 0 1 18.7-2.37 2.5 2.5 0 0 0 0 4.74A9.5 9.5 0 0 1 4.5 14Zm19.7 2.5a10.5 10.5 0 1 1 0-5 2.5 2.5 0 0 1 0 5ZM22.5 14a1.5 1.5 0 1 1 3 0 1.5 1.5 0 0 1-3 0Z"></path>
+                <path fill="currentColor" fillRule="evenodd" d="M4.529 18.21l3.157-1.292-.379-.926-3.157 1.292z"></path>
+                <path fill="currentColor" fillRule="evenodd" clipRule="evenodd" d="M4.5 14a9.5 9.5 0 0 1 18.7-2.37 2.5 2.5 0 0 0 0 4.74A9.5 9.5 0 0 1 4.5 14Zm19.7 2.5a10.5 10.5 0 1 1 0-5 2.5 2.5 0 0 1 0 5ZM22.5 14a1.5 1.5 0 1 1 3 0 1.5 1.5 0 0 1-3 0Z"></path>
               </svg>
               <span style={styles.submenuText}>Circle</span>
             </div>
@@ -1668,7 +1698,7 @@ export default function MainChart() {
 
         <div style={styles.mainChart}>
           {/* Applied Indicators Display */}
-          {(appliedIndicators.length > 0 || smaIndicators.length > 0 || emaIndicators.length > 0 || wmaIndicators.length > 0 || ichimokuIndicators.length > 0 || supertrendIndicators.length > 0 || psarIndicators.length > 0 || macdIndicators.length > 0 || adxIndicators.length > 0 || hmaIndicators.length > 0 || rsiIndicators.length > 0 || stochasticIndicators.length > 0 || stochasticRsiIndicators.length > 0 || cciIndicators.length > 0 || williamsRIndicators.length > 0 || rocIndicators.length > 0 || bollingerBandsIndicators.length > 0 || keltnerChannelIndicators.length > 0 || donchianChannelIndicators.length > 0 || atrIndicators.length > 0 || standardDeviationChannelIndicators.length > 0) && (
+          {(appliedIndicators.length > 0 || smaIndicators.length > 0 || emaIndicators.length > 0 || wmaIndicators.length > 0 || ichimokuIndicators.length > 0 || supertrendIndicators.length > 0 || psarIndicators.length > 0 || macdIndicators.length > 0 || adxIndicators.length > 0 || hmaIndicators.length > 0 || rsiIndicators.length > 0 || stochasticIndicators.length > 0 || stochasticRsiIndicators.length > 0 || cciIndicators.length > 0 || williamsRIndicators.length > 0 || rocIndicators.length > 0 || bollingerBandsIndicators.length > 0 || keltnerChannelIndicators.length > 0 || donchianChannelIndicators.length > 0 || atrIndicators.length > 0 || standardDeviationChannelIndicators.length > 0 || volumeHistogramIndicators.length > 0) && (
             <div style={styles.indicatorsPanel}>
               <div style={styles.indicatorsPanelTitle}>Applied Indicators</div>
               <div style={styles.indicatorsList}>
@@ -1855,6 +1885,17 @@ export default function MainChart() {
                     chart={indicator.chart}
                     onRemove={() => removeStandardDeviationChannelIndicator(indicator.id)}
                   />
+                ))}
+                {volumeHistogramIndicators.map((indicator) => (
+                  <div key={indicator.id} style={styles.indicatorChip}>
+                    <span style={styles.indicatorName}>Volume Histogram</span>
+                    <button
+                      style={styles.removeButton}
+                      onClick={() => removeVolumeHistogramIndicator(indicator.id)}
+                    >
+                      ×
+                    </button>
+                  </div>
                 ))}
               </div>
             </div>
