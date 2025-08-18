@@ -17,6 +17,7 @@ import StochasticIndicator from "./StochasticIndicator";
 import StochasticRSIIndicator from "./StochasticRSIIndicator"; 
 import CCIIndicator from "./CCIIndicator"; 
 import WilliamsRIndicator from "./WilliamsRIndicator"; 
+import ROCIndicator from "./ROCIndicator"; 
 
 export default function MainChart() {
   const [openMenu, setOpenMenu] = useState(null);
@@ -60,6 +61,7 @@ export default function MainChart() {
   const [stochasticRsiIndicators, setStochasticRsiIndicators] = useState<any[]>([]);
   const [cciIndicators, setCciIndicators] = useState<any[]>([]);
   const [williamsRIndicators, setWilliamsRIndicators] = useState<any[]>([]);
+  const [rocIndicators, setRocIndicators] = useState<any[]>([]);
   const [showIndicatorControls, setShowIndicatorControls] = useState(null);
 
   // Settings state
@@ -351,6 +353,15 @@ export default function MainChart() {
           name: indicatorName
         }]);
         // Don't add Williams %R to appliedIndicators as it manages itself
+      } else if (indicatorName === "ROC – Rate of Change") {
+        // For ROC, create the component with unique ID
+        const rocId = indicatorId;
+        setRocIndicators(prev => [...prev, {
+          id: rocId,
+          chart: chartInstanceRef.current,
+          name: indicatorName
+        }]);
+        // Don't add ROC to appliedIndicators as it manages itself
       } else {
         console.log(`Applied ${indicatorName} to chart`);
         setAppliedIndicators(prev => [...prev, newIndicator]);
@@ -412,6 +423,9 @@ export default function MainChart() {
       } else if (indicator.name === "Williams %R") {
         // Remove Williams %R indicator - this will be handled by the WilliamsRIndicator component
         setWilliamsRIndicators(prev => prev.filter(williamsR => williamsR.id !== indicatorId));
+      } else if (indicator.name === "ROC – Rate of Change") {
+        // Remove ROC indicator - this will be handled by the ROCIndicator component
+        setRocIndicators(prev => prev.filter(roc => roc.id !== indicatorId));
       } else {
         // For other indicators, remove them by ID
         // chartInstanceRef.current.removeIndicator(indicatorId);
@@ -500,6 +514,12 @@ export default function MainChart() {
   const removeWilliamsRIndicator = (williamsRId) => {
     setWilliamsRIndicators(prev => prev.filter(williamsR => williamsR.id !== williamsRId));
     // Williams %R indicators are not in appliedIndicators, so no need to remove from there
+  };
+
+  // Function to remove ROC indicator
+  const removeRocIndicator = (rocId) => {
+    setRocIndicators(prev => prev.filter(roc => roc.id !== rocId));
+    // ROC indicators are not in appliedIndicators, so no need to remove from there
   };
 
 
@@ -1540,7 +1560,7 @@ export default function MainChart() {
 
         <div style={styles.mainChart}>
           {/* Applied Indicators Display */}
-          {(appliedIndicators.length > 0 || smaIndicators.length > 0 || emaIndicators.length > 0 || wmaIndicators.length > 0 || ichimokuIndicators.length > 0 || supertrendIndicators.length > 0 || psarIndicators.length > 0 || macdIndicators.length > 0 || adxIndicators.length > 0 || hmaIndicators.length > 0 || rsiIndicators.length > 0 || stochasticIndicators.length > 0 || stochasticRsiIndicators.length > 0 || cciIndicators.length > 0 || williamsRIndicators.length > 0) && (
+          {(appliedIndicators.length > 0 || smaIndicators.length > 0 || emaIndicators.length > 0 || wmaIndicators.length > 0 || ichimokuIndicators.length > 0 || supertrendIndicators.length > 0 || psarIndicators.length > 0 || macdIndicators.length > 0 || adxIndicators.length > 0 || hmaIndicators.length > 0 || rsiIndicators.length > 0 || stochasticIndicators.length > 0 || stochasticRsiIndicators.length > 0 || cciIndicators.length > 0 || williamsRIndicators.length > 0 || rocIndicators.length > 0) && (
             <div style={styles.indicatorsPanel}>
               <div style={styles.indicatorsPanelTitle}>Applied Indicators</div>
               <div style={styles.indicatorsList}>
@@ -1678,6 +1698,13 @@ export default function MainChart() {
                     key={williamsR.id}
                     chart={williamsR.chart}
                     onRemove={() => removeWilliamsRIndicator(williamsR.id)}
+                  />
+                ))}
+                {rocIndicators.map((roc) => (
+                  <ROCIndicator 
+                    key={roc.id}
+                    chart={roc.chart}
+                    onRemove={() => removeRocIndicator(roc.id)}
                   />
                 ))}
               </div>
