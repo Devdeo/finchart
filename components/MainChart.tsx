@@ -20,6 +20,7 @@ import WilliamsRIndicator from "./WilliamsRIndicator";
 import ROCIndicator from "./ROCIndicator";
 import BollingerBandsIndicator from "./BollingerBandsIndicator";
 import KeltnerChannelIndicator from "./KeltnerChannelIndicator";
+import DonchianChannelIndicator from "./DonchianChannelIndicator";
 import ATRIndicator from "./ATRIndicator";
 
 export default function MainChart() {
@@ -67,6 +68,7 @@ export default function MainChart() {
   const [rocIndicators, setRocIndicators] = useState<Array<{ id: string; chart: any; name: string }>>([]);
   const [bollingerBandsIndicators, setBollingerBandsIndicators] = useState<Array<{ id: string; chart: any; name: string }>>([]);
   const [keltnerChannelIndicators, setKeltnerChannelIndicators] = useState<Array<{ id: string; chart: any; name: string }>>([]);
+  const [donchianChannelIndicators, setDonchianChannelIndicators] = useState<Array<{ id: string; chart: any; name: string }>>([]);
   const [atrIndicators, setAtrIndicators] = useState<Array<{ id: string; chart: any; name: string }>>([]);
   const [showIndicatorControls, setShowIndicatorControls] = useState(null);
 
@@ -386,6 +388,15 @@ export default function MainChart() {
           name: indicatorName
         }]);
         // Don't add Keltner Channels to appliedIndicators as it manages itself
+      } else if (indicatorName === "Donchian Channels") {
+        // For Donchian Channels, create the component with unique ID
+        const dcId = indicatorId;
+        setDonchianChannelIndicators(prev => [...prev, {
+          id: dcId,
+          chart: chartInstanceRef.current,
+          name: indicatorName
+        }]);
+        // Don't add Donchian Channels to appliedIndicators as it manages itself
       } else if (indicatorName === "ATR – Average True Range") {
         // For ATR, create the component with unique ID
         const atrId = indicatorId;
@@ -572,6 +583,12 @@ export default function MainChart() {
   const removeKeltnerChannelIndicator = (kcId) => {
     setKeltnerChannelIndicators(prev => prev.filter(kc => kc.id !== kcId));
     // Keltner Channel indicators are not in appliedIndicators, so no need to remove from there
+  };
+
+  // Function to remove Donchian Channel indicator
+  const removeDonchianChannelIndicator = (dcId) => {
+    setDonchianChannelIndicators(prev => prev.filter(dc => dc.id !== dcId));
+    // Donchian Channel indicators are not in appliedIndicators, so no need to remove from there
   };
 
   // Function to remove ATR indicator
@@ -797,8 +814,8 @@ export default function MainChart() {
                 {[
                   "Bollinger Bands",
                   "Keltner Channels",
-                  "ATR – Average True Range",
                   "Donchian Channels",
+                  "ATR – Average True Range",
                   "Standard Deviation Channel",
                   "Chaikin Volatility",
                 ].map((item) => (
@@ -1633,7 +1650,7 @@ export default function MainChart() {
 
         <div style={styles.mainChart}>
           {/* Applied Indicators Display */}
-          {(appliedIndicators.length > 0 || smaIndicators.length > 0 || emaIndicators.length > 0 || wmaIndicators.length > 0 || ichimokuIndicators.length > 0 || supertrendIndicators.length > 0 || psarIndicators.length > 0 || macdIndicators.length > 0 || adxIndicators.length > 0 || hmaIndicators.length > 0 || rsiIndicators.length > 0 || stochasticIndicators.length > 0 || stochasticRsiIndicators.length > 0 || cciIndicators.length > 0 || williamsRIndicators.length > 0 || rocIndicators.length > 0 || bollingerBandsIndicators.length > 0 || keltnerChannelIndicators.length > 0 || atrIndicators.length > 0) && (
+          {(appliedIndicators.length > 0 || smaIndicators.length > 0 || emaIndicators.length > 0 || wmaIndicators.length > 0 || ichimokuIndicators.length > 0 || supertrendIndicators.length > 0 || psarIndicators.length > 0 || macdIndicators.length > 0 || adxIndicators.length > 0 || hmaIndicators.length > 0 || rsiIndicators.length > 0 || stochasticIndicators.length > 0 || stochasticRsiIndicators.length > 0 || cciIndicators.length > 0 || williamsRIndicators.length > 0 || rocIndicators.length > 0 || bollingerBandsIndicators.length > 0 || keltnerChannelIndicators.length > 0 || donchianChannelIndicators.length > 0 || atrIndicators.length > 0) && (
             <div style={styles.indicatorsPanel}>
               <div style={styles.indicatorsPanelTitle}>Applied Indicators</div>
               <div style={styles.indicatorsList}>
@@ -1798,6 +1815,13 @@ export default function MainChart() {
                     onRemove={() => {
                       setKeltnerChannelIndicators(prev => prev.filter(ind => ind.id !== indicator.id));
                     }}
+                  />
+                ))}
+                {donchianChannelIndicators.map((indicator) => (
+                  <DonchianChannelIndicator
+                    key={indicator.id}
+                    chart={indicator.chart}
+                    onRemove={() => removeDonchianChannelIndicator(indicator.id)}
                   />
                 ))}
                 {atrIndicators.map((indicator) => (
