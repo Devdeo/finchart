@@ -15,6 +15,7 @@ import HMAIndicator from "./HMAIndicator";
 import RSIIndicator from "./RSIIndicator"; 
 import StochasticIndicator from "./StochasticIndicator"; 
 import StochasticRSIIndicator from "./StochasticRSIIndicator"; 
+import CCIIndicator from "./CCIIndicator"; 
 
 export default function MainChart() {
   const [openMenu, setOpenMenu] = useState(null);
@@ -56,6 +57,7 @@ export default function MainChart() {
   const [rsiIndicators, setRsiIndicators] = useState<any[]>([]);
   const [stochasticIndicators, setStochasticIndicators] = useState<any[]>([]);
   const [stochasticRsiIndicators, setStochasticRsiIndicators] = useState<any[]>([]);
+  const [cciIndicators, setCciIndicators] = useState<any[]>([]);
   const [showIndicatorControls, setShowIndicatorControls] = useState(null);
 
   // Settings state
@@ -329,6 +331,15 @@ export default function MainChart() {
           name: indicatorName
         }]);
         // Don't add Stochastic RSI to appliedIndicators as it manages itself
+      } else if (indicatorName === "CCI – Commodity Channel Index") {
+        // For CCI, create the component with unique ID
+        const cciId = indicatorId;
+        setCciIndicators(prev => [...prev, {
+          id: cciId,
+          chart: chartInstanceRef.current,
+          name: indicatorName
+        }]);
+        // Don't add CCI to appliedIndicators as it manages itself
       } else {
         console.log(`Applied ${indicatorName} to chart`);
         setAppliedIndicators(prev => [...prev, newIndicator]);
@@ -384,6 +395,9 @@ export default function MainChart() {
       } else if (indicator.name === "Stochastic RSI") {
         // Remove Stochastic RSI indicator - this will be handled by the StochasticRSIIndicator component
         setStochasticRsiIndicators(prev => prev.filter(stochasticRsi => stochasticRsi.id !== indicatorId));
+      } else if (indicator.name === "CCI – Commodity Channel Index") {
+        // Remove CCI indicator - this will be handled by the CCIIndicator component
+        setCciIndicators(prev => prev.filter(cci => cci.id !== indicatorId));
       } else {
         // For other indicators, remove them by ID
         // chartInstanceRef.current.removeIndicator(indicatorId);
@@ -460,6 +474,12 @@ export default function MainChart() {
   const removeStochasticRsiIndicator = (stochasticRsiId) => {
     setStochasticRsiIndicators(prev => prev.filter(stochasticRsi => stochasticRsi.id !== stochasticRsiId));
     // Stochastic RSI indicators are not in appliedIndicators, so no need to remove from there
+  };
+
+  // Function to remove CCI indicator
+  const removeCciIndicator = (cciId) => {
+    setCciIndicators(prev => prev.filter(cci => cci.id !== cciId));
+    // CCI indicators are not in appliedIndicators, so no need to remove from there
   };
 
 
@@ -1500,7 +1520,7 @@ export default function MainChart() {
 
         <div style={styles.mainChart}>
           {/* Applied Indicators Display */}
-          {(appliedIndicators.length > 0 || smaIndicators.length > 0 || emaIndicators.length > 0 || wmaIndicators.length > 0 || ichimokuIndicators.length > 0 || supertrendIndicators.length > 0 || psarIndicators.length > 0 || macdIndicators.length > 0 || adxIndicators.length > 0 || hmaIndicators.length > 0 || rsiIndicators.length > 0 || stochasticIndicators.length > 0 || stochasticRsiIndicators.length > 0) && (
+          {(appliedIndicators.length > 0 || smaIndicators.length > 0 || emaIndicators.length > 0 || wmaIndicators.length > 0 || ichimokuIndicators.length > 0 || supertrendIndicators.length > 0 || psarIndicators.length > 0 || macdIndicators.length > 0 || adxIndicators.length > 0 || hmaIndicators.length > 0 || rsiIndicators.length > 0 || stochasticIndicators.length > 0 || stochasticRsiIndicators.length > 0 || cciIndicators.length > 0) && (
             <div style={styles.indicatorsPanel}>
               <div style={styles.indicatorsPanelTitle}>Applied Indicators</div>
               <div style={styles.indicatorsList}>
@@ -1624,6 +1644,13 @@ export default function MainChart() {
                     key={stochasticRsi.id}
                     chart={stochasticRsi.chart}
                     onRemove={() => removeStochasticRsiIndicator(stochasticRsi.id)}
+                  />
+                ))}
+                {cciIndicators.map((cci) => (
+                  <CCIIndicator 
+                    key={cci.id}
+                    chart={cci.chart}
+                    onRemove={() => removeCciIndicator(cci.id)}
                   />
                 ))}
               </div>
