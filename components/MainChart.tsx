@@ -649,10 +649,10 @@ export default function MainChart() {
   const getIndicatorType = (indicatorName) => {
     // Map indicator names to types for categorization
     const patternIndicators = ["Candlestick Pattern Recognition", "Chart Pattern Recognition", "Harmonic Pattern Recognition"];
-    const trendIndicators = ["SMA – Simple Moving Average", "EMA – Exponential Moving Average", "WMA – Weighted Moving Average", "MACD – Moving Average Convergence Divergence", "Ichimoku Cloud", "Supertrend", "Parabolic SAR", "ADX – Average Directional Index", "HMA – Hull Moving Average", "Gann HiLo Activator"];
-    const momentumIndicators = ["RSI – Relative Strength Index", "Stochastic Oscillator", "Stochastic RSI", "CCI – Commodity Channel Index", "Williams %R", "ROC – Rate of Change", "Awesome Oscillator", "Elder Impulse System"];
-    const volatilityIndicators = ["Bollinger Bands", "Keltner Channels", "ATR – Average True Range", "Donchian Channels", "Standard Deviation Channel", "Chaikin Volatility"];
-    const volumeIndicators = ["Volume Histogram", "OBV – On-Balance Volume", "MFI – Money Flow Index", "Accumulation/Distribution Line", "Chaikin Money Flow (CMF)", "Volume Oscillator"];
+    const trendIndicators = ["SMA – Simple Moving Average", "EMA – Exponential Moving Average", "WMA – Weighted Moving Average", "MACD – Moving Average Convergence Divergence", "Ichimoku Cloud", "Supertrend", "Parabolic SAR", "ADX – Average Directional Index", "HMA – Hull Moving Average"];
+    const momentumIndicators = ["RSI – Relative Strength Index", "Stochastic Oscillator", "Stochastic RSI", "CCI – Commodity Channel Index", "Williams %R", "ROC – Rate of Change"];
+    const volatilityIndicators = ["Bollinger Bands", "Keltner Channels", "ATR – Average True Range", "Donchian Channels", "Standard Deviation Channel"];
+    const volumeIndicators = ["Volume Histogram"];
 
     if (patternIndicators.includes(indicatorName)) return "pattern";
     if (trendIndicators.includes(indicatorName)) return "trend";
@@ -818,6 +818,20 @@ export default function MainChart() {
 
             {openMenu === "indicator" && (
               <>
+                <strong>Pattern Recognition</strong>
+                {[
+                  "Chart Pattern Recognition",
+                  "Candlestick Pattern Recognition",
+                  "Harmonic Pattern Recognition",
+                ].map((item) => (
+                  <div
+                    key={item}
+                    style={styles.dropdownItem}
+                    onClick={() => addIndicator(item)}
+                  >
+                    {item}
+                  </div>
+                ))}
                 <strong>Trend</strong>
                 {[
                   "SMA – Simple Moving Average",
@@ -829,7 +843,6 @@ export default function MainChart() {
                   "Parabolic SAR",
                   "ADX – Average Directional Index",
                   "HMA – Hull Moving Average",
-                  "Gann HiLo Activator",
                 ].map((item) => (
                   <div
                     key={item}
@@ -847,8 +860,6 @@ export default function MainChart() {
                   "CCI – Commodity Channel Index",
                   "Williams %R",
                   "ROC – Rate of Change",
-                  "Awesome Oscillator",
-                  "Elder Impulse System",
                 ].map((item) => (
                   <div
                     key={item}
@@ -865,7 +876,6 @@ export default function MainChart() {
                   "Donchian Channels",
                   "ATR – Average True Range",
                   "Standard Deviation Channel",
-                  "Chaikin Volatility",
                 ].map((item) => (
                   <div
                     key={item}
@@ -878,25 +888,6 @@ export default function MainChart() {
                 <strong>Volume</strong>
                 {[
                   "Volume Histogram",
-                  "OBV – On-Balance Volume",
-                  "MFI – Money Flow Index",
-                  "Accumulation/Distribution Line",
-                  "Chaikin Money Flow (CMF)",
-                  "Volume Oscillator",
-                ].map((item) => (
-                  <div
-                    key={item}
-                    style={styles.dropdownItem}
-                    onClick={() => addIndicator(item)}
-                  >
-                    {item}
-                  </div>
-                ))}
-                <strong>Pattern Recognition</strong>
-                {[
-                  "Chart Pattern Recognition",
-                  "Candlestick Pattern Recognition",
-                  "Harmonic Pattern Recognition",
                 ].map((item) => (
                   <div
                     key={item}
