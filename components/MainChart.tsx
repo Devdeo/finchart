@@ -11,6 +11,7 @@ import SupertrendIndicator from "./SupertrendIndicator";
 import PSARIndicator from "./PSARIndicator";
 import MACDIndicator from "./MACDIndicator";
 import ADXIndicator from "./ADXIndicator"; 
+import HMAIndicator from "./HMAIndicator"; 
 
 export default function MainChart() {
   const [openMenu, setOpenMenu] = useState(null);
@@ -48,6 +49,7 @@ export default function MainChart() {
   const [psarIndicators, setPsarIndicators] = useState<any[]>([]);
   const [macdIndicators, setMacdIndicators] = useState<any[]>([]);
   const [adxIndicators, setAdxIndicators] = useState<any[]>([]);
+  const [hmaIndicators, setHmaIndicators] = useState<any[]>([]);
   const [showIndicatorControls, setShowIndicatorControls] = useState(null);
 
   // Settings state
@@ -285,6 +287,15 @@ export default function MainChart() {
           name: indicatorName
         }]);
         // Don't add ADX to appliedIndicators as it manages itself
+      } else if (indicatorName === "HMA – Hull Moving Average") {
+        // For HMA, create the component with unique ID
+        const hmaId = indicatorId;
+        setHmaIndicators(prev => [...prev, {
+          id: hmaId,
+          chart: chartInstanceRef.current,
+          name: indicatorName
+        }]);
+        // Don't add HMA to appliedIndicators as it manages itself
       } else {
         console.log(`Applied ${indicatorName} to chart`);
         setAppliedIndicators(prev => [...prev, newIndicator]);
@@ -328,6 +339,9 @@ export default function MainChart() {
       } else if (indicator.name === "ADX – Average Directional Index") {
         // Remove ADX indicator - this will be handled by the ADXIndicator component
         setAdxIndicators(prev => prev.filter(adx => adx.id !== indicatorId));
+      } else if (indicator.name === "HMA – Hull Moving Average") {
+        // Remove HMA indicator - this will be handled by the HMAIndicator component
+        setHmaIndicators(prev => prev.filter(hma => hma.id !== indicatorId));
       } else {
         // For other indicators, remove them by ID
         // chartInstanceRef.current.removeIndicator(indicatorId);
@@ -380,6 +394,12 @@ export default function MainChart() {
   const removeAdxIndicator = (adxId) => {
     setAdxIndicators(prev => prev.filter(adx => adx.id !== adxId));
     // ADX indicators are not in appliedIndicators, so no need to remove from there
+  };
+
+  // Function to remove HMA indicator
+  const removeHmaIndicator = (hmaId) => {
+    setHmaIndicators(prev => prev.filter(hma => hma.id !== hmaId));
+    // HMA indicators are not in appliedIndicators, so no need to remove from there
   };
 
 
@@ -1420,7 +1440,7 @@ export default function MainChart() {
 
         <div style={styles.mainChart}>
           {/* Applied Indicators Display */}
-          {(appliedIndicators.length > 0 || smaIndicators.length > 0 || emaIndicators.length > 0 || wmaIndicators.length > 0 || ichimokuIndicators.length > 0 || supertrendIndicators.length > 0 || psarIndicators.length > 0 || macdIndicators.length > 0 || adxIndicators.length > 0) && (
+          {(appliedIndicators.length > 0 || smaIndicators.length > 0 || emaIndicators.length > 0 || wmaIndicators.length > 0 || ichimokuIndicators.length > 0 || supertrendIndicators.length > 0 || psarIndicators.length > 0 || macdIndicators.length > 0 || adxIndicators.length > 0 || hmaIndicators.length > 0) && (
             <div style={styles.indicatorsPanel}>
               <div style={styles.indicatorsPanelTitle}>Applied Indicators</div>
               <div style={styles.indicatorsList}>
@@ -1516,6 +1536,13 @@ export default function MainChart() {
                     key={adx.id}
                     chart={adx.chart}
                     onRemove={() => removeAdxIndicator(adx.id)}
+                  />
+                ))}
+                {hmaIndicators.map((hma) => (
+                  <HMAIndicator 
+                    key={hma.id}
+                    chart={hma.chart}
+                    onRemove={() => removeHmaIndicator(hma.id)}
                   />
                 ))}
               </div>
