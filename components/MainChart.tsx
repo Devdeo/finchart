@@ -355,6 +355,7 @@ export default function MainChart() {
         // Don't add Williams %R to appliedIndicators as it manages itself
       } else if (indicatorName === "ROC – Rate of Change") {
         // For ROC, create the component with unique ID
+        console.log("Adding ROC indicator to chart");
         const rocId = indicatorId;
         setRocIndicators(prev => [...prev, {
           id: rocId,

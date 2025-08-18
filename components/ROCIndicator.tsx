@@ -57,8 +57,9 @@ const ROCIndicator: React.FC<ROCIndicatorProps> = ({
           ],
         },
       });
+      console.log("ROC indicator registered successfully");
     } catch (error) {
-      // Silently handle duplicate registration
+      console.log("ROC indicator registration error:", error);
     }
   };
 
@@ -66,9 +67,11 @@ const ROCIndicator: React.FC<ROCIndicatorProps> = ({
     if (!chart) return;
 
     const initROC = async () => {
+      console.log("Initializing ROC indicator");
       const klinecharts = await import("klinecharts");
       registerROC(klinecharts);
       const id = chart.createIndicator("MY_ROC", false); // false = separate pane
+      console.log("ROC indicator created with ID:", id);
       indicatorIdRef.current = id;
     };
 
@@ -76,6 +79,7 @@ const ROCIndicator: React.FC<ROCIndicatorProps> = ({
 
     return () => {
       if (indicatorIdRef.current && chart) {
+        console.log("Removing ROC indicator");
         chart.removeIndicator({ id: indicatorIdRef.current });
       }
     };
