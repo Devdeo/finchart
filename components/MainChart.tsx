@@ -10,14 +10,15 @@ import IchimokuIndicator from "./IchimokuIndicator";
 import SupertrendIndicator from "./SupertrendIndicator";
 import PSARIndicator from "./PSARIndicator";
 import MACDIndicator from "./MACDIndicator";
-import ADXIndicator from "./ADXIndicator"; 
-import HMAIndicator from "./HMAIndicator"; 
-import RSIIndicator from "./RSIIndicator"; 
-import StochasticIndicator from "./StochasticIndicator"; 
-import StochasticRSIIndicator from "./StochasticRSIIndicator"; 
-import CCIIndicator from "./CCIIndicator"; 
-import WilliamsRIndicator from "./WilliamsRIndicator"; 
-import ROCIndicator from "./ROCIndicator"; 
+import ADXIndicator from "./ADXIndicator";
+import HMAIndicator from "./HMAIndicator";
+import RSIIndicator from "./RSIIndicator";
+import StochasticIndicator from "./StochasticIndicator";
+import StochasticRSIIndicator from "./StochasticRSIIndicator";
+import CCIIndicator from "./CCIIndicator";
+import WilliamsRIndicator from "./WilliamsRIndicator";
+import ROCIndicator from "./ROCIndicator";
+import BollingerBandsIndicator from "./BollingerBandsIndicator";
 
 export default function MainChart() {
   const [openMenu, setOpenMenu] = useState(null);
@@ -61,7 +62,8 @@ export default function MainChart() {
   const [stochasticRsiIndicators, setStochasticRsiIndicators] = useState<any[]>([]);
   const [cciIndicators, setCciIndicators] = useState<any[]>([]);
   const [williamsRIndicators, setWilliamsRIndicators] = useState<any[]>([]);
-  const [rocIndicators, setRocIndicators] = useState<any[]>([]);
+  const [rocIndicators, setRocIndicators] = useState<Array<{ id: string; chart: any; name: string }>>([]);
+  const [bollingerBandsIndicators, setBollingerBandsIndicators] = useState<Array<{ id: string; chart: any; name: string }>>([]);
   const [showIndicatorControls, setShowIndicatorControls] = useState(null);
 
   // Settings state
@@ -230,8 +232,8 @@ export default function MainChart() {
       } else if (indicatorName === "SMA – Simple Moving Average") {
         // For SMA, create the component with unique ID
         const smaId = indicatorId;
-        setSmaIndicators(prev => [...prev, { 
-          id: smaId, 
+        setSmaIndicators(prev => [...prev, {
+          id: smaId,
           chart: chartInstanceRef.current,
           name: indicatorName
         }]);
@@ -239,8 +241,8 @@ export default function MainChart() {
       } else if (indicatorName === "EMA – Exponential Moving Average") {
         // For EMA, create the component with unique ID
         const emaId = indicatorId;
-        setEmaIndicators(prev => [...prev, { 
-          id: emaId, 
+        setEmaIndicators(prev => [...prev, {
+          id: emaId,
           chart: chartInstanceRef.current,
           name: indicatorName
         }]);
@@ -248,8 +250,8 @@ export default function MainChart() {
       } else if (indicatorName === "WMA – Weighted Moving Average") {
         // For WMA, create the component with unique ID
         const wmaId = indicatorId;
-        setWmaIndicators(prev => [...prev, { 
-          id: wmaId, 
+        setWmaIndicators(prev => [...prev, {
+          id: wmaId,
           chart: chartInstanceRef.current,
           name: indicatorName
         }]);
@@ -355,7 +357,6 @@ export default function MainChart() {
         // Don't add Williams %R to appliedIndicators as it manages itself
       } else if (indicatorName === "ROC – Rate of Change") {
         // For ROC, create the component with unique ID
-        console.log("Adding ROC indicator to chart");
         const rocId = indicatorId;
         setRocIndicators(prev => [...prev, {
           id: rocId,
@@ -363,6 +364,15 @@ export default function MainChart() {
           name: indicatorName
         }]);
         // Don't add ROC to appliedIndicators as it manages itself
+      } else if (indicatorName === "Bollinger Bands") {
+        // For Bollinger Bands, create the component with unique ID
+        const bbId = indicatorId;
+        setBollingerBandsIndicators(prev => [...prev, {
+          id: bbId,
+          chart: chartInstanceRef.current,
+          name: indicatorName
+        }]);
+        // Don't add Bollinger Bands to appliedIndicators as it manages itself
       } else {
         console.log(`Applied ${indicatorName} to chart`);
         setAppliedIndicators(prev => [...prev, newIndicator]);
@@ -427,6 +437,9 @@ export default function MainChart() {
       } else if (indicator.name === "ROC – Rate of Change") {
         // Remove ROC indicator - this will be handled by the ROCIndicator component
         setRocIndicators(prev => prev.filter(roc => roc.id !== indicatorId));
+      } else if (indicator.name === "Bollinger Bands") {
+        // Remove Bollinger Bands indicator - this will be handled by the BollingerBandsIndicator component
+        setBollingerBandsIndicators(prev => prev.filter(bb => bb.id !== indicatorId));
       } else {
         // For other indicators, remove them by ID
         // chartInstanceRef.current.removeIndicator(indicatorId);
@@ -521,6 +534,12 @@ export default function MainChart() {
   const removeRocIndicator = (rocId) => {
     setRocIndicators(prev => prev.filter(roc => roc.id !== rocId));
     // ROC indicators are not in appliedIndicators, so no need to remove from there
+  };
+
+  // Function to remove Bollinger Bands indicator
+  const removeBollingerBandsIndicator = (bbId) => {
+    setBollingerBandsIndicators(prev => prev.filter(bb => bb.id !== bbId));
+    // Bollinger Bands indicators are not in appliedIndicators, so no need to remove from there
   };
 
 
@@ -676,14 +695,14 @@ export default function MainChart() {
             {openMenu === "charttype" &&
               [
                 "Candle Solid",
-                "Candle Stroke", 
+                "Candle Stroke",
                 "Candle Up Stroke",
                 "Candle Down Stroke",
                 "OHLC",
                 "Area",
               ].map((type) => (
-                <div 
-                  key={type} 
+                <div
+                  key={type}
                   style={{
                     ...styles.dropdownItem,
                     backgroundColor: chartType === type ? "#e3f2fd" : "transparent"
@@ -709,8 +728,8 @@ export default function MainChart() {
                   "HMA – Hull Moving Average",
                   "Gann HiLo Activator",
                 ].map((item) => (
-                  <div 
-                    key={item} 
+                  <div
+                    key={item}
                     style={styles.dropdownItem}
                     onClick={() => addIndicator(item)}
                   >
@@ -728,8 +747,8 @@ export default function MainChart() {
                   "Awesome Oscillator",
                   "Elder Impulse System",
                 ].map((item) => (
-                  <div 
-                    key={item} 
+                  <div
+                    key={item}
                     style={styles.dropdownItem}
                     onClick={() => addIndicator(item)}
                   >
@@ -745,8 +764,8 @@ export default function MainChart() {
                   "Standard Deviation Channel",
                   "Chaikin Volatility",
                 ].map((item) => (
-                  <div 
-                    key={item} 
+                  <div
+                    key={item}
                     style={styles.dropdownItem}
                     onClick={() => addIndicator(item)}
                   >
@@ -762,8 +781,8 @@ export default function MainChart() {
                   "Chaikin Money Flow (CMF)",
                   "Volume Oscillator",
                 ].map((item) => (
-                  <div 
-                    key={item} 
+                  <div
+                    key={item}
                     style={styles.dropdownItem}
                     onClick={() => addIndicator(item)}
                   >
@@ -776,8 +795,8 @@ export default function MainChart() {
                   "Candlestick Pattern Recognition",
                   "Harmonic Pattern Recognition",
                 ].map((item) => (
-                  <div 
-                    key={item} 
+                  <div
+                    key={item}
                     style={styles.dropdownItem}
                     onClick={() => addIndicator(item)}
                   >
@@ -1452,8 +1471,23 @@ export default function MainChart() {
 
             {/* Arrow Marker */}
             <div style={styles.submenuItem}>
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 28" width="20" height="20" fill="currentColor">
-                <path fillRule="evenodd" clipRule="evenodd" d="M22.38 4.04h.04a1.3 1.3 0 0 1 1.21.33c.37.36.42.84.33 1.2v.04l-2.45 8.32c-.14.55-.57.91-1 1.04-.45.14-1.2.07-1.55-.63l-.34-.64-12.6 10.03c-.3.25-.67.31-1 .25a1.3 1.3 0 0 1-1.01-1.06c-.05-.31.02-.69.29-.99l.02-.02a35.13 35.13 0 0 0 .47-.57 1749.6 1749.6 0 0 0 5-6.15l3.7-4.57.91-1.13-.63-.33c-.7-.36-.77-1.1-.64-1.55.13-.44.5-.86 1.03-1l8.22-2.57zm-7.95 3.53c-.35.08-.5.56-.2.7l1.71.91-.64.8a17294.8 17294.8 0 0 1-10.24 12.6l-.01.02c-.17.19.15.52.33.35l13.55-10.78.92 1.7c.14.3.62.16.7-.2l2.44-8.31c.05-.24-.1-.4-.35-.35l-8.2 2.56zM5.8 23.27z"></path>
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 28" width="20" height="20">
+                <g fill="currentColor">
+                  <path fillRule="nonzero" d="M4.529 18.21l3.157-1.292-.379-.926-3.157 1.292z"></path>
+                  <path fillRule="nonzero" d="M9.734 16.081l2.97-1.215-.379-.926-2.97 1.215z"></path>
+                  <path fillRule="nonzero" d="M14.725 14.039l2.957-1.21-.379-.926-2.957 1.21z"></path>
+                  <path fillRule="nonzero" d="M19.708 12.001l3.114-1.274-.379-.926-3.114 1.274z"></path>
+                  <path d="M8 18h1v3h-1z"></path>
+                  <path d="M8 9h1v5h-1z"></path>
+                  <path fillRule="nonzero" d="M8 18h1v-4h-1v4zm-1-5h3v6h-3v-6z"></path>
+                  <path d="M18 16h1v3h-1z"></path>
+                  <path d="M18 3h1v6h-1z"></path>
+                  <path fillRule="nonzero" d="M18 16h1v-7h-1v7zm-1-8h3v9h-3v-9z"></path>
+                  <path d="M13 6h1v5h-1z"></path>
+                  <path d="M13 15h1v5h-1z"></path>
+                  <path fillRule="nonzero" d="M13 15h1v-4h-1v4zm-1-5h3v6h-3v-6z"></path>
+                  <path fillRule="nonzero" d="M2.5 20c.828 0 1.5-.672 1.5-1.5s-.672-1.5-1.5-1.5-1.5.672-1.5 1.5.672 1.5 1.5 1.5zm0 1c-1.381 0-2.5-1.119-2.5-2.5s1.119-2.5 2.5-2.5 2.5 1.119 2.5 2.5-1.119 2.5-2.5 2.5zM24.5 11c.828 0 1.5-.672 1.5-1.5s-.672-1.5-1.5-1.5-1.5.672-1.5 1.5.672 1.5 1.5 1.5zm0 1c-1.381 0-2.5-1.119-2.5-2.5s1.119-2.5 2.5-2.5 2.5 1.119 2.5 2.5-1.119 2.5-2.5 2.5z"></path>
+                </g>
               </svg>
               <span style={styles.submenuText}>Arrow Marker</span>
             </div>
@@ -1561,13 +1595,13 @@ export default function MainChart() {
 
         <div style={styles.mainChart}>
           {/* Applied Indicators Display */}
-          {(appliedIndicators.length > 0 || smaIndicators.length > 0 || emaIndicators.length > 0 || wmaIndicators.length > 0 || ichimokuIndicators.length > 0 || supertrendIndicators.length > 0 || psarIndicators.length > 0 || macdIndicators.length > 0 || adxIndicators.length > 0 || hmaIndicators.length > 0 || rsiIndicators.length > 0 || stochasticIndicators.length > 0 || stochasticRsiIndicators.length > 0 || cciIndicators.length > 0 || williamsRIndicators.length > 0 || rocIndicators.length > 0) && (
+          {(appliedIndicators.length > 0 || smaIndicators.length > 0 || emaIndicators.length > 0 || wmaIndicators.length > 0 || ichimokuIndicators.length > 0 || supertrendIndicators.length > 0 || psarIndicators.length > 0 || macdIndicators.length > 0 || adxIndicators.length > 0 || hmaIndicators.length > 0 || rsiIndicators.length > 0 || stochasticIndicators.length > 0 || stochasticRsiIndicators.length > 0 || cciIndicators.length > 0 || williamsRIndicators.length > 0 || rocIndicators.length > 0 || bollingerBandsIndicators.length > 0) && (
             <div style={styles.indicatorsPanel}>
               <div style={styles.indicatorsPanelTitle}>Applied Indicators</div>
               <div style={styles.indicatorsList}>
                 {appliedIndicators.map((indicator) => (
-                  <div 
-                    key={indicator.id} 
+                  <div
+                    key={indicator.id}
                     data-indicator-chip
                     style={{
                       ...styles.indicatorChip,
@@ -1578,7 +1612,7 @@ export default function MainChart() {
                     <span style={styles.indicatorName}>{indicator.name}</span>
                     {showIndicatorControls === indicator.id && (
                       <>
-                        <button 
+                        <button
                           style={styles.settingsButton}
                           onClick={(e) => {
                             e.stopPropagation();
@@ -1589,7 +1623,7 @@ export default function MainChart() {
                         >
                           <i className="fa-solid fa-gear"></i>
                         </button>
-                        <button 
+                        <button
                           style={styles.removeButton}
                           onClick={(e) => {
                             e.stopPropagation();
@@ -1625,87 +1659,98 @@ export default function MainChart() {
                   />
                 ))}
                 {ichimokuIndicators.map((ichimoku) => (
-                  <IchimokuIndicator 
+                  <IchimokuIndicator
                     key={ichimoku.id}
                     chart={ichimoku.chart}
                     onRemove={() => removeIchimokuIndicator(ichimoku.id)}
                   />
                 ))}
                 {supertrendIndicators.map((supertrend) => (
-                  <SupertrendIndicator 
+                  <SupertrendIndicator
                     key={supertrend.id}
                     chart={supertrend.chart}
                     onRemove={() => removeSupertrendIndicator(supertrend.id)}
                   />
                 ))}
                 {psarIndicators.map((psar) => (
-                  <PSARIndicator 
+                  <PSARIndicator
                     key={psar.id}
                     chart={psar.chart}
                     onRemove={() => removePsarIndicator(psar.id)}
                   />
                 ))}
                 {macdIndicators.map((macd) => (
-                  <MACDIndicator 
+                  <MACDIndicator
                     key={macd.id}
                     chart={macd.chart}
                     onRemove={() => removeMacdIndicator(macd.id)}
                   />
                 ))}
                 {adxIndicators.map((adx) => (
-                  <ADXIndicator 
+                  <ADXIndicator
                     key={adx.id}
                     chart={adx.chart}
                     onRemove={() => removeAdxIndicator(adx.id)}
                   />
                 ))}
                 {hmaIndicators.map((hma) => (
-                  <HMAIndicator 
+                  <HMAIndicator
                     key={hma.id}
                     chart={hma.chart}
                     onRemove={() => removeHmaIndicator(hma.id)}
                   />
                 ))}
                 {rsiIndicators.map((rsi) => (
-                  <RSIIndicator 
+                  <RSIIndicator
                     key={rsi.id}
                     chart={rsi.chart}
                     onRemove={() => removeRsiIndicator(rsi.id)}
                   />
                 ))}
                 {stochasticIndicators.map((stochastic) => (
-                  <StochasticIndicator 
+                  <StochasticIndicator
                     key={stochastic.id}
                     chart={stochastic.chart}
                     onRemove={() => removeStochasticIndicator(stochastic.id)}
                   />
                 ))}
                 {stochasticRsiIndicators.map((stochasticRsi) => (
-                  <StochasticRSIIndicator 
+                  <StochasticRSIIndicator
                     key={stochasticRsi.id}
                     chart={stochasticRsi.chart}
                     onRemove={() => removeStochasticRsiIndicator(stochasticRsi.id)}
                   />
                 ))}
                 {cciIndicators.map((cci) => (
-                  <CCIIndicator 
+                  <CCIIndicator
                     key={cci.id}
                     chart={cci.chart}
                     onRemove={() => removeCciIndicator(cci.id)}
                   />
                 ))}
                 {williamsRIndicators.map((williamsR) => (
-                  <WilliamsRIndicator 
+                  <WilliamsRIndicator
                     key={williamsR.id}
                     chart={williamsR.chart}
                     onRemove={() => removeWilliamsRIndicator(williamsR.id)}
                   />
                 ))}
                 {rocIndicators.map((roc) => (
-                  <ROCIndicator 
+                  <ROCIndicator
                     key={roc.id}
                     chart={roc.chart}
-                    onRemove={() => removeRocIndicator(roc.id)}
+                    onRemove={() => {
+                      setRocIndicators(prev => prev.filter(ind => ind.id !== roc.id));
+                    }}
+                  />
+                ))}
+                {bollingerBandsIndicators.map((indicator) => (
+                  <BollingerBandsIndicator
+                    key={indicator.id}
+                    chart={indicator.chart}
+                    onRemove={() => {
+                      setBollingerBandsIndicators(prev => prev.filter(ind => ind.id !== indicator.id));
+                    }}
                   />
                 ))}
               </div>
