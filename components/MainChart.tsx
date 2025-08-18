@@ -20,6 +20,7 @@ import WilliamsRIndicator from "./WilliamsRIndicator";
 import ROCIndicator from "./ROCIndicator";
 import BollingerBandsIndicator from "./BollingerBandsIndicator";
 import KeltnerChannelIndicator from "./KeltnerChannelIndicator";
+import ATRIndicator from "./ATRIndicator";
 
 export default function MainChart() {
   const [openMenu, setOpenMenu] = useState(null);
@@ -66,6 +67,7 @@ export default function MainChart() {
   const [rocIndicators, setRocIndicators] = useState<Array<{ id: string; chart: any; name: string }>>([]);
   const [bollingerBandsIndicators, setBollingerBandsIndicators] = useState<Array<{ id: string; chart: any; name: string }>>([]);
   const [keltnerChannelIndicators, setKeltnerChannelIndicators] = useState<Array<{ id: string; chart: any; name: string }>>([]);
+  const [atrIndicators, setAtrIndicators] = useState<Array<{ id: string; chart: any; name: string }>>([]);
   const [showIndicatorControls, setShowIndicatorControls] = useState(null);
 
   // Settings state
@@ -384,6 +386,15 @@ export default function MainChart() {
           name: indicatorName
         }]);
         // Don't add Keltner Channels to appliedIndicators as it manages itself
+      } else if (indicatorName === "ATR – Average True Range") {
+        // For ATR, create the component with unique ID
+        const atrId = indicatorId;
+        setAtrIndicators(prev => [...prev, {
+          id: atrId,
+          chart: chartInstanceRef.current,
+          name: indicatorName
+        }]);
+        // Don't add ATR to appliedIndicators as it manages itself
       } else {
         console.log(`Applied ${indicatorName} to chart`);
         setAppliedIndicators(prev => [...prev, newIndicator]);
@@ -1779,6 +1790,15 @@ export default function MainChart() {
                     chart={indicator.chart}
                     onRemove={() => {
                       setKeltnerChannelIndicators(prev => prev.filter(ind => ind.id !== indicator.id));
+                    }}
+                  />
+                ))}
+                {atrIndicators.map((indicator) => (
+                  <ATRIndicator
+                    key={indicator.id}
+                    chart={indicator.chart}
+                    onRemove={() => {
+                      setAtrIndicators(prev => prev.filter(ind => ind.id !== indicator.id));
                     }}
                   />
                 ))}
