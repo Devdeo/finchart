@@ -23,6 +23,7 @@ import KeltnerChannelIndicator from "./KeltnerChannelIndicator";
 import DonchianChannelIndicator from "./DonchianChannelIndicator";
 import ATRIndicator from "./ATRIndicator";
 import StandardDeviationChannelIndicator from "./StandardDeviationChannelIndicator";
+import VolumeHistogramIndicator from "./VolumeHistogramIndicator";
 
 export default function MainChart() {
   const [openMenu, setOpenMenu] = useState(null);
@@ -1887,15 +1888,11 @@ export default function MainChart() {
                   />
                 ))}
                 {volumeHistogramIndicators.map((indicator) => (
-                  <div key={indicator.id} style={styles.indicatorChip}>
-                    <span style={styles.indicatorName}>Volume Histogram</span>
-                    <button
-                      style={styles.removeButton}
-                      onClick={() => removeVolumeHistogramIndicator(indicator.id)}
-                    >
-                      ×
-                    </button>
-                  </div>
+                  <VolumeHistogramIndicator
+                    key={indicator.id}
+                    chart={indicator.chart}
+                    onRemove={() => removeVolumeHistogramIndicator(indicator.id)}
+                  />
                 ))}
               </div>
             </div>
