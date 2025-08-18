@@ -8,7 +8,8 @@ import EMAIndicator from "./EMAIndicator";
 import WMAIndicator from "./WMAIndicator";
 import IchimokuIndicator from "./IchimokuIndicator";
 import SupertrendIndicator from "./SupertrendIndicator";
-import PSARIndicator from "./PSARIndicator"; 
+import PSARIndicator from "./PSARIndicator";
+import MACDIndicator from "./MACDIndicator"; 
 
 export default function MainChart() {
   const [openMenu, setOpenMenu] = useState(null);
@@ -44,6 +45,7 @@ export default function MainChart() {
   const [ichimokuIndicators, setIchimokuIndicators] = useState<any[]>([]);
   const [supertrendIndicators, setSupertrendIndicators] = useState<any[]>([]);
   const [psarIndicators, setPsarIndicators] = useState<any[]>([]);
+  const [macdIndicators, setMacdIndicators] = useState<any[]>([]);
   const [showIndicatorControls, setShowIndicatorControls] = useState(null);
 
   // Settings state
@@ -263,6 +265,15 @@ export default function MainChart() {
           name: indicatorName
         }]);
         // Don't add PSAR to appliedIndicators as it manages itself
+      } else if (indicatorName === "MACD – Moving Average Convergence Divergence") {
+        // For MACD, create the component with unique ID
+        const macdId = indicatorId;
+        setMacdIndicators(prev => [...prev, {
+          id: macdId,
+          chart: chartInstanceRef.current,
+          name: indicatorName
+        }]);
+        // Don't add MACD to appliedIndicators as it manages itself
       } else {
         console.log(`Applied ${indicatorName} to chart`);
         setAppliedIndicators(prev => [...prev, newIndicator]);
@@ -300,6 +311,9 @@ export default function MainChart() {
       } else if (indicator.name === "Parabolic SAR") {
         // Remove PSAR indicator - this will be handled by the PSARIndicator component
         setPsarIndicators(prev => prev.filter(psar => psar.id !== indicatorId));
+      } else if (indicator.name === "MACD – Moving Average Convergence Divergence") {
+        // Remove MACD indicator - this will be handled by the MACDIndicator component
+        setMacdIndicators(prev => prev.filter(macd => macd.id !== indicatorId));
       } else {
         // For other indicators, remove them by ID
         // chartInstanceRef.current.removeIndicator(indicatorId);
@@ -340,6 +354,12 @@ export default function MainChart() {
   const removePsarIndicator = (psarId) => {
     setPsarIndicators(prev => prev.filter(psar => psar.id !== psarId));
     // PSAR indicators are not in appliedIndicators, so no need to remove from there
+  };
+
+  // Function to remove MACD indicator
+  const removeMacdIndicator = (macdId) => {
+    setMacdIndicators(prev => prev.filter(macd => macd.id !== macdId));
+    // MACD indicators are not in appliedIndicators, so no need to remove from there
   };
 
 
@@ -1380,7 +1400,7 @@ export default function MainChart() {
 
         <div style={styles.mainChart}>
           {/* Applied Indicators Display */}
-          {(appliedIndicators.length > 0 || smaIndicators.length > 0 || emaIndicators.length > 0 || wmaIndicators.length > 0 || ichimokuIndicators.length > 0 || supertrendIndicators.length > 0 || psarIndicators.length > 0) && (
+          {(appliedIndicators.length > 0 || smaIndicators.length > 0 || emaIndicators.length > 0 || wmaIndicators.length > 0 || ichimokuIndicators.length > 0 || supertrendIndicators.length > 0 || psarIndicators.length > 0 || macdIndicators.length > 0) && (
             <div style={styles.indicatorsPanel}>
               <div style={styles.indicatorsPanelTitle}>Applied Indicators</div>
               <div style={styles.indicatorsList}>
@@ -1462,6 +1482,13 @@ export default function MainChart() {
                     key={psar.id}
                     chart={psar.chart}
                     onRemove={() => removePsarIndicator(psar.id)}
+                  />
+                ))}
+                {macdIndicators.map((macd) => (
+                  <MACDIndicator 
+                    key={macd.id}
+                    chart={macd.chart}
+                    onRemove={() => removeMacdIndicator(macd.id)}
                   />
                 ))}
               </div>
