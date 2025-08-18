@@ -7,7 +7,8 @@ import SMAIndicator from "./SMAIndicator";
 import EMAIndicator from "./EMAIndicator";
 import WMAIndicator from "./WMAIndicator";
 import IchimokuIndicator from "./IchimokuIndicator";
-import SupertrendIndicator from "./SupertrendIndicator"; 
+import SupertrendIndicator from "./SupertrendIndicator";
+import PSARIndicator from "./PSARIndicator"; 
 
 export default function MainChart() {
   const [openMenu, setOpenMenu] = useState(null);
@@ -42,6 +43,7 @@ export default function MainChart() {
   const [wmaIndicators, setWmaIndicators] = useState<any[]>([]);
   const [ichimokuIndicators, setIchimokuIndicators] = useState<any[]>([]);
   const [supertrendIndicators, setSupertrendIndicators] = useState<any[]>([]);
+  const [psarIndicators, setPsarIndicators] = useState<any[]>([]);
   const [showIndicatorControls, setShowIndicatorControls] = useState(null);
 
   // Settings state
@@ -252,8 +254,16 @@ export default function MainChart() {
           name: indicatorName
         }]);
         // Don't add Supertrend to appliedIndicators as it manages itself
-      }
-       else {
+      } else if (indicatorName === "Parabolic SAR") {
+        // For Parabolic SAR, create the component with unique ID
+        const psarId = indicatorId;
+        setPsarIndicators(prev => [...prev, {
+          id: psarId,
+          chart: chartInstanceRef.current,
+          name: indicatorName
+        }]);
+        // Don't add PSAR to appliedIndicators as it manages itself
+      } else {
         console.log(`Applied ${indicatorName} to chart`);
         setAppliedIndicators(prev => [...prev, newIndicator]);
       }
@@ -287,6 +297,9 @@ export default function MainChart() {
       } else if (indicator.name === "Supertrend") {
         // Remove Supertrend indicator - this will be handled by the SupertrendIndicator component
         setSupertrendIndicators(prev => prev.filter(supertrend => supertrend.id !== indicatorId));
+      } else if (indicator.name === "Parabolic SAR") {
+        // Remove PSAR indicator - this will be handled by the PSARIndicator component
+        setPsarIndicators(prev => prev.filter(psar => psar.id !== indicatorId));
       } else {
         // For other indicators, remove them by ID
         // chartInstanceRef.current.removeIndicator(indicatorId);
@@ -321,6 +334,12 @@ export default function MainChart() {
   const removeSupertrendIndicator = (supertrendId) => {
     setSupertrendIndicators(prev => prev.filter(supertrend => supertrend.id !== supertrendId));
     // Supertrend indicators are not in appliedIndicators, so no need to remove from there
+  };
+
+  // Function to remove PSAR indicator
+  const removePsarIndicator = (psarId) => {
+    setPsarIndicators(prev => prev.filter(psar => psar.id !== psarId));
+    // PSAR indicators are not in appliedIndicators, so no need to remove from there
   };
 
 
@@ -1361,7 +1380,7 @@ export default function MainChart() {
 
         <div style={styles.mainChart}>
           {/* Applied Indicators Display */}
-          {(appliedIndicators.length > 0 || smaIndicators.length > 0 || emaIndicators.length > 0 || wmaIndicators.length > 0 || ichimokuIndicators.length > 0 || supertrendIndicators.length > 0) && (
+          {(appliedIndicators.length > 0 || smaIndicators.length > 0 || emaIndicators.length > 0 || wmaIndicators.length > 0 || ichimokuIndicators.length > 0 || supertrendIndicators.length > 0 || psarIndicators.length > 0) && (
             <div style={styles.indicatorsPanel}>
               <div style={styles.indicatorsPanelTitle}>Applied Indicators</div>
               <div style={styles.indicatorsList}>
@@ -1436,6 +1455,13 @@ export default function MainChart() {
                     key={supertrend.id}
                     chart={supertrend.chart}
                     onRemove={() => removeSupertrendIndicator(supertrend.id)}
+                  />
+                ))}
+                {psarIndicators.map((psar) => (
+                  <PSARIndicator 
+                    key={psar.id}
+                    chart={psar.chart}
+                    onRemove={() => removePsarIndicator(psar.id)}
                   />
                 ))}
               </div>
