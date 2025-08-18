@@ -6,7 +6,8 @@ import { applyHarmonicPatternRecognition } from "./DetectHarmonicPatterns";
 import SMAIndicator from "./SMAIndicator";
 import EMAIndicator from "./EMAIndicator";
 import WMAIndicator from "./WMAIndicator";
-import IchimokuIndicator from "./IchimokuIndicator"; 
+import IchimokuIndicator from "./IchimokuIndicator";
+import SupertrendIndicator from "./SupertrendIndicator"; 
 
 export default function MainChart() {
   const [openMenu, setOpenMenu] = useState(null);
@@ -40,6 +41,7 @@ export default function MainChart() {
   const [emaIndicators, setEmaIndicators] = useState<any[]>([]);
   const [wmaIndicators, setWmaIndicators] = useState<any[]>([]);
   const [ichimokuIndicators, setIchimokuIndicators] = useState<any[]>([]);
+  const [supertrendIndicators, setSupertrendIndicators] = useState<any[]>([]);
   const [showIndicatorControls, setShowIndicatorControls] = useState(null);
 
   // Settings state
@@ -241,6 +243,15 @@ export default function MainChart() {
           name: indicatorName
         }]);
         // Don't add Ichimoku to appliedIndicators as it manages itself
+      } else if (indicatorName === "Supertrend") {
+        // For Supertrend, create the component with unique ID
+        const supertrendId = indicatorId;
+        setSupertrendIndicators(prev => [...prev, {
+          id: supertrendId,
+          chart: chartInstanceRef.current,
+          name: indicatorName
+        }]);
+        // Don't add Supertrend to appliedIndicators as it manages itself
       }
        else {
         console.log(`Applied ${indicatorName} to chart`);
@@ -273,6 +284,9 @@ export default function MainChart() {
       } else if (indicator.name === "Ichimoku Cloud") {
         // Remove Ichimoku indicator - this will be handled by the IchimokuIndicator component
         setIchimokuIndicators(prev => prev.filter(ichimoku => ichimoku.id !== indicatorId));
+      } else if (indicator.name === "Supertrend") {
+        // Remove Supertrend indicator - this will be handled by the SupertrendIndicator component
+        setSupertrendIndicators(prev => prev.filter(supertrend => supertrend.id !== indicatorId));
       } else {
         // For other indicators, remove them by ID
         // chartInstanceRef.current.removeIndicator(indicatorId);
@@ -301,6 +315,12 @@ export default function MainChart() {
   const removeIchimokuIndicator = (ichimokuId) => {
     setIchimokuIndicators(prev => prev.filter(ichimoku => ichimoku.id !== ichimokuId));
     // Ichimoku indicators are not in appliedIndicators, so no need to remove from there
+  };
+
+  // Function to remove Supertrend indicator
+  const removeSupertrendIndicator = (supertrendId) => {
+    setSupertrendIndicators(prev => prev.filter(supertrend => supertrend.id !== supertrendId));
+    // Supertrend indicators are not in appliedIndicators, so no need to remove from there
   };
 
 
@@ -1341,7 +1361,7 @@ export default function MainChart() {
 
         <div style={styles.mainChart}>
           {/* Applied Indicators Display */}
-          {(appliedIndicators.length > 0 || smaIndicators.length > 0 || emaIndicators.length > 0 || wmaIndicators.length > 0 || ichimokuIndicators.length > 0) && (
+          {(appliedIndicators.length > 0 || smaIndicators.length > 0 || emaIndicators.length > 0 || wmaIndicators.length > 0 || ichimokuIndicators.length > 0 || supertrendIndicators.length > 0) && (
             <div style={styles.indicatorsPanel}>
               <div style={styles.indicatorsPanelTitle}>Applied Indicators</div>
               <div style={styles.indicatorsList}>
@@ -1409,6 +1429,13 @@ export default function MainChart() {
                     key={ichimoku.id}
                     chart={ichimoku.chart}
                     onRemove={() => removeIchimokuIndicator(ichimoku.id)}
+                  />
+                ))}
+                {supertrendIndicators.map((supertrend) => (
+                  <SupertrendIndicator 
+                    key={supertrend.id}
+                    chart={supertrend.chart}
+                    onRemove={() => removeSupertrendIndicator(supertrend.id)}
                   />
                 ))}
               </div>
