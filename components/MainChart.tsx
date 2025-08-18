@@ -573,6 +573,12 @@ export default function MainChart() {
     // Keltner Channel indicators are not in appliedIndicators, so no need to remove from there
   };
 
+  // Function to remove ATR indicator
+  const removeAtrIndicator = (atrId) => {
+    setAtrIndicators(prev => prev.filter(atr => atr.id !== atrId));
+    // ATR indicators are not in appliedIndicators, so no need to remove from there
+  };
+
 
   const getIndicatorType = (indicatorName) => {
     // Map indicator names to types for categorization
@@ -1797,9 +1803,7 @@ export default function MainChart() {
                   <ATRIndicator
                     key={indicator.id}
                     chart={indicator.chart}
-                    onRemove={() => {
-                      setAtrIndicators(prev => prev.filter(ind => ind.id !== indicator.id));
-                    }}
+                    onRemove={() => removeAtrIndicator(indicator.id)}
                   />
                 ))}
               </div>
