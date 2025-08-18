@@ -19,6 +19,7 @@ import CCIIndicator from "./CCIIndicator";
 import WilliamsRIndicator from "./WilliamsRIndicator";
 import ROCIndicator from "./ROCIndicator";
 import BollingerBandsIndicator from "./BollingerBandsIndicator";
+import KeltnerChannelIndicator from "./KeltnerChannelIndicator";
 
 export default function MainChart() {
   const [openMenu, setOpenMenu] = useState(null);
@@ -64,6 +65,7 @@ export default function MainChart() {
   const [williamsRIndicators, setWilliamsRIndicators] = useState<any[]>([]);
   const [rocIndicators, setRocIndicators] = useState<Array<{ id: string; chart: any; name: string }>>([]);
   const [bollingerBandsIndicators, setBollingerBandsIndicators] = useState<Array<{ id: string; chart: any; name: string }>>([]);
+  const [keltnerChannelIndicators, setKeltnerChannelIndicators] = useState<Array<{ id: string; chart: any; name: string }>>([]);
   const [showIndicatorControls, setShowIndicatorControls] = useState(null);
 
   // Settings state
@@ -373,6 +375,15 @@ export default function MainChart() {
           name: indicatorName
         }]);
         // Don't add Bollinger Bands to appliedIndicators as it manages itself
+      } else if (indicatorName === "Keltner Channels") {
+        // For Keltner Channels, create the component with unique ID
+        const kcId = indicatorId;
+        setKeltnerChannelIndicators(prev => [...prev, {
+          id: kcId,
+          chart: chartInstanceRef.current,
+          name: indicatorName
+        }]);
+        // Don't add Keltner Channels to appliedIndicators as it manages itself
       } else {
         console.log(`Applied ${indicatorName} to chart`);
         setAppliedIndicators(prev => [...prev, newIndicator]);
@@ -440,6 +451,9 @@ export default function MainChart() {
       } else if (indicator.name === "Bollinger Bands") {
         // Remove Bollinger Bands indicator - this will be handled by the BollingerBandsIndicator component
         setBollingerBandsIndicators(prev => prev.filter(bb => bb.id !== indicatorId));
+      } else if (indicator.name === "Keltner Channels") {
+        // Remove Keltner Channels indicator - this will be handled by the KeltnerChannelIndicator component
+        setKeltnerChannelIndicators(prev => prev.filter(kc => kc.id !== indicatorId));
       } else {
         // For other indicators, remove them by ID
         // chartInstanceRef.current.removeIndicator(indicatorId);
@@ -540,6 +554,12 @@ export default function MainChart() {
   const removeBollingerBandsIndicator = (bbId) => {
     setBollingerBandsIndicators(prev => prev.filter(bb => bb.id !== bbId));
     // Bollinger Bands indicators are not in appliedIndicators, so no need to remove from there
+  };
+
+  // Function to remove Keltner Channel indicator
+  const removeKeltnerChannelIndicator = (kcId) => {
+    setKeltnerChannelIndicators(prev => prev.filter(kc => kc.id !== kcId));
+    // Keltner Channel indicators are not in appliedIndicators, so no need to remove from there
   };
 
 
@@ -1595,7 +1615,7 @@ export default function MainChart() {
 
         <div style={styles.mainChart}>
           {/* Applied Indicators Display */}
-          {(appliedIndicators.length > 0 || smaIndicators.length > 0 || emaIndicators.length > 0 || wmaIndicators.length > 0 || ichimokuIndicators.length > 0 || supertrendIndicators.length > 0 || psarIndicators.length > 0 || macdIndicators.length > 0 || adxIndicators.length > 0 || hmaIndicators.length > 0 || rsiIndicators.length > 0 || stochasticIndicators.length > 0 || stochasticRsiIndicators.length > 0 || cciIndicators.length > 0 || williamsRIndicators.length > 0 || rocIndicators.length > 0 || bollingerBandsIndicators.length > 0) && (
+          {(appliedIndicators.length > 0 || smaIndicators.length > 0 || emaIndicators.length > 0 || wmaIndicators.length > 0 || ichimokuIndicators.length > 0 || supertrendIndicators.length > 0 || psarIndicators.length > 0 || macdIndicators.length > 0 || adxIndicators.length > 0 || hmaIndicators.length > 0 || rsiIndicators.length > 0 || stochasticIndicators.length > 0 || stochasticRsiIndicators.length > 0 || cciIndicators.length > 0 || williamsRIndicators.length > 0 || rocIndicators.length > 0 || bollingerBandsIndicators.length > 0 || keltnerChannelIndicators.length > 0) && (
             <div style={styles.indicatorsPanel}>
               <div style={styles.indicatorsPanelTitle}>Applied Indicators</div>
               <div style={styles.indicatorsList}>
@@ -1750,6 +1770,15 @@ export default function MainChart() {
                     chart={indicator.chart}
                     onRemove={() => {
                       setBollingerBandsIndicators(prev => prev.filter(ind => ind.id !== indicator.id));
+                    }}
+                  />
+                ))}
+                {keltnerChannelIndicators.map((indicator) => (
+                  <KeltnerChannelIndicator
+                    key={indicator.id}
+                    chart={indicator.chart}
+                    onRemove={() => {
+                      setKeltnerChannelIndicators(prev => prev.filter(ind => ind.id !== indicator.id));
                     }}
                   />
                 ))}
