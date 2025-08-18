@@ -294,13 +294,13 @@ export const CandlestickPatternOverlay: OverlayTemplate = {
   needDefaultPointFigure: false,
   createPointFigures: ({ coordinates, overlay }) => {
     const figs: any[] = [];
-    const colors = ["#FF6B6B", "#4CAF50", "#2196F3", "#FF9800", "#9C27B0"];
+    
 
     overlay.points.forEach((pt: any, idx: number) => {
       const coord = coordinates[idx];
       if (!coord) return;
 
-      const color = colors[Math.abs(pt.text.length) % colors.length];
+      
 
       figs.push({
         type: "text",
@@ -311,13 +311,7 @@ export const CandlestickPatternOverlay: OverlayTemplate = {
           align: "center",
           baseline: "bottom",
         },
-        styles: {
-          color,
-          fontSize: 10,
-          fontWeight: "bold",
-          textBorderColor: "#000",
-          textBorderWidth: 1
-        },
+        
       });
 
       
