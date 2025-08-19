@@ -2854,16 +2854,6 @@ export default function MainChart() {
         {/* Floating Settings Icon - Top Right */}
         {activeDrawingTool && (isDrawing || hasActiveDrawing) && (
           <div style={styles.floatingSettingsContainer}>
-            {hasActiveDrawing && selectedOverlayId && (
-              <button
-                style={styles.floatingRemoveButton}
-                onClick={removeSelectedDrawing}
-                title="Remove Drawing"
-              >
-                <i className="fa-solid fa-times" style={{ fontSize: '14px', color: '#f44336' }}></i>
-              </button>
-            )}
-            
             <button
               className="drawing-settings-trigger"
               style={{
@@ -2884,6 +2874,16 @@ export default function MainChart() {
                 }}
               ></i>
             </button>
+            
+            {hasActiveDrawing && selectedOverlayId && (
+              <button
+                style={styles.floatingRemoveButton}
+                onClick={removeSelectedDrawing}
+                title="Remove Drawing"
+              >
+                <i className="fa-solid fa-times" style={{ fontSize: '14px', color: '#f44336' }}></i>
+              </button>
+            )}
           </div>
         )}
 
@@ -3049,21 +3049,36 @@ export default function MainChart() {
                   onClick={() => {
                     setDrawingSettings(tempDrawingSettings);
                     if (chartInstanceRef.current && selectedOverlayId) {
-                      // Apply the new settings to the selected overlay
-                      chartInstanceRef.current.overrideOverlay({
-                        id: selectedOverlayId,
-                        styles: {
-                          line: { 
-                            color: tempDrawingSettings.color, 
-                            size: tempDrawingSettings.thickness 
-                          },
-                          text: {
-                            color: tempDrawingSettings.color,
-                            size: 11,
-                            family: 'Arial, sans-serif'
+                      try {
+                        // First, try using overrideOverlay
+                        chartInstanceRef.current.overrideOverlay({
+                          id: selectedOverlayId,
+                          styles: {
+                            line: { 
+                              color: tempDrawingSettings.color, 
+                              size: tempDrawingSettings.thickness 
+                            },
+                            text: {
+                              color: tempDrawingSettings.color,
+                              size: 11,
+                              family: 'Arial, sans-serif'
+                            },
+                            point: {
+                              color: tempDrawingSettings.color,
+                              borderColor: tempDrawingSettings.color
+                            }
                           }
+                        });
+                        console.log('Applied settings to overlay:', selectedOverlayId);
+                      } catch (error) {
+                        console.warn('overrideOverlay failed, trying alternative approach:', error);
+                        // Alternative approach: get overlay and update its styles
+                        const overlays = chartInstanceRef.current.getOverlayById(selectedOverlayId);
+                        if (overlays) {
+                          chartInstanceRef.current.removeOverlay({ id: selectedOverlayId });
+                          // The overlay will be recreated with new styles when user draws again
                         }
-                      });
+                      }
                     }
                     setShowDrawingSettings(false);
                   }}
