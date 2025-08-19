@@ -12,6 +12,90 @@ const registerCustomOverlays = () => {
   if (overlaysRegistered) return;
   overlaysRegistered = true;
 
+  // Register pattern overlays
+  const registerPattern = (
+    name: string,
+    labels: string[],
+    opts: { color: string; closeShape?: boolean }
+  ) => {
+    registerOverlay({
+      name,
+      totalStep: labels.length,
+      needDefaultPointFigure: true,
+      createPointFigures: ({ coordinates }) => {
+        const figs: any[] = [];
+        const n = coordinates.length;
+
+        // Progressive line preview
+        if (coordinates && coordinates.length >= 2) {
+          figs.push({
+            type: "line",
+            attrs: { coordinates },
+            styles: { color: opts.color, size: 2, style: "solid" },
+          });
+        }
+
+        // Optional fill (only when we already have 3+ points)
+        if (opts.closeShape && coordinates && coordinates.length >= 3) {
+          figs.push({
+            type: "polygon",
+            attrs: { coordinates },
+            styles: { style: "stroke_fill", color: `${opts.color}33`, borderColor: opts.color, borderSize: 1 },
+          });
+        }
+
+        // Labels for points collected so far
+        for (let i = 0; i < n && i < labels.length; i++) {
+          figs.push({
+            type: "text",
+            attrs: { x: coordinates[i].x, y: coordinates[i].y, text: labels[i] },
+            styles: { color: opts.color, size: 12 },
+          });
+        }
+
+        return figs;
+      },
+    });
+  };
+
+  // Generic patterns (progressive drawing)
+  registerPattern("xabcdPattern", ["X", "A", "B", "C", "D"], { color: "#e11d48", closeShape: true });
+  registerPattern("cypherPattern", ["X", "A", "B", "C", "D"], { color: "#f97316", closeShape: true });
+  registerPattern("abcdPattern", ["A", "B", "C", "D"], { color: "#2563eb", closeShape: true });
+  registerPattern("trianglePattern", ["A", "B", "C"], { color: "#16a34a", closeShape: true });
+  registerPattern("threeDrives", ["1", "2", "3", "4"], { color: "#9333ea", closeShape: false });
+  registerPattern("elliottWave", ["1", "2", "3", "4", "5"], { color: "#0ea5e9", closeShape: false });
+  registerPattern("elliottImpulse", ["1", "2", "3", "4", "5"], { color: "#f43f5e", closeShape: false });
+  registerPattern("elliottCorrection", ["A", "B", "C"], { color: "#0891b2", closeShape: false });
+
+  // Head & Shoulders (progressive neckline + shoulders)
+  registerOverlay({
+    name: "headShoulders",
+    totalStep: 5, // LS, H, RS, NL1, NL2
+    needDefaultPointFigure: true,
+    createPointFigures: ({ coordinates }) => {
+      const figs: any[] = [];
+      const n = coordinates.length;
+      const color = "#854d0e";
+
+      // Shoulders & head (first 3 points)
+      if (n >= 2) {
+        figs.push({ type: "line", attrs: { coordinates: coordinates.slice(0, Math.min(n, 3)) }, styles: { color, size: 2 } });
+      }
+      // Neckline when we have point 4 and/or 5
+      if (n >= 4) {
+        const nlEnd = n >= 5 ? coordinates[4] : coordinates[3];
+        figs.push({ type: "line", attrs: { coordinates: [coordinates[3], nlEnd] }, styles: { color, size: 2 } });
+      }
+      // Labels for available points
+      const labels = ["LS", "H", "RS", "NL1", "NL2"];
+      for (let i = 0; i < n; i++) {
+        figs.push({ type: "text", attrs: { x: coordinates[i].x, y: coordinates[i].y, text: labels[i] }, styles: { color } });
+      }
+      return figs;
+    },
+  });
+
   // Trend Angle overlay
   registerOverlay({
     name: "trendAngle",
@@ -782,6 +866,105 @@ export default function MainChart() {
     }
   };
 
+  // Helper functions for pattern drawing
+  const drawSequentialLine = (coordinates: any[], color: string, size = 2) => {
+    if (!coordinates || coordinates.length < 2) return [] as any[];
+    return [
+      {
+        type: "line",
+        attrs: { coordinates },
+        styles: { color, size, style: "solid" },
+      },
+    ];
+  };
+
+  const drawFillIfClosed = (coordinates: any[], color: string) => {
+    if (!coordinates || coordinates.length < 3) return [] as any[];
+    return [
+      {
+        type: "polygon",
+        attrs: { coordinates },
+        styles: { style: "stroke_fill", color: `${color}33`, borderColor: color, borderSize: 1 },
+      },
+    ];
+  };
+
+  // Register pattern overlays
+  const registerPatternOverlays = () => {
+    const registerPattern = (
+      name: string,
+      labels: string[],
+      opts: { color: string; closeShape?: boolean }
+    ) => {
+      registerOverlay({
+        name,
+        totalStep: labels.length,
+        needDefaultPointFigure: true,
+        createPointFigures: ({ coordinates }) => {
+          const figs: any[] = [];
+          const n = coordinates.length;
+
+          // Progressive line preview
+          figs.push(...drawSequentialLine(coordinates, opts.color));
+
+          // Optional fill (only when we already have 3+ points)
+          if (opts.closeShape) {
+            figs.push(...drawFillIfClosed(coordinates, opts.color));
+          }
+
+          // Labels for points collected so far
+          for (let i = 0; i < n && i < labels.length; i++) {
+            figs.push({
+              type: "text",
+              attrs: { x: coordinates[i].x, y: coordinates[i].y, text: labels[i] },
+              styles: { color: opts.color, size: 12 },
+            });
+          }
+
+          return figs;
+        },
+      });
+    };
+
+    // Generic patterns (progressive drawing)
+    registerPattern("xabcdPattern", ["X", "A", "B", "C", "D"], { color: "#e11d48", closeShape: true });
+    registerPattern("cypherPattern", ["X", "A", "B", "C", "D"], { color: "#f97316", closeShape: true });
+    registerPattern("abcdPattern", ["A", "B", "C", "D"], { color: "#2563eb", closeShape: true });
+    registerPattern("trianglePattern", ["A", "B", "C"], { color: "#16a34a", closeShape: true });
+    registerPattern("threeDrives", ["1", "2", "3", "4"], { color: "#9333ea", closeShape: false });
+    registerPattern("elliottWave", ["1", "2", "3", "4", "5"], { color: "#0ea5e9", closeShape: false });
+    registerPattern("elliottImpulse", ["1", "2", "3", "4", "5"], { color: "#f43f5e", closeShape: false });
+    registerPattern("elliottCorrection", ["A", "B", "C"], { color: "#0891b2", closeShape: false });
+
+    // Head & Shoulders (progressive neckline + shoulders)
+    registerOverlay({
+      name: "headShoulders",
+      totalStep: 5, // LS, H, RS, NL1, NL2
+      needDefaultPointFigure: true,
+      createPointFigures: ({ coordinates }) => {
+        const figs: any[] = [];
+        const n = coordinates.length;
+        const color = "#854d0e";
+
+        // Shoulders & head (first 3 points)
+        if (n >= 2) {
+          figs.push({ type: "line", attrs: { coordinates: coordinates.slice(0, Math.min(n, 3)) }, styles: { color, size: 2 } });
+        }
+        // Neckline when we have point 4 and/or 5
+        if (n >= 4) {
+          const nlEnd = n >= 5 ? coordinates[4] : coordinates[3];
+          figs.push({ type: "line", attrs: { coordinates: [coordinates[3], nlEnd] }, styles: { color, size: 2 } });
+        }
+        // Labels for available points
+        const labels = ["LS", "H", "RS", "NL1", "NL2"];
+        for (let i = 0; i < n; i++) {
+          figs.push({ type: "text", attrs: { x: coordinates[i].x, y: coordinates[i].y, text: labels[i] }, styles: { color } });
+        }
+        return figs;
+      },
+    });
+  };
+
   const addIndicator = (indicatorName) => {
     const indicatorId = `${indicatorName}-${Date.now()}`;
     const newIndicator = {
@@ -1495,6 +1678,79 @@ export default function MainChart() {
       });
     }
     setShowFibSubmenu(false);
+  };
+
+  // Pattern drawing functions
+  const drawXABCDPattern = () => {
+    if (chartInstanceRef.current) {
+      chartInstanceRef.current.createOverlay({
+        name: 'xabcdPattern'
+      });
+    }
+    setShowPatternSubmenu(false);
+  };
+
+  const drawCypherPattern = () => {
+    if (chartInstanceRef.current) {
+      chartInstanceRef.current.createOverlay({
+        name: 'cypherPattern'
+      });
+    }
+    setShowPatternSubmenu(false);
+  };
+
+  const drawHeadAndShoulders = () => {
+    if (chartInstanceRef.current) {
+      chartInstanceRef.current.createOverlay({
+        name: 'headShoulders'
+      });
+    }
+    setShowPatternSubmenu(false);
+  };
+
+  const drawABCDPattern = () => {
+    if (chartInstanceRef.current) {
+      chartInstanceRef.current.createOverlay({
+        name: 'abcdPattern'
+      });
+    }
+    setShowPatternSubmenu(false);
+  };
+
+  const drawTrianglePattern = () => {
+    if (chartInstanceRef.current) {
+      chartInstanceRef.current.createOverlay({
+        name: 'trianglePattern'
+      });
+    }
+    setShowPatternSubmenu(false);
+  };
+
+  const drawThreeDrivesPattern = () => {
+    if (chartInstanceRef.current) {
+      chartInstanceRef.current.createOverlay({
+        name: 'threeDrives'
+      });
+    }
+    setShowPatternSubmenu(false);
+  };
+
+  const drawElliottImpulseWave = () => {
+    if (chartInstanceRef.current) {
+      chartInstanceRef.current.createOverlay({
+        name: 'elliottImpulse'
+      });
+    }
+    setShowPatternSubmenu(false);
+  };
+
+  const drawElliottCorrectionWave = () => {
+    if (chartInstanceRef.current) {
+      chartInstanceRef.current.createOverlay({
+        name: 'elliottCorrection'
+      });
+    }
+    setShowPatternSubmenu(false);
   };
 
   const handleChartTypeChange = (type) => {
@@ -2237,7 +2493,7 @@ export default function MainChart() {
         {showPatternSubmenu && (
           <div ref={patternSubmenuRef} style={styles.patternSubmenu}>
             {/* XABCD Pattern */}
-            <div style={styles.submenuItem}>
+            <div style={styles.submenuItem} onClick={drawXABCDPattern}>
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 28" width="20" height="20">
                 <g fill="currentColor" fillRule="nonzero">
                   <path d="M20.449 8.505l2.103 9.112.974-.225-2.103-9.112zM13.943 14.011l7.631 4.856.537-.844-7.631-4.856zM14.379 11.716l4.812-3.609-.6-.8-4.812 3.609zM10.96 13.828l-4.721 6.744.819.573 4.721-6.744zM6.331 20.67l2.31-13.088-.985-.174-2.31 13.088zM9.041 7.454l1.995 3.492.868-.496-1.995-3.492z"></path>
@@ -2248,7 +2504,7 @@ export default function MainChart() {
             </div>
 
             {/* Cypher Pattern */}
-            <div style={styles.submenuItem}>
+            <div style={styles.submenuItem} onClick={drawCypherPattern}>
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 28" width="20" height="20">
                 <g fill="currentColor">
                   <path d="M15.246 21.895l1.121.355c-.172.625-.458 1.089-.857 1.393-.4.303-.907.455-1.521.455-.76 0-1.385-.26-1.875-.779-.49-.52-.734-1.23-.734-2.131 0-.953.246-1.693.738-2.221.492-.527 1.139-.791 1.941-.791.701 0 1.27.207 1.707.621.26.245.456.596.586 1.055l-1.145.273c-.068-.297-.209-.531-.424-.703-.215-.172-.476-.258-.783-.258-.424 0-.769.152-1.033.457-.264.305-.396.798-.396 1.48 0 .724.13 1.24.391 1.547.26.307.599.461 1.016.461.307 0 .572-.098.793-.293.221-.195.38-.503.477-.922z"></path>
@@ -2260,7 +2516,7 @@ export default function MainChart() {
             </div>
 
             {/* Head and Shoulders */}
-            <div style={styles.submenuItem}>
+            <div style={styles.submenuItem} onClick={drawHeadAndShoulders}>
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 28" width="20" height="20">
                 <g fill="currentColor" fillRule="nonzero">
                   <path d="M4.436 21.667l2.083-9.027-.974-.225-2.083 9.027zM10.046 16.474l-2.231-4.463-.894.447 2.231 4.463zM13.461 6.318l-2.88 10.079.962.275 2.88-10.079zM18.434 16.451l-2.921-10.224-.962.275 2.921 10.224zM21.147 12.089l-2.203 4.405.894.447 2.203-4.405zM25.524 21.383l-2.09-9.055-.974.225 2.09 9.055z"></path>
@@ -2274,7 +2530,7 @@ export default function MainChart() {
             </div>
 
             {/* ABCD Pattern */}
-            <div style={styles.submenuItem}>
+            <div style={styles.submenuItem} onClick={drawABCDPattern}>
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 28" width="20" height="20">
                 <g fill="currentColor" fillRule="nonzero">
                   <path d="M21.487 5.248l-12.019 1.502.124.992 12.019-1.502zM6.619 9.355l-2.217 11.083.981.196 2.217-11.083zM6.534 22.75l12.071-1.509-.124-.992-12.071 1.509zM21.387 18.612l2.21-11.048-.981-.196-2.21 11.048zM8.507 9.214l10.255 10.255.707-.707-10.255-10.255z"></path>
@@ -2285,7 +2541,7 @@ export default function MainChart() {
             </div>
 
             {/* Triangle Pattern */}
-            <div style={styles.submenuItem}>
+            <div style={styles.submenuItem} onClick={drawTrianglePattern}>
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 28" width="20" height="20">
                 <g fill="currentColor" fillRule="nonzero">
                   <path d="M9.457 18.844l-5.371 2.4.408.913 5.371-2.4z"></path>
@@ -2300,7 +2556,7 @@ export default function MainChart() {
             </div>
 
             {/* Three Drives Pattern */}
-            <div style={styles.submenuItem}>
+            <div style={styles.submenuItem} onClick={drawThreeDrivesPattern}>
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 28" width="20" height="20">
                 <g fill="currentColor" fillRule="nonzero">
                   <path d="M.303 17.674l1.104.473.394-.919-1.104-.473z"></path>
@@ -2319,7 +2575,7 @@ export default function MainChart() {
             </div>
 
             {/* Elliott Impulse Wave */}
-            <div style={styles.submenuItem}>
+            <div style={styles.submenuItem} onClick={drawElliottImpulseWave}>
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 28" width="20" height="20">
                 <g fill="currentColor">
                   <path fillRule="nonzero" d="M5.238 18.469l4.17-4.17-.707-.707-4.17 4.17zM16.47 17.763l-.707.707-4.265-4.265.707-.707zM22.747 13.546l-4.192 4.192.707.707 4.192-4.192z"></path>
@@ -2331,7 +2587,7 @@ export default function MainChart() {
             </div>
 
             {/* Elliott Correction Wave */}
-            <div style={styles.submenuItem}>
+            <div style={styles.submenuItem} onClick={drawElliottCorrectionWave}>
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 28" width="20" height="20">
                 <g fill="currentColor">
                   <path fillRule="nonzero" d="M5.238 18.469l4.17-4.17-.707-.707-4.17 4.17zM16.47 17.763l-.707.707-4.265-4.265.707-.707zM22.747 13.546l-4.192 4.192.707.707 4.192-4.192z"></path>
