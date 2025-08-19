@@ -552,6 +552,8 @@ export default function MainChart() {
   const [activeDrawingTool, setActiveDrawingTool] = useState(null);
   const [showDrawingSettings, setShowDrawingSettings] = useState(false);
   const [hasActiveDrawing, setHasActiveDrawing] = useState(false);
+  const [isDrawing, setIsDrawing] = useState(false);
+  const [selectedOverlayId, setSelectedOverlayId] = useState(null);
   const [drawingSettings, setDrawingSettings] = useState({
     color: '#1e88e5',
     thickness: 2
@@ -1420,29 +1422,35 @@ export default function MainChart() {
       const overlay = chartInstanceRef.current.createOverlay({
         name: overlayName,
         styles: styles,
+        onDrawStart: () => {
+          // Drawing has started
+          setActiveDrawingTool(toolName);
+          setIsDrawing(true);
+          setHasActiveDrawing(false);
+          setSelectedOverlayId(null);
+        },
         onDrawEnd: () => {
-          // Drawing is finished, but don't show settings automatically
-          // Settings will only show when user clicks on an existing drawing
+          // Drawing is finished
+          setIsDrawing(false);
+          setHasActiveDrawing(true);
           console.log(`${toolName} drawing completed`);
         },
-        onSelected: () => {
+        onSelected: (overlayInfo) => {
           // This is called when user clicks on an existing drawing
           setActiveDrawingTool(toolName);
           setHasActiveDrawing(true);
-          setShowDrawingSettings(false); // Don't auto-open, wait for settings button click
+          setIsDrawing(false);
+          setSelectedOverlayId(overlayInfo?.id || null);
         },
         onDeselected: () => {
           // Hide settings when drawing is deselected
           setActiveDrawingTool(null);
           setHasActiveDrawing(false);
+          setIsDrawing(false);
+          setSelectedOverlayId(null);
           setShowDrawingSettings(false);
         }
       });
-      
-      // Reset states when creating new drawing
-      setActiveDrawingTool(null);
-      setHasActiveDrawing(false);
-      setShowDrawingSettings(false);
     }
     setShowSubmenu(false);
     setShowFibSubmenu(false);
@@ -1510,23 +1518,31 @@ export default function MainChart() {
             line: { color: drawingSettings.color, size: drawingSettings.thickness, style: 'solid' },
             text: { color: drawingSettings.color, size: 11, family: 'Arial, sans-serif' }
           },
+          onDrawStart: () => {
+            setActiveDrawingTool('Fib Retracement');
+            setIsDrawing(true);
+            setHasActiveDrawing(false);
+            setSelectedOverlayId(null);
+          },
           onDrawEnd: () => {
+            setIsDrawing(false);
+            setHasActiveDrawing(true);
             console.log('Fib Retracement drawing completed');
           },
-          onSelected: () => {
+          onSelected: (overlayInfo) => {
             setActiveDrawingTool('Fib Retracement');
             setHasActiveDrawing(true);
-            setShowDrawingSettings(false);
+            setIsDrawing(false);
+            setSelectedOverlayId(overlayInfo?.id || null);
           },
           onDeselected: () => {
             setActiveDrawingTool(null);
             setHasActiveDrawing(false);
+            setIsDrawing(false);
+            setSelectedOverlayId(null);
             setShowDrawingSettings(false);
           }
         });
-        setActiveDrawingTool(null);
-        setHasActiveDrawing(false);
-        setShowDrawingSettings(false);
         console.log('Fib Retracement overlay created successfully');
       } catch (error) {
         console.error('Error creating Fib Retracement overlay:', error);
@@ -1552,21 +1568,31 @@ export default function MainChart() {
     if (chartInstanceRef.current) {
       chartInstanceRef.current.createOverlay({
         name: 'xabcdPattern',
+        onDrawStart: () => {
+          setActiveDrawingTool('XABCD Pattern');
+          setIsDrawing(true);
+          setHasActiveDrawing(false);
+          setSelectedOverlayId(null);
+        },
         onDrawEnd: () => {
+          setIsDrawing(false);
+          setHasActiveDrawing(true);
           console.log('XABCD Pattern drawing completed');
         },
-        onSelected: () => {
+        onSelected: (overlayInfo) => {
           setActiveDrawingTool('XABCD Pattern');
           setHasActiveDrawing(true);
+          setIsDrawing(false);
+          setSelectedOverlayId(overlayInfo?.id || null);
         },
         onDeselected: () => {
           setActiveDrawingTool(null);
           setHasActiveDrawing(false);
+          setIsDrawing(false);
+          setSelectedOverlayId(null);
           setShowDrawingSettings(false);
         }
       });
-      setActiveDrawingTool(null);
-      setHasActiveDrawing(false);
     }
     setShowPatternSubmenu(false);
   };
@@ -1889,23 +1915,45 @@ export default function MainChart() {
           point: { show: true, activeSize: 6, inactiveSize: 4 },
           polygon: { style: 'stroke_fill', color: `${drawingSettings.color}33`, borderColor: drawingSettings.color, borderSize: drawingSettings.thickness }
         },
+        onDrawStart: () => {
+          setActiveDrawingTool('Triangle');
+          setIsDrawing(true);
+          setHasActiveDrawing(false);
+          setSelectedOverlayId(null);
+        },
         onDrawEnd: () => {
+          setIsDrawing(false);
+          setHasActiveDrawing(true);
           console.log('Triangle drawing completed');
         },
-        onSelected: () => {
+        onSelected: (overlayInfo) => {
           setActiveDrawingTool('Triangle');
           setHasActiveDrawing(true);
+          setIsDrawing(false);
+          setSelectedOverlayId(overlayInfo?.id || null);
         },
         onDeselected: () => {
           setActiveDrawingTool(null);
           setHasActiveDrawing(false);
+          setIsDrawing(false);
+          setSelectedOverlayId(null);
           setShowDrawingSettings(false);
         }
       });
-      setActiveDrawingTool(null);
-      setHasActiveDrawing(false);
     }
     setShowShapesSubmenu(false);
+  };
+
+  // Function to remove the selected drawing
+  const removeSelectedDrawing = () => {
+    if (chartInstanceRef.current && selectedOverlayId) {
+      chartInstanceRef.current.removeOverlay({ id: selectedOverlayId });
+      setActiveDrawingTool(null);
+      setHasActiveDrawing(false);
+      setIsDrawing(false);
+      setSelectedOverlayId(null);
+      setShowDrawingSettings(false);
+    }
   };
 
   const handleChartTypeChange = (type) => {
@@ -2419,19 +2467,7 @@ export default function MainChart() {
 
           
 
-          {/* Settings tool */}
-          {activeDrawingTool && hasActiveDrawing && (
-            <div
-              className="drawing-settings-trigger"
-              style={{
-                ...styles.numberBox,
-                backgroundColor: showDrawingSettings ? '#e3f2fd' : '#fafafa'
-              }}
-              onClick={() => setShowDrawingSettings(!showDrawingSettings)}
-            >
-              <i className="fa-solid fa-gear"></i>
-            </div>
-          )}
+          
         </div>
 
         {/* Submenu - positioned absolutely to not affect layout */}
@@ -2808,8 +2844,41 @@ export default function MainChart() {
           </div>
         )}
 
+        {/* Floating Settings Icon - Top Right */}
+        {activeDrawingTool && (isDrawing || hasActiveDrawing) && (
+          <div style={styles.floatingSettingsContainer}>
+            <button
+              className="drawing-settings-trigger"
+              style={{
+                ...styles.floatingSettingsButton,
+                backgroundColor: showDrawingSettings ? '#2196f3' : '#ffffff'
+              }}
+              onClick={() => setShowDrawingSettings(!showDrawingSettings)}
+              title="Drawing Settings"
+            >
+              <i 
+                className="fa-solid fa-gear" 
+                style={{ 
+                  color: showDrawingSettings ? '#ffffff' : '#131722',
+                  fontSize: '14px'
+                }}
+              ></i>
+            </button>
+            
+            {hasActiveDrawing && selectedOverlayId && (
+              <button
+                style={styles.floatingRemoveButton}
+                onClick={removeSelectedDrawing}
+                title="Remove Drawing"
+              >
+                <i className="fa-solid fa-trash" style={{ fontSize: '12px', color: '#f44336' }}></i>
+              </button>
+            )}
+          </div>
+        )}
+
         {/* Drawing Settings Panel */}
-        {showDrawingSettings && activeDrawingTool && hasActiveDrawing && (
+        {showDrawingSettings && activeDrawingTool && (
           <div ref={drawingSettingsRef} style={styles.drawingSettingsPanel}>
             <div style={styles.drawingSettingsHeader}>
               <div style={styles.drawingSettingsHeaderLeft}>
@@ -2818,24 +2887,39 @@ export default function MainChart() {
                   {activeDrawingTool}
                 </span>
               </div>
-              <button
-                style={styles.drawingSettingsCloseButton}
-                onClick={() => {
-                  setShowDrawingSettings(false);
-                  setActiveDrawingTool(null);
-                  setHasActiveDrawing(false);
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.backgroundColor = "rgba(239, 83, 80, 0.1)";
-                  e.currentTarget.style.color = "#ef5350";
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.backgroundColor = "transparent";
-                  e.currentTarget.style.color = "#787b86";
-                }}
-              >
-                ×
-              </button>
+              <div style={styles.drawingSettingsHeaderButtons}>
+                {hasActiveDrawing && selectedOverlayId && (
+                  <button
+                    style={styles.removeDrawingButton}
+                    onClick={removeSelectedDrawing}
+                    title="Remove Drawing"
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.backgroundColor = "rgba(244, 67, 54, 0.1)";
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.backgroundColor = "transparent";
+                    }}
+                  >
+                    <i className="fa-solid fa-trash"></i>
+                  </button>
+                )}
+                <button
+                  style={styles.drawingSettingsCloseButton}
+                  onClick={() => {
+                    setShowDrawingSettings(false);
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.backgroundColor = "rgba(239, 83, 80, 0.1)";
+                    e.currentTarget.style.color = "#ef5350";
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = "transparent";
+                    e.currentTarget.style.color = "#787b86";
+                  }}
+                >
+                  ×
+                </button>
+              </div>
             </div>
             
             <div style={styles.drawingSettingsContent}>
@@ -3291,10 +3375,45 @@ const styles = {
     color: "#333",
     transition: "all 0.2s",
   },
+  floatingSettingsContainer: {
+    position: "absolute",
+    top: "10px",
+    right: "10px",
+    display: "flex",
+    gap: "8px",
+    zIndex: 1001,
+  },
+  floatingSettingsButton: {
+    width: "36px",
+    height: "36px",
+    border: "1px solid #e0e3eb",
+    borderRadius: "8px",
+    cursor: "pointer",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    boxShadow: "0 2px 8px rgba(0, 0, 0, 0.15)",
+    transition: "all 0.2s ease",
+    outline: "none",
+  },
+  floatingRemoveButton: {
+    width: "36px",
+    height: "36px",
+    backgroundColor: "#ffffff",
+    border: "1px solid #e0e3eb",
+    borderRadius: "8px",
+    cursor: "pointer",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    boxShadow: "0 2px 8px rgba(0, 0, 0, 0.15)",
+    transition: "all 0.2s ease",
+    outline: "none",
+  },
   drawingSettingsPanel: {
     position: "absolute",
     right: "10px",
-    top: "50px",
+    top: "55px",
     width: "320px",
     backgroundColor: "#ffffff",
     border: "1px solid #e0e3eb",
@@ -3311,6 +3430,26 @@ const styles = {
     padding: "16px 20px",
     backgroundColor: "#f8f9fa",
     borderBottom: "1px solid #e0e3eb",
+  },
+  drawingSettingsHeaderButtons: {
+    display: "flex",
+    gap: "8px",
+    alignItems: "center",
+  },
+  removeDrawingButton: {
+    background: "none",
+    border: "none",
+    fontSize: "16px",
+    color: "#f44336",
+    cursor: "pointer",
+    width: "28px",
+    height: "28px",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    borderRadius: "6px",
+    transition: "all 0.2s ease",
+    fontWeight: "normal",
   },
   drawingSettingsHeaderLeft: {
     display: "flex",
