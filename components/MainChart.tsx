@@ -2851,39 +2851,16 @@ export default function MainChart() {
           </div>
         )}
 
-        {/* Floating Settings Icon - Top Right */}
-        {activeDrawingTool && (isDrawing || hasActiveDrawing) && (
+        {/* Floating Remove Button - Top Right */}
+        {activeDrawingTool && (isDrawing || hasActiveDrawing) && hasActiveDrawing && selectedOverlayId && (
           <div style={styles.floatingSettingsContainer}>
             <button
-              className="drawing-settings-trigger"
-              style={{
-                ...styles.floatingSettingsButton,
-                backgroundColor: showDrawingSettings ? '#2196f3' : '#ffffff'
-              }}
-              onClick={() => {
-                setTempDrawingSettings(drawingSettings);
-                setShowDrawingSettings(!showDrawingSettings);
-              }}
-              title="Drawing Settings"
+              style={styles.floatingRemoveButton}
+              onClick={removeSelectedDrawing}
+              title="Remove Drawing"
             >
-              <i 
-                className="fa-solid fa-gear" 
-                style={{ 
-                  color: showDrawingSettings ? '#ffffff' : '#131722',
-                  fontSize: '14px'
-                }}
-              ></i>
+              <i className="fa-solid fa-times" style={{ fontSize: '14px', color: '#f44336' }}></i>
             </button>
-            
-            {hasActiveDrawing && selectedOverlayId && (
-              <button
-                style={styles.floatingRemoveButton}
-                onClick={removeSelectedDrawing}
-                title="Remove Drawing"
-              >
-                <i className="fa-solid fa-times" style={{ fontSize: '14px', color: '#f44336' }}></i>
-              </button>
-            )}
           </div>
         )}
 
