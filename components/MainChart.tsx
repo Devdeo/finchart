@@ -654,6 +654,94 @@ const registerCustomOverlays = () => {
       return base;
     }
   });
+
+  // Shape overlays
+  // Rectangle overlay
+  registerOverlay({
+    name: 'rectangle',
+    totalStep: 1,
+    needDefaultPointFigure: true,
+    createPointFigures: ({ coordinates }) => {
+      if (coordinates.length < 1) return [];
+      const [p] = coordinates;
+      const p2 = { x: p.x + 80, y: p.y + 60 };
+      return [
+        {
+          type: 'polygon',
+          attrs: { coordinates: [p, { x: p2.x, y: p.y }, p2, { x: p.x, y: p2.y }] },
+          styles: { style: 'stroke_fill', color: '#4A90E280', borderColor: '#4A90E2', borderSize: 2 }
+        }
+      ];
+    }
+  });
+
+  // Rotated Rectangle overlay
+  registerOverlay({
+    name: 'rotatedRectangle',
+    totalStep: 1,
+    needDefaultPointFigure: true,
+    createPointFigures: ({ coordinates }) => {
+      if (coordinates.length < 1) return [];
+      const [p] = coordinates;
+      const width = 100, height = 50, angle = Math.PI / 6; // 30°
+      const corners = [
+        { x: 0, y: 0 },
+        { x: width, y: 0 },
+        { x: width, y: height },
+        { x: 0, y: height },
+      ].map(pt => ({
+        x: p.x + pt.x * Math.cos(angle) - pt.y * Math.sin(angle),
+        y: p.y + pt.x * Math.sin(angle) + pt.y * Math.cos(angle),
+      }));
+      return [
+        {
+          type: 'polygon',
+          attrs: { coordinates: corners },
+          styles: { style: 'stroke_fill', color: '#FF980080', borderColor: '#FF9800', borderSize: 2 }
+        }
+      ];
+    }
+  });
+
+  // Circle overlay
+  registerOverlay({
+    name: 'circle',
+    totalStep: 1,
+    needDefaultPointFigure: true,
+    createPointFigures: ({ coordinates }) => {
+      if (coordinates.length < 1) return [];
+      const [c] = coordinates;
+      const r = 40;
+      return [
+        {
+          type: 'circle',
+          attrs: { x: c.x, y: c.y, r },
+          styles: { style: 'stroke_fill', color: '#7CB34280', borderColor: '#7CB342', borderSize: 2 }
+        }
+      ];
+    }
+  });
+
+  // Triangle overlay
+  registerOverlay({
+    name: 'triangle',
+    totalStep: 1,
+    needDefaultPointFigure: true,
+    createPointFigures: ({ coordinates }) => {
+      if (coordinates.length < 1) return [];
+      const [p] = coordinates;
+      const size = 80;
+      const p2 = { x: p.x + size, y: p.y };
+      const apex = { x: p.x + size / 2, y: p.y - size * 0.866 };
+      return [
+        {
+          type: 'polygon',
+          attrs: { coordinates: [p, p2, apex] },
+          styles: { style: 'stroke_fill', color: '#E91E6380', borderColor: '#E91E63', borderSize: 2 }
+        }
+      ];
+    }
+  });
 };
 import SMAIndicator from "./SMAIndicator";
 import EMAIndicator from "./EMAIndicator";
@@ -688,12 +776,14 @@ export default function MainChart() {
   const [showProjectionSubmenu, setShowProjectionSubmenu] = useState(false);
   const [showBrushesSubmenu, setShowBrushesSubmenu] = useState(false);
   const [showPositionSubmenu, setShowPositionSubmenu] = useState(false);
+  const [showShapesSubmenu, setShowShapesSubmenu] = useState(false);
   const submenuRef = useRef(null);
   const fibSubmenuRef = useRef(null);
   const patternSubmenuRef = useRef(null);
   const projectionSubmenuRef = useRef(null);
   const brushesSubmenuRef = useRef(null);
   const positionSubmenuRef = useRef(null);
+  const shapesSubmenuRef = useRef(null);
 
   // Chart reference for pattern recognition
   const chartInstanceRef = useRef(null);
@@ -827,11 +917,20 @@ export default function MainChart() {
       ) {
         setShowPositionSubmenu(false);
       }
+
+      if (
+        showShapesSubmenu &&
+        shapesSubmenuRef.current &&
+        !shapesSubmenuRef.current.contains(e.target) &&
+        !e.target.closest(".shapes-submenu-trigger")
+      ) {
+        setShowShapesSubmenu(false);
+      }
     };
     document.addEventListener("mousedown", handleClickOutside);
     return () =>
       document.removeEventListener("mousedown", handleClickOutside);
-  }, [showSubmenu, showFibSubmenu, showPatternSubmenu, showProjectionSubmenu, showBrushesSubmenu, showPositionSubmenu, showIndicatorControls]);
+  }, [showSubmenu, showFibSubmenu, showPatternSubmenu, showProjectionSubmenu, showBrushesSubmenu, showPositionSubmenu, showShapesSubmenu, showIndicatorControls]);
 
   const openDropdown = (menu, event) => {
     const rect = event.currentTarget.getBoundingClientRect();
@@ -1895,6 +1994,55 @@ export default function MainChart() {
     setShowPositionSubmenu(false);
   };
 
+  // Shape drawing functions
+  const drawRectangle = () => {
+    if (chartInstanceRef.current) {
+      chartInstanceRef.current.createOverlay({
+        name: 'rectangle',
+        styles: {
+          point: { show: true, activeSize: 6, inactiveSize: 4 }
+        }
+      });
+    }
+    setShowShapesSubmenu(false);
+  };
+
+  const drawRotatedRectangle = () => {
+    if (chartInstanceRef.current) {
+      chartInstanceRef.current.createOverlay({
+        name: 'rotatedRectangle',
+        styles: {
+          point: { show: true, activeSize: 6, inactiveSize: 4 }
+        }
+      });
+    }
+    setShowShapesSubmenu(false);
+  };
+
+  const drawCircle = () => {
+    if (chartInstanceRef.current) {
+      chartInstanceRef.current.createOverlay({
+        name: 'circle',
+        styles: {
+          point: { show: true, activeSize: 6, inactiveSize: 4 }
+        }
+      });
+    }
+    setShowShapesSubmenu(false);
+  };
+
+  const drawTriangle = () => {
+    if (chartInstanceRef.current) {
+      chartInstanceRef.current.createOverlay({
+        name: 'triangle',
+        styles: {
+          point: { show: true, activeSize: 6, inactiveSize: 4 }
+        }
+      });
+    }
+    setShowShapesSubmenu(false);
+  };
+
   const handleChartTypeChange = (type) => {
     setChartType(type);
     if (chartInstanceRef.current) {
@@ -2404,6 +2552,23 @@ export default function MainChart() {
                 <path d="M8 12l4-4 4 4-1.4 1.4L14 12.8V16h-2v-3.2l-.6.6z"></path>
                 <circle cx="7" cy="7" r="2"></circle>
                 <circle cx="21" cy="21" r="2"></circle>
+              </g>
+            </svg>
+          </div>
+
+          {/* Shapes tool */}
+          <div
+            className="shapes-submenu-trigger"
+            style={styles.numberBox}
+            onClick={() => setShowShapesSubmenu(!showShapesSubmenu)}
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 28" width="28" height="28">
+              <g fill="currentColor" fillRule="nonzero">
+                <path d="M7.5 6h13v-1h-13z"></path>
+                <path d="M7.5 23h13v-1h-13z"></path>
+                <path d="M5 7.5v13h1v-13z"></path>
+                <path d="M22 7.5v13h1v-13z"></path>
+                <circle cx="14" cy="14" r="8" fill="none" stroke="currentColor" strokeWidth="1"/>
               </g>
             </svg>
           </div>
@@ -3102,6 +3267,59 @@ export default function MainChart() {
           </div>
         )}
 
+        {showShapesSubmenu && (
+          <div ref={shapesSubmenuRef} style={styles.shapesSubmenu}>
+            {/* Rectangle */}
+            <div style={styles.submenuItem} onClick={drawRectangle}>
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 28" width="20" height="20">
+                <g fill="currentColor" fillRule="nonzero">
+                  <path d="M7.5 6h13v-1h-13z"></path>
+                  <path d="M7.5 23h13v-1h-13z"></path>
+                  <path d="M5 7.5v13h1v-13z"></path>
+                  <path d="M22 7.5v13h1v-13z"></path>
+                  <path d="M5.5 7c.828 0 1.5-.672 1.5-1.5s-.672-1.5-1.5-1.5-1.5.672-1.5 1.5.672 1.5 1.5 1.5zm0 1c-1.381 0-2.5-1.119-2.5-2.5s1.119-2.5 2.5-2.5 2.5 1.119 2.5 2.5-1.119 2.5-2.5 2.5zM22.5 7c.828 0 1.5-.672 1.5-1.5s-.672-1.5-1.5-1.5-1.5.672-1.5 1.5.672 1.5 1.5 1.5zm0 1c-1.381 0-2.5-1.119-2.5-2.5s1.119-2.5 2.5-2.5 2.5 1.119 2.5 2.5-1.119 2.5-2.5 2.5zM22.5 24c.828 0 1.5-.672 1.5-1.5s-.672-1.5-1.5-1.5-1.5.672-1.5 1.5.672 1.5 1.5 1.5zm0 1c-1.381 0-2.5-1.119-2.5-2.5s1.119-2.5 2.5-2.5 2.5 1.119 2.5 2.5-1.119 2.5-2.5 2.5zM5.5 24c.828 0 1.5-.672 1.5-1.5s-.672-1.5-1.5-1.5-1.5.672-1.5 1.5.672 1.5 1.5 1.5zm0 1c-1.381 0-2.5-1.119-2.5-2.5s1.119-2.5 2.5-2.5 2.5 1.119 2.5 2.5-1.119 2.5-2.5 2.5z"></path>
+                </g>
+              </svg>
+              <span style={styles.submenuText}>Rectangle</span>
+            </div>
+
+            {/* Rotated Rectangle */}
+            <div style={styles.submenuItem} onClick={drawRotatedRectangle}>
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 28" width="20" height="20">
+                <g fill="currentColor" fillRule="nonzero">
+                  <path d="M14.743 3.55l-4.208 4.208.707.707 4.208-4.208zM7.71 10.583l-4.187 4.187.707.707 4.187-4.187zM3.536 18.244l6.171 6.171.707-.707-6.171-6.171zM13.232 24.475l4.22-4.22-.707-.707-4.22 4.22zM20.214 17.494l4.217-4.217-.707-.707-4.217 4.217zM24.423 9.716l-6.218-6.218-.707.707 6.218 6.218z"></path>
+                  <path d="M2.5 18c.828 0 1.5-.672 1.5-1.5s-.672-1.5-1.5-1.5-1.5.672-1.5 1.5.672 1.5 1.5 1.5zm0 1c-1.381 0-2.5-1.119-2.5-2.5s1.119-2.5 2.5-2.5 2.5 1.119 2.5 2.5-1.119 2.5-2.5 2.5zM9.5 11c.828 0 1.5-.672 1.5-1.5s-.672-1.5-1.5-1.5-1.5.672-1.5 1.5.672 1.5 1.5 1.5zm0 1c-1.381 0-2.5-1.119-2.5-2.5s1.119-2.5 2.5-2.5 2.5 1.119 2.5 2.5-1.119 2.5-2.5 2.5zM16.5 4c.828 0 1.5-.672 1.5-1.5s-.672-1.5-1.5-1.5-1.5.672-1.5 1.5.672 1.5 1.5 1.5zm0 1c-1.381 0-2.5-1.119-2.5-2.5s1.119-2.5 2.5-2.5 2.5 1.119 2.5 2.5-1.119 2.5-2.5 2.5zM11.5 27c.828 0 1.5-.672 1.5-1.5s-.672-1.5-1.5-1.5-1.5.672-1.5 1.5.672 1.5 1.5 1.5zm0 1c-1.381 0-2.5-1.119-2.5-2.5s1.119-2.5 2.5-2.5 2.5 1.119 2.5 2.5-1.119 2.5-2.5 2.5zM18.5 20c.828 0 1.5-.672 1.5-1.5s-.672-1.5-1.5-1.5-1.5.672-1.5 1.5.672 1.5 1.5 1.5zm0 1c-1.381 0-2.5-1.119-2.5-2.5s1.119-2.5 2.5-2.5 2.5 1.119 2.5 2.5-1.119 2.5-2.5 2.5zM25.5 13c.828 0 1.5-.672 1.5-1.5s-.672-1.5-1.5-1.5-1.5.672-1.5 1.5.672 1.5 1.5 1.5zm0 1c-1.381 0-2.5-1.119-2.5-2.5s1.119-2.5 2.5-2.5 2.5 1.119 2.5 2.5-1.119 2.5-2.5 2.5z"></path>
+                </g>
+              </svg>
+              <span style={styles.submenuText}>Rotated Rectangle</span>
+            </div>
+
+            {/* Circle */}
+            <div style={styles.submenuItem} onClick={drawCircle}>
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 28" width="20" height="20" fill="none">
+                <path stroke="currentColor" d="M16 14a2 2 0 1 1-4 0 2 2 0 0 1 4 0Z"></path>
+                <path fill="currentColor" fillRule="evenodd" clipRule="evenodd" d="M4.5 14a9.5 9.5 0 0 1 18.7-2.37 2.5 2.5 0 0 0 0 4.74A9.5 9.5 0 0 1 4.5 14Zm19.7 2.5a10.5 10.5 0 1 1 0-5 2.5 2.5 0 0 1 0 5ZM22.5 14a1.5 1.5 0 1 1 3 0 1.5 1.5 0 0 1-3 0Z"></path>
+              </svg>
+              <span style={styles.submenuText}>Circle</span>
+            </div>
+
+            {/* Triangle */}
+            <div style={styles.submenuItem} onClick={drawTriangle}>
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 28" width="20" height="20">
+                <g fill="currentColor" fillRule="nonzero">
+                  <path d="M9.457 18.844l-5.371 2.4.408.913 5.371-2.4z"></path>
+                  <path d="M13.13 17.203l.408.913 13.688-6.116-6.736-3.01-.408.913 4.692 2.097z"></path>
+                  <path d="M11.077 5.88l5.34 2.386.408-.913-5.34-2.386z"></path>
+                  <path d="M7.401 4.237l.408-.913-5.809-2.595v19.771h1v-18.229z"></path>
+                  <path d="M3.708 20.772l5.51-14.169-.932-.362-5.51 14.169zM9.265 6.39l1.46 10.218.99-.141-1.46-10.218zM13.059 17.145l4.743-6.775-.819-.573-4.743 6.775z"></path>
+                  <path d="M9.5 6c.828 0 1.5-.672 1.5-1.5s-.672-1.5-1.5-1.5-1.5.672-1.5 1.5.672 1.5 1.5 1.5zm0 1c-1.381 0-2.5-1.119-2.5-2.5s1.119-2.5 2.5-2.5 2.5 1.119 2.5 2.5-1.119 2.5-2.5 2.5zM11.5 20c.828 0 1.5-.672 1.5-1.5s-.672-1.5-1.5-1.5-1.5.672-1.5 1.5.672 1.5 1.5 1.5zm0 1c-1.381 0-2.5-1.119-2.5-2.5s1.119-2.5 2.5-2.5 2.5 1.119 2.5 2.5-1.119 2.5-2.5 2.5zM18.5 10c.828 0 1.5-.672 1.5-1.5s-.672-1.5-1.5-1.5-1.5.672-1.5 1.5.672 1.5 1.5 1.5zm0 1c-1.381 0-2.5-1.119-2.5-2.5s1.119-2.5 2.5-2.5 2.5 1.119 2.5 2.5-1.119 2.5-2.5 2.5zM2.5 24c.828 0 1.5-.672 1.5-1.5s-.672-1.5-1.5-1.5-1.5.672-1.5 1.5.672 1.5 1.5 1.5zm0 1c-1.381 0-2.5-1.119-2.5-2.5s1.119-2.5 2.5-2.5 2.5 1.119 2.5 2.5-1.119 2.5-2.5 2.5z"></path>
+                </g>
+              </svg>
+              <span style={styles.submenuText}>Triangle</span>
+            </div>
+          </div>
+        )}
+
         <div style={styles.mainChart}>
           {/* Applied Indicators Display */}
           {(appliedIndicators.length > 0 || smaIndicators.length > 0 || emaIndicators.length > 0 || wmaIndicators.length > 0 || ichimokuIndicators.length > 0 || supertrendIndicators.length > 0 || psarIndicators.length > 0 || macdIndicators.length > 0 || adxIndicators.length > 0 || hmaIndicators.length > 0 || rsiIndicators.length > 0 || stochasticIndicators.length > 0 || stochasticRsiIndicators.length > 0 || cciIndicators.length > 0 || williamsRIndicators.length > 0 || rocIndicators.length > 0 || bollingerBandsIndicators.length > 0 || keltnerChannelIndicators.length > 0 || donchianChannelIndicators.length > 0 || atrIndicators.length > 0 || standardDeviationChannelIndicators.length > 0 || volumeHistogramIndicators.length > 0) && (
@@ -3570,6 +3788,19 @@ const styles = {
     boxSizing: "border-box",
     zIndex: 1000,
     maxHeight: "calc(100vh - 270px)",
+    overflowY: "auto",
+  },
+  shapesSubmenu: {
+    position: "absolute",
+    left: "40px",
+    top: "310px",
+    width: "200px",
+    backgroundColor: "#f0f0f0",
+    border: "1px solid #ccc",
+    padding: "10px",
+    boxSizing: "border-box",
+    zIndex: 1000,
+    maxHeight: "calc(100vh - 310px)",
     overflowY: "auto",
   },
   submenuSectionHeader: {
