@@ -103,57 +103,77 @@ const registerCustomOverlays = () => {
     name: "fibRetracement",
     totalStep: 2,
     needDefaultPointFigure: false,
-    createPointFigures: ({ coordinates, bounding }) => {
-      if (!coordinates || coordinates.length < 2 || !bounding) return [];
+    createPointFigures: ({ coordinates, bounding, yAxis }) => {
+      if (!coordinates || coordinates.length < 2 || !bounding || !yAxis) return [];
       const [p1, p2] = coordinates;
+      
+      // Convert pixel coordinates to price values
+      const price1 = yAxis.convertFromPixel(p1.y);
+      const price2 = yAxis.convertFromPixel(p2.y);
       
       // Fibonacci levels
       const fibLevels = [0, 0.236, 0.382, 0.5, 0.618, 0.786, 1];
       const fibLabels = ['0%', '23.6%', '38.2%', '50%', '61.8%', '78.6%', '100%'];
       
-      const priceRange = Math.abs(p2.y - p1.y);
-      const isUptrend = p1.y > p2.y;
+      const priceRange = price2 - price1;
+      const isUptrend = price1 < price2;
       
       const figures = [];
+      
+      // Main trend line from p1 to p2
+      figures.push({
+        type: "line",
+        attrs: {
+          coordinates: [p1, p2]
+        },
+        styles: {
+          color: '#888',
+          size: 1,
+          style: 'solid'
+        }
+      });
       
       // Draw horizontal lines for each fib level
       for (let i = 0; i < fibLevels.length; i++) {
         const level = fibLevels[i];
-        const y = isUptrend ? p1.y - (priceRange * level) : p1.y + (priceRange * level);
+        const fibPrice = isUptrend ? 
+          price1 + (priceRange * level) : 
+          price1 - (priceRange * (1 - level));
         
-        // Horizontal line
+        const y = yAxis.convertToPixel(fibPrice);
+        
+        // Horizontal line spanning the chart width
         figures.push({
           type: "line",
           attrs: {
             coordinates: [
-              { x: bounding.left, y },
-              { x: bounding.left + bounding.width, y }
+              { x: Math.min(p1.x, p2.x) - 50, y },
+              { x: Math.max(p1.x, p2.x) + 100, y }
             ]
           },
           styles: {
-            line: {
-              style: level === 0 || level === 1 ? 'solid' : 'dashed',
-              color: level === 0.382 || level === 0.618 ? '#ff9800' : 
-                     level === 0.5 ? '#2196f3' : '#9e9e9e',
-              size: level === 0.382 || level === 0.618 || level === 0.5 ? 2 : 1
-            }
+            color: level === 0.382 || level === 0.618 ? '#ff9800' : 
+                   level === 0.5 ? '#2196f3' : 
+                   level === 0 || level === 1 ? '#666' : '#999',
+            size: level === 0.382 || level === 0.618 || level === 0.5 ? 2 : 1,
+            style: level === 0 || level === 1 ? 'solid' : 'dashed'
           }
         });
         
-        // Label
+        // Price and percentage labels
         figures.push({
           type: "text",
           attrs: {
-            x: bounding.left + 10,
-            y: y - 5,
-            text: fibLabels[i]
+            x: Math.max(p1.x, p2.x) + 10,
+            y: y - 3,
+            text: `${fibLabels[i]} (${fibPrice.toFixed(2)})`
           },
           styles: {
-            text: {
-              color: level === 0.382 || level === 0.618 ? '#ff9800' : 
-                     level === 0.5 ? '#2196f3' : '#666',
-              size: 12
-            }
+            color: level === 0.382 || level === 0.618 ? '#ff9800' : 
+                   level === 0.5 ? '#2196f3' : '#666',
+            size: 11,
+            family: 'Arial, sans-serif',
+            weight: level === 0.382 || level === 0.618 || level === 0.5 ? 'bold' : 'normal'
           }
         });
       }
