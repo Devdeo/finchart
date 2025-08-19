@@ -558,6 +558,10 @@ export default function MainChart() {
     color: '#1e88e5',
     thickness: 2
   });
+  const [tempDrawingSettings, setTempDrawingSettings] = useState({
+    color: '#1e88e5',
+    thickness: 2
+  });
   const submenuRef = useRef(null);
   const fibSubmenuRef = useRef(null);
   const patternSubmenuRef = useRef(null);
@@ -2850,13 +2854,26 @@ export default function MainChart() {
         {/* Floating Settings Icon - Top Right */}
         {activeDrawingTool && (isDrawing || hasActiveDrawing) && (
           <div style={styles.floatingSettingsContainer}>
+            {hasActiveDrawing && selectedOverlayId && (
+              <button
+                style={styles.floatingRemoveButton}
+                onClick={removeSelectedDrawing}
+                title="Remove Drawing"
+              >
+                <i className="fa-solid fa-times" style={{ fontSize: '14px', color: '#f44336' }}></i>
+              </button>
+            )}
+            
             <button
               className="drawing-settings-trigger"
               style={{
                 ...styles.floatingSettingsButton,
                 backgroundColor: showDrawingSettings ? '#2196f3' : '#ffffff'
               }}
-              onClick={() => setShowDrawingSettings(!showDrawingSettings)}
+              onClick={() => {
+                setTempDrawingSettings(drawingSettings);
+                setShowDrawingSettings(!showDrawingSettings);
+              }}
               title="Drawing Settings"
             >
               <i 
@@ -2867,16 +2884,6 @@ export default function MainChart() {
                 }}
               ></i>
             </button>
-            
-            {hasActiveDrawing && selectedOverlayId && (
-              <button
-                style={styles.floatingRemoveButton}
-                onClick={removeSelectedDrawing}
-                title="Remove Drawing"
-              >
-                <i className="fa-solid fa-times" style={{ fontSize: '14px', color: '#f44336' }}></i>
-              </button>
-            )}
           </div>
         )}
 
@@ -2955,13 +2962,13 @@ export default function MainChart() {
                   <div style={styles.colorPickerWrapper}>
                     <input
                       type="color"
-                      value={drawingSettings.color}
-                      onChange={(e) => setDrawingSettings(prev => ({ ...prev, color: e.target.value }))}
+                      value={tempDrawingSettings.color}
+                      onChange={(e) => setTempDrawingSettings(prev => ({ ...prev, color: e.target.value }))}
                       style={styles.colorPicker}
                     />
-                    <div style={{...styles.colorPreview, backgroundColor: drawingSettings.color}}></div>
+                    <div style={{...styles.colorPreview, backgroundColor: tempDrawingSettings.color}}></div>
                   </div>
-                  <span style={styles.colorValue}>{drawingSettings.color.toUpperCase()}</span>
+                  <span style={styles.colorValue}>{tempDrawingSettings.color.toUpperCase()}</span>
                 </div>
               </div>
 
@@ -2976,21 +2983,21 @@ export default function MainChart() {
                     type="range"
                     min={1}
                     max={8}
-                    value={drawingSettings.thickness}
-                    onChange={(e) => setDrawingSettings(prev => ({ ...prev, thickness: parseInt(e.target.value) }))}
+                    value={tempDrawingSettings.thickness}
+                    onChange={(e) => setTempDrawingSettings(prev => ({ ...prev, thickness: parseInt(e.target.value) }))}
                     style={styles.thicknessSlider}
                   />
                   <div style={styles.thicknessLabels}>
                     <span style={styles.thicknessLabelMin}>1</span>
-                    <span style={styles.currentThickness}>{drawingSettings.thickness}px</span>
+                    <span style={styles.currentThickness}>{tempDrawingSettings.thickness}px</span>
                     <span style={styles.thicknessLabelMax}>8</span>
                   </div>
                   <div style={styles.thicknessPreview}>
                     <div 
                       style={{
                         ...styles.thicknessLine,
-                        height: `${drawingSettings.thickness}px`,
-                        backgroundColor: drawingSettings.color
+                        height: `${tempDrawingSettings.thickness}px`,
+                        backgroundColor: tempDrawingSettings.color
                       }}
                     ></div>
                   </div>
@@ -3010,9 +3017,9 @@ export default function MainChart() {
                       style={{
                         ...styles.colorPresetButton,
                         backgroundColor: color,
-                        border: drawingSettings.color === color ? '2px solid #2196f3' : '1px solid #e0e3eb'
+                        border: tempDrawingSettings.color === color ? '2px solid #2196f3' : '1px solid #e0e3eb'
                       }}
-                      onClick={() => setDrawingSettings(prev => ({ ...prev, color }))}
+                      onClick={() => setTempDrawingSettings(prev => ({ ...prev, color }))}
                       title={color}
                     ></button>
                   ))}
@@ -3023,7 +3030,7 @@ export default function MainChart() {
               <div style={styles.settingActions}>
                 <button
                   style={styles.resetButton}
-                  onClick={() => setDrawingSettings({ color: '#1e88e5', thickness: 2 })}
+                  onClick={() => setTempDrawingSettings({ color: '#1e88e5', thickness: 2 })}
                   onMouseEnter={(e) => {
                     e.currentTarget.style.backgroundColor = "rgba(33, 150, 243, 0.1)";
                     e.currentTarget.style.color = "#2196f3";
@@ -3035,6 +3042,40 @@ export default function MainChart() {
                 >
                   <i className="fa-solid fa-rotate-left" style={styles.buttonIcon}></i>
                   Reset
+                </button>
+                
+                <button
+                  style={styles.applyButton}
+                  onClick={() => {
+                    setDrawingSettings(tempDrawingSettings);
+                    if (chartInstanceRef.current && selectedOverlayId) {
+                      // Apply the new settings to the selected overlay
+                      chartInstanceRef.current.overrideOverlay({
+                        id: selectedOverlayId,
+                        styles: {
+                          line: { 
+                            color: tempDrawingSettings.color, 
+                            size: tempDrawingSettings.thickness 
+                          },
+                          text: {
+                            color: tempDrawingSettings.color,
+                            size: 11,
+                            family: 'Arial, sans-serif'
+                          }
+                        }
+                      });
+                    }
+                    setShowDrawingSettings(false);
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.backgroundColor = "#1976d2";
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = "#2196f3";
+                  }}
+                >
+                  <i className="fa-solid fa-check" style={styles.buttonIcon}></i>
+                  Apply
                 </button>
               </div>
             </div>
@@ -3672,10 +3713,11 @@ const styles = {
   },
   settingActions: {
     display: "flex",
-    justifyContent: "flex-end",
+    justifyContent: "space-between",
     paddingTop: "16px",
     borderTop: "1px solid #f0f0f0",
     marginTop: "20px",
+    gap: "12px",
   },
   resetButton: {
     display: "flex",
@@ -3687,6 +3729,20 @@ const styles = {
     padding: "8px 16px",
     fontSize: "12px",
     color: "#787b86",
+    cursor: "pointer",
+    transition: "all 0.2s ease",
+    fontWeight: "500",
+  },
+  applyButton: {
+    display: "flex",
+    alignItems: "center",
+    gap: "6px",
+    background: "#2196f3",
+    border: "none",
+    borderRadius: "6px",
+    padding: "8px 16px",
+    fontSize: "12px",
+    color: "#ffffff",
     cursor: "pointer",
     transition: "all 0.2s ease",
     fontWeight: "500",
