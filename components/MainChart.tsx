@@ -1457,12 +1457,7 @@ export default function MainChart() {
         onDrawEnd: (overlayInfo) => {
           setIsDrawing(false);
           setHasActiveDrawing(true);
-          
-          // Get the actual overlay ID from the chart
-          const overlays = chartInstanceRef.current.getOverlayById() || [];
-          const latestOverlay = overlays[overlays.length - 1];
-          const drawingId = latestOverlay?.id || overlayInfo?.id || `${toolName}-${Date.now()}`;
-          
+          const drawingId = overlayInfo?.id || Date.now().toString();
           setSelectedOverlayId(drawingId);
           setActiveDrawingTool(toolName);
           
@@ -1478,12 +1473,10 @@ export default function MainChart() {
           
           setAllDrawings(prev => [...prev, newDrawing]);
           
-          console.log(`${toolName} drawing completed with ID: ${drawingId}`);
+          console.log(`${toolName} drawing completed`);
         },
         onSelected: (overlayInfo) => {
           const drawingId = overlayInfo?.id;
-          if (!drawingId) return;
-          
           setActiveDrawingTool(toolName);
           setHasActiveDrawing(true);
           setIsDrawing(false);
@@ -1516,26 +1509,22 @@ export default function MainChart() {
           setSelectedPointIndex(null);
         },
         onModified: (overlayInfo) => {
-          if (!overlayInfo?.id) return;
-          
           // Update drawing in state when modified
           setAllDrawings(prev => prev.map(drawing => 
-            drawing.id === overlayInfo.id 
+            drawing.id === overlayInfo?.id 
               ? { ...drawing, points: overlayInfo?.points || [] }
               : drawing
           ));
-          console.log(`Modified drawing: ${toolName} (ID: ${overlayInfo.id})`);
+          console.log(`Modified drawing: ${toolName} (ID: ${overlayInfo?.id})`);
         },
         onRemoved: (overlayInfo) => {
-          if (!overlayInfo?.id) return;
-          
           // Remove from state when deleted
-          setAllDrawings(prev => prev.filter(drawing => drawing.id !== overlayInfo.id));
+          setAllDrawings(prev => prev.filter(drawing => drawing.id !== overlayInfo?.id));
           setActiveDrawingTool(null);
           setHasActiveDrawing(false);
           setSelectedOverlayId(null);
           setShowDrawingSettings(false);
-          console.log(`Removed drawing: ${toolName} (ID: ${overlayInfo.id})`);
+          console.log(`Removed drawing: ${toolName} (ID: ${overlayInfo?.id})`);
         },
         onRightClick: (overlayInfo, event) => {
           // Right-click context menu
@@ -1669,25 +1658,12 @@ export default function MainChart() {
 
   const removeDrawing = (overlayInfo) => {
     if (chartInstanceRef.current && overlayInfo?.id) {
-      try {
-        // Try to remove the overlay by ID
-        chartInstanceRef.current.removeOverlay({ id: overlayInfo.id });
-        
-        // Remove from our state
-        setAllDrawings(prev => prev.filter(d => d.id !== overlayInfo.id));
-        
-        // Reset drawing state if this was the selected drawing
-        if (selectedOverlayId === overlayInfo.id) {
-          setActiveDrawingTool(null);
-          setHasActiveDrawing(false);
-          setSelectedOverlayId(null);
-          setShowDrawingSettings(false);
-        }
-        
-        console.log(`Drawing removed successfully (ID: ${overlayInfo.id})`);
-      } catch (error) {
-        console.warn('Failed to remove drawing:', error);
-      }
+      chartInstanceRef.current.removeOverlay({ id: overlayInfo.id });
+      setAllDrawings(prev => prev.filter(d => d.id !== overlayInfo.id));
+      setActiveDrawingTool(null);
+      setHasActiveDrawing(false);
+      setSelectedOverlayId(null);
+      console.log('Drawing removed');
     }
     setContextMenu(null);
   };
@@ -2284,24 +2260,13 @@ export default function MainChart() {
   // Function to remove the selected drawing
   const removeSelectedDrawing = () => {
     if (chartInstanceRef.current && selectedOverlayId) {
-      try {
-        // Try to remove the overlay by ID
-        chartInstanceRef.current.removeOverlay({ id: selectedOverlayId });
-        
-        // Remove from our state
-        setAllDrawings(prev => prev.filter(d => d.id !== selectedOverlayId));
-        
-        // Reset all drawing-related state
-        setActiveDrawingTool(null);
-        setHasActiveDrawing(false);
-        setIsDrawing(false);
-        setSelectedOverlayId(null);
-        setShowDrawingSettings(false);
-        
-        console.log(`Selected drawing removed successfully (ID: ${selectedOverlayId})`);
-      } catch (error) {
-        console.warn('Failed to remove selected drawing:', error);
-      }
+      chartInstanceRef.current.removeOverlay({ id: selectedOverlayId });
+      setAllDrawings(prev => prev.filter(d => d.id !== selectedOverlayId));
+      setActiveDrawingTool(null);
+      setHasActiveDrawing(false);
+      setIsDrawing(false);
+      setSelectedOverlayId(null);
+      setShowDrawingSettings(false);
     }
   };
 
@@ -3329,7 +3294,7 @@ export default function MainChart() {
                       style={styles.drawingItemButton}
                       onClick={(e) => {
                         e.stopPropagation();
-                        removeDrawing({ id: drawing.id });
+                        removeDrawing(drawing);
                       }}
                       title="Remove"
                     >
