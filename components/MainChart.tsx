@@ -777,6 +777,12 @@ export default function MainChart() {
   const [showBrushesSubmenu, setShowBrushesSubmenu] = useState(false);
   const [showPositionSubmenu, setShowPositionSubmenu] = useState(false);
   const [showShapesSubmenu, setShowShapesSubmenu] = useState(false);
+  const [activeDrawingTool, setActiveDrawingTool] = useState(null);
+  const [showDrawingSettings, setShowDrawingSettings] = useState(false);
+  const [drawingSettings, setDrawingSettings] = useState({
+    color: '#1e88e5',
+    thickness: 2
+  });
   const submenuRef = useRef(null);
   const fibSubmenuRef = useRef(null);
   const patternSubmenuRef = useRef(null);
@@ -784,6 +790,7 @@ export default function MainChart() {
   const brushesSubmenuRef = useRef(null);
   const positionSubmenuRef = useRef(null);
   const shapesSubmenuRef = useRef(null);
+  const drawingSettingsRef = useRef(null);
 
   // Chart reference for pattern recognition
   const chartInstanceRef = useRef(null);
@@ -926,11 +933,20 @@ export default function MainChart() {
       ) {
         setShowShapesSubmenu(false);
       }
+
+      if (
+        showDrawingSettings &&
+        drawingSettingsRef.current &&
+        !drawingSettingsRef.current.contains(e.target) &&
+        !e.target.closest(".drawing-settings-trigger")
+      ) {
+        setShowDrawingSettings(false);
+      }
     };
     document.addEventListener("mousedown", handleClickOutside);
     return () =>
       document.removeEventListener("mousedown", handleClickOutside);
-  }, [showSubmenu, showFibSubmenu, showPatternSubmenu, showProjectionSubmenu, showBrushesSubmenu, showPositionSubmenu, showShapesSubmenu, showIndicatorControls]);
+  }, [showSubmenu, showFibSubmenu, showPatternSubmenu, showProjectionSubmenu, showBrushesSubmenu, showPositionSubmenu, showShapesSubmenu, showIndicatorControls, showDrawingSettings]);
 
   const openDropdown = (menu, event) => {
     const rect = event.currentTarget.getBoundingClientRect();
@@ -1610,160 +1626,87 @@ export default function MainChart() {
   };
 
   // Drawing tool functions - Interactive drawing
-  const drawTrendline = () => {
+  const createDrawingTool = (toolName, overlayName, defaultStyles = {}) => {
     if (chartInstanceRef.current) {
-      chartInstanceRef.current.createOverlay({
-        name: 'segment',
-        styles: {
-          line: { color: '#1e88e5', size: 2 }
+      const styles = {
+        ...defaultStyles,
+        line: { 
+          color: drawingSettings.color, 
+          size: drawingSettings.thickness,
+          ...defaultStyles.line 
         }
+      };
+      
+      chartInstanceRef.current.createOverlay({
+        name: overlayName,
+        styles: styles
       });
+      
+      setActiveDrawingTool(toolName);
     }
     setShowSubmenu(false);
+    setShowFibSubmenu(false);
+    setShowPatternSubmenu(false);
+    setShowProjectionSubmenu(false);
+    setShowBrushesSubmenu(false);
+    setShowPositionSubmenu(false);
+    setShowShapesSubmenu(false);
+  };
+
+  const drawTrendline = () => {
+    createDrawingTool('Trend Line', 'segment');
   };
 
   const drawRay = () => {
-    if (chartInstanceRef.current) {
-      chartInstanceRef.current.createOverlay({
-        name: 'rayLine',
-        styles: {
-          line: { color: '#ff9800', size: 2 }
-        }
-      });
-    }
-    setShowSubmenu(false);
+    createDrawingTool('Ray', 'rayLine');
   };
 
   const drawInfoLine = () => {
-    if (chartInstanceRef.current) {
-      chartInstanceRef.current.createOverlay({
-        name: 'priceLine',
-        styles: {
-          line: { color: '#4caf50', size: 2, style: 'dashed' }
-        }
-      });
-    }
-    setShowSubmenu(false);
+    createDrawingTool('Info Line', 'priceLine', {
+      line: { style: 'dashed' }
+    });
   };
 
   const drawTrendAngle = () => {
-    if (chartInstanceRef.current) {
-      chartInstanceRef.current.createOverlay({
-        name: 'trendAngle',
-        styles: {
-          line: { color: '#9c27b0', size: 2 }
-        }
-      });
-    }
-    setShowSubmenu(false);
+    createDrawingTool('Trend Angle', 'trendAngle');
   };
 
   const drawHorizontalLine = () => {
-    if (chartInstanceRef.current) {
-      chartInstanceRef.current.createOverlay({
-        name: 'horizontalStraightLine',
-        styles: {
-          line: { color: '#f44336', size: 2 }
-        }
-      });
-    }
-    setShowSubmenu(false);
+    createDrawingTool('Horizontal Line', 'horizontalStraightLine');
   };
 
   const drawHorizontalRay = () => {
-    if (chartInstanceRef.current) {
-      chartInstanceRef.current.createOverlay({
-        name: 'horizontalRayLine',
-        styles: {
-          line: { color: '#607d8b', size: 2 }
-        }
-      });
-    }
-    setShowSubmenu(false);
+    createDrawingTool('Horizontal Ray', 'horizontalRayLine');
   };
 
   const drawExtendedLine = () => {
-    if (chartInstanceRef.current) {
-      chartInstanceRef.current.createOverlay({
-        name: 'straightLine',
-        styles: {
-          line: { color: '#795548', size: 2 }
-        }
-      });
-    }
-    setShowSubmenu(false);
+    createDrawingTool('Extended Line', 'straightLine');
   };
 
   const drawVerticalLine = () => {
-    if (chartInstanceRef.current) {
-      chartInstanceRef.current.createOverlay({
-        name: 'verticalStraightLine',
-        styles: {
-          line: { color: '#00bcd4', size: 2 }
-        }
-      });
-    }
-    setShowSubmenu(false);
+    createDrawingTool('Vertical Line', 'verticalStraightLine');
   };
 
   const drawCrossLine = () => {
-    if (chartInstanceRef.current) {
-      chartInstanceRef.current.createOverlay({
-        name: 'crossLine',
-        styles: {
-          line: { color: '#ffeb3b', size: 1 }
-        }
-      });
-    }
-    setShowSubmenu(false);
+    createDrawingTool('Cross Line', 'crossLine');
   };
 
   const drawParallelChannel = () => {
-    if (chartInstanceRef.current) {
-      chartInstanceRef.current.createOverlay({
-        name: 'parallelStraightLine',
-        styles: {
-          line: { color: '#3f51b5', size: 2 }
-        }
-      });
-    }
-    setShowSubmenu(false);
+    createDrawingTool('Parallel Channel', 'parallelStraightLine');
   };
 
   const drawPriceChannel = () => {
-    if (chartInstanceRef.current) {
-      chartInstanceRef.current.createOverlay({
-        name: 'priceChannelLine',
-        styles: {
-          line: { color: '#e91e63', size: 2 }
-        }
-      });
-    }
-    setShowSubmenu(false);
+    createDrawingTool('Price Channel', 'priceChannelLine');
   };
 
   const drawRegressionTrend = () => {
-    if (chartInstanceRef.current) {
-      chartInstanceRef.current.createOverlay({
-        name: 'regressionTrend',
-        styles: {
-          line: { color: '#ff5722', size: 2, style: 'dashed' }
-        }
-      });
-    }
-    setShowSubmenu(false);
+    createDrawingTool('Regression Trend', 'regressionTrend', {
+      line: { style: 'dashed' }
+    });
   };
 
   const drawFlatTopBottom = () => {
-    if (chartInstanceRef.current) {
-      chartInstanceRef.current.createOverlay({
-        name: 'flatTopBottom',
-        styles: {
-          line: { color: '#f44336', size: 2 }
-        }
-      });
-    }
-    setShowSubmenu(false);
+    createDrawingTool('Flat Top/Bottom', 'flatTopBottom');
   };
 
   const drawFibRetracement = () => {
@@ -1771,13 +1714,14 @@ export default function MainChart() {
       console.log('Creating Fib Retracement overlay...');
       try {
         chartInstanceRef.current.createOverlay({
-          name: 'fibonacciLine', // Use built-in Fibonacci Retracement tool
+          name: 'fibonacciLine',
           needDefaultPointFigure: true,
           styles: {
-            line: { color: '#ff9800', size: 2, style: 'solid' },
-            text: { color: '#ff9800', size: 11, family: 'Arial, sans-serif' }
+            line: { color: drawingSettings.color, size: drawingSettings.thickness, style: 'solid' },
+            text: { color: drawingSettings.color, size: 11, family: 'Arial, sans-serif' }
           }
         });
+        setActiveDrawingTool('Fib Retracement');
         console.log('Fib Retracement overlay created successfully');
       } catch (error) {
         console.error('Error creating Fib Retracement overlay:', error);
@@ -1787,63 +1731,27 @@ export default function MainChart() {
   };
 
   const drawFibExtension = () => {
-    if (chartInstanceRef.current) {
-      chartInstanceRef.current.createOverlay({
-        name: 'fibExtension',
-        styles: {
-          line: { color: '#00bcd4', size: 2, style: 'dashed' }
-        }
-      });
-    }
-    setShowFibSubmenu(false);
+    createDrawingTool('Fib Extension', 'fibExtension', {
+      line: { style: 'dashed' }
+    });
   };
 
   const drawFibChannel = () => {
-    if (chartInstanceRef.current) {
-      chartInstanceRef.current.createOverlay({
-        name: 'fibChannel',
-        styles: {
-          line: { color: '#3f51b5', size: 2 }
-        }
-      });
-    }
-    setShowFibSubmenu(false);
+    createDrawingTool('Fib Channel', 'fibChannel');
   };
 
   const drawFibTimeZone = () => {
-    if (chartInstanceRef.current) {
-      chartInstanceRef.current.createOverlay({
-        name: 'fibTimeZone',
-        styles: {
-          line: { color: '#607d8b', size: 1, style: 'dashed' }
-        }
-      });
-    }
-    setShowFibSubmenu(false);
+    createDrawingTool('Fib Time Zone', 'fibTimeZone', {
+      line: { style: 'dashed' }
+    });
   };
 
   const drawFibFan = () => {
-    if (chartInstanceRef.current) {
-      chartInstanceRef.current.createOverlay({
-        name: 'fibFan',
-        styles: {
-          line: { color: '#795548', size: 2 }
-        }
-      });
-    }
-    setShowFibSubmenu(false);
+    createDrawingTool('Fib Fan', 'fibFan');
   };
 
   const drawFibWedge = () => {
-    if (chartInstanceRef.current) {
-      chartInstanceRef.current.createOverlay({
-        name: 'fibWedge',
-        styles: {
-          line: { color: '#e91e63', size: 2 }
-        }
-      });
-    }
-    setShowFibSubmenu(false);
+    createDrawingTool('Fib Wedge', 'fibWedge');
   };
 
   const drawFibCircles = () => {
@@ -1851,23 +1759,16 @@ export default function MainChart() {
       chartInstanceRef.current.createOverlay({
         name: 'fibCircles',
         styles: {
-          arc: { color: '#999', size: 1, style: 'stroke' }
+          arc: { color: drawingSettings.color, size: drawingSettings.thickness, style: 'stroke' }
         }
       });
+      setActiveDrawingTool('Fib Circles');
     }
     setShowFibSubmenu(false);
   };
 
   const drawFibSpiral = () => {
-    if (chartInstanceRef.current) {
-      chartInstanceRef.current.createOverlay({
-        name: 'fibSpiral',
-        styles: {
-          line: { color: '#9c27b0', size: 2 }
-        }
-      });
-    }
-    setShowFibSubmenu(false);
+    createDrawingTool('Fib Spiral', 'fibSpiral');
   };
 
   const drawFibArcs = () => {
@@ -1875,9 +1776,10 @@ export default function MainChart() {
       chartInstanceRef.current.createOverlay({
         name: 'fibArcs',
         styles: {
-          arc: { color: '#4caf50', size: 1, style: 'stroke' }
+          arc: { color: drawingSettings.color, size: drawingSettings.thickness, style: 'stroke' }
         }
       });
+      setActiveDrawingTool('Fib Arcs');
     }
     setShowFibSubmenu(false);
   };
@@ -1888,6 +1790,7 @@ export default function MainChart() {
       chartInstanceRef.current.createOverlay({
         name: 'xabcdPattern'
       });
+      setActiveDrawingTool('XABCD Pattern');
     }
     setShowPatternSubmenu(false);
   };
@@ -1897,6 +1800,7 @@ export default function MainChart() {
       chartInstanceRef.current.createOverlay({
         name: 'cypherPattern'
       });
+      setActiveDrawingTool('Cypher Pattern');
     }
     setShowPatternSubmenu(false);
   };
@@ -1906,6 +1810,7 @@ export default function MainChart() {
       chartInstanceRef.current.createOverlay({
         name: 'headShoulders'
       });
+      setActiveDrawingTool('Head and Shoulders');
     }
     setShowPatternSubmenu(false);
   };
@@ -1915,6 +1820,7 @@ export default function MainChart() {
       chartInstanceRef.current.createOverlay({
         name: 'abcdPattern'
       });
+      setActiveDrawingTool('ABCD Pattern');
     }
     setShowPatternSubmenu(false);
   };
@@ -1924,6 +1830,7 @@ export default function MainChart() {
       chartInstanceRef.current.createOverlay({
         name: 'trianglePattern'
       });
+      setActiveDrawingTool('Triangle Pattern');
     }
     setShowPatternSubmenu(false);
   };
@@ -1933,6 +1840,7 @@ export default function MainChart() {
       chartInstanceRef.current.createOverlay({
         name: 'threeDrives'
       });
+      setActiveDrawingTool('Three Drives Pattern');
     }
     setShowPatternSubmenu(false);
   };
@@ -1942,6 +1850,7 @@ export default function MainChart() {
       chartInstanceRef.current.createOverlay({
         name: 'elliottImpulse'
       });
+      setActiveDrawingTool('Elliott Impulse Wave');
     }
     setShowPatternSubmenu(false);
   };
@@ -1951,6 +1860,7 @@ export default function MainChart() {
       chartInstanceRef.current.createOverlay({
         name: 'elliottCorrection'
       });
+      setActiveDrawingTool('Elliott Correction Wave');
     }
     setShowPatternSubmenu(false);
   };
@@ -2000,9 +1910,11 @@ export default function MainChart() {
       chartInstanceRef.current.createOverlay({
         name: 'rectangle',
         styles: {
-          point: { show: true, activeSize: 6, inactiveSize: 4 }
+          point: { show: true, activeSize: 6, inactiveSize: 4 },
+          polygon: { style: 'stroke_fill', color: `${drawingSettings.color}33`, borderColor: drawingSettings.color, borderSize: drawingSettings.thickness }
         }
       });
+      setActiveDrawingTool('Rectangle');
     }
     setShowShapesSubmenu(false);
   };
@@ -2012,9 +1924,11 @@ export default function MainChart() {
       chartInstanceRef.current.createOverlay({
         name: 'rotatedRectangle',
         styles: {
-          point: { show: true, activeSize: 6, inactiveSize: 4 }
+          point: { show: true, activeSize: 6, inactiveSize: 4 },
+          polygon: { style: 'stroke_fill', color: `${drawingSettings.color}33`, borderColor: drawingSettings.color, borderSize: drawingSettings.thickness }
         }
       });
+      setActiveDrawingTool('Rotated Rectangle');
     }
     setShowShapesSubmenu(false);
   };
@@ -2024,9 +1938,11 @@ export default function MainChart() {
       chartInstanceRef.current.createOverlay({
         name: 'circle',
         styles: {
-          point: { show: true, activeSize: 6, inactiveSize: 4 }
+          point: { show: true, activeSize: 6, inactiveSize: 4 },
+          circle: { style: 'stroke_fill', color: `${drawingSettings.color}33`, borderColor: drawingSettings.color, borderSize: drawingSettings.thickness }
         }
       });
+      setActiveDrawingTool('Circle');
     }
     setShowShapesSubmenu(false);
   };
@@ -2036,9 +1952,11 @@ export default function MainChart() {
       chartInstanceRef.current.createOverlay({
         name: 'triangle',
         styles: {
-          point: { show: true, activeSize: 6, inactiveSize: 4 }
+          point: { show: true, activeSize: 6, inactiveSize: 4 },
+          polygon: { style: 'stroke_fill', color: `${drawingSettings.color}33`, borderColor: drawingSettings.color, borderSize: drawingSettings.thickness }
         }
       });
+      setActiveDrawingTool('Triangle');
     }
     setShowShapesSubmenu(false);
   };
@@ -2582,6 +2500,20 @@ export default function MainChart() {
           <div style={styles.numberBox}>
             <i className="fa-solid fa-ruler"></i>
           </div>
+
+          {/* Settings tool */}
+          {activeDrawingTool && (
+            <div
+              className="drawing-settings-trigger"
+              style={{
+                ...styles.numberBox,
+                backgroundColor: showDrawingSettings ? '#e3f2fd' : '#fafafa'
+              }}
+              onClick={() => setShowDrawingSettings(!showDrawingSettings)}
+            >
+              <i className="fa-solid fa-gear"></i>
+            </div>
+          )}
         </div>
 
         {/* Submenu - positioned absolutely to not affect layout */}
@@ -3320,6 +3252,60 @@ export default function MainChart() {
           </div>
         )}
 
+        {/* Drawing Settings Panel */}
+        {showDrawingSettings && activeDrawingTool && (
+          <div ref={drawingSettingsRef} style={styles.drawingSettingsPanel}>
+            <div style={styles.drawingSettingsHeader}>
+              <span style={styles.drawingSettingsTitle}>
+                {activeDrawingTool} Settings
+              </span>
+              <button
+                style={styles.drawingSettingsCloseButton}
+                onClick={() => {
+                  setShowDrawingSettings(false);
+                  setActiveDrawingTool(null);
+                }}
+              >
+                ×
+              </button>
+            </div>
+            
+            <div style={styles.drawingSettingsContent}>
+              {/* Color Setting */}
+              <div style={styles.settingGroup}>
+                <label style={styles.settingLabel}>Color</label>
+                <div style={styles.colorPickerContainer}>
+                  <input
+                    type="color"
+                    value={drawingSettings.color}
+                    onChange={(e) => setDrawingSettings(prev => ({ ...prev, color: e.target.value }))}
+                    style={styles.colorPicker}
+                  />
+                  <span style={styles.colorValue}>{drawingSettings.color}</span>
+                </div>
+              </div>
+
+              {/* Thickness Setting */}
+              <div style={styles.settingGroup}>
+                <label style={styles.settingLabel}>Line Width</label>
+                <input
+                  type="range"
+                  min={1}
+                  max={8}
+                  value={drawingSettings.thickness}
+                  onChange={(e) => setDrawingSettings(prev => ({ ...prev, thickness: parseInt(e.target.value) }))}
+                  style={styles.thicknessSlider}
+                />
+                <div style={styles.thicknessLabels}>
+                  <span>1</span>
+                  <span style={styles.currentThickness}>{drawingSettings.thickness}px</span>
+                  <span>8</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
         <div style={styles.mainChart}>
           {/* Applied Indicators Display */}
           {(appliedIndicators.length > 0 || smaIndicators.length > 0 || emaIndicators.length > 0 || wmaIndicators.length > 0 || ichimokuIndicators.length > 0 || supertrendIndicators.length > 0 || psarIndicators.length > 0 || macdIndicators.length > 0 || adxIndicators.length > 0 || hmaIndicators.length > 0 || rsiIndicators.length > 0 || stochasticIndicators.length > 0 || stochasticRsiIndicators.length > 0 || cciIndicators.length > 0 || williamsRIndicators.length > 0 || rocIndicators.length > 0 || bollingerBandsIndicators.length > 0 || keltnerChannelIndicators.length > 0 || donchianChannelIndicators.length > 0 || atrIndicators.length > 0 || standardDeviationChannelIndicators.length > 0 || volumeHistogramIndicators.length > 0) && (
@@ -3675,6 +3661,97 @@ const styles = {
     cursor: "pointer",
     color: "#333",
     transition: "all 0.2s",
+  },
+  drawingSettingsPanel: {
+    position: "absolute",
+    right: "10px",
+    top: "50px",
+    width: "280px",
+    backgroundColor: "#ffffff",
+    border: "1px solid #e0e3eb",
+    borderRadius: "8px",
+    boxShadow: "0 4px 12px rgba(0, 0, 0, 0.15)",
+    zIndex: 1000,
+    overflow: "hidden",
+  },
+  drawingSettingsHeader: {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    padding: "12px 16px",
+    backgroundColor: "#f8f9fa",
+    borderBottom: "1px solid #e0e3eb",
+  },
+  drawingSettingsTitle: {
+    fontSize: "14px",
+    fontWeight: "600",
+    color: "#131722",
+  },
+  drawingSettingsCloseButton: {
+    background: "none",
+    border: "none",
+    fontSize: "18px",
+    color: "#787b86",
+    cursor: "pointer",
+    width: "24px",
+    height: "24px",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    borderRadius: "4px",
+    transition: "all 0.2s",
+  },
+  drawingSettingsContent: {
+    padding: "16px",
+  },
+  settingGroup: {
+    marginBottom: "20px",
+  },
+  settingLabel: {
+    display: "block",
+    fontSize: "12px",
+    fontWeight: "500",
+    color: "#131722",
+    marginBottom: "8px",
+  },
+  colorPickerContainer: {
+    display: "flex",
+    alignItems: "center",
+    gap: "8px",
+  },
+  colorPicker: {
+    width: "40px",
+    height: "32px",
+    border: "1px solid #e0e3eb",
+    borderRadius: "4px",
+    cursor: "pointer",
+    backgroundColor: "transparent",
+  },
+  colorValue: {
+    fontSize: "12px",
+    color: "#787b86",
+    fontFamily: "monospace",
+  },
+  thicknessSlider: {
+    width: "100%",
+    height: "6px",
+    backgroundColor: "#e0e3eb",
+    borderRadius: "3px",
+    outline: "none",
+    cursor: "pointer",
+    appearance: "none",
+    WebkitAppearance: "none",
+  },
+  thicknessLabels: {
+    display: "flex",
+    justifyContent: "space-between",
+    fontSize: "11px",
+    color: "#787b86",
+    marginTop: "6px",
+  },
+  currentThickness: {
+    fontWeight: "500",
+    color: "#131722",
   },
   mainArea: {
     display: "flex",
