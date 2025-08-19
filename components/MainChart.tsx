@@ -2852,7 +2852,7 @@ export default function MainChart() {
         )}
 
         {/* Floating Remove Button - Top Right */}
-        {activeDrawingTool && (isDrawing || (hasActiveDrawing && selectedOverlayId)) && (
+        {(isDrawing || (hasActiveDrawing && selectedOverlayId)) && (
           <div style={styles.floatingSettingsContainer}>
             <button
               style={styles.floatingRemoveButton}
