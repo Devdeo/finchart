@@ -2151,31 +2151,10 @@ export default function MainChart() {
             </svg>
           </div>
 
-          {/* Projection tool */}
-          <div
-            className="projection-submenu-trigger"
-            style={styles.numberBox}
-            onClick={() => setShowProjectionSubmenu(!showProjectionSubmenu)}
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 28" width="28" height="28" fill="none">
-              <path fill="currentColor" fillRule="evenodd" clipRule="evenodd" d="M4.5 5a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3zM2 6.5A2.5 2.5 0 0 1 6.95 6H24v1H6.95A2.5 2.5 0 0 1 2 6.5zM4.5 15a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3zM2 16.5a2.5 2.5 0 0 1 4.95-.5h13.1a2.5 2.5 0 1 1 0 1H6.95A2.5 2.5 0 0 1 2 16.5zM22.5 15a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3zm-18 6a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3zM2 22.5a2.5 2.5 0 0 1 4.95-.5H24v1H6.95A2.5 2.5 0 0 1 2 22.5z"></path>
-              <path fill="currentColor" fillRule="evenodd" clipRule="evenodd" d="M22.4 8.94l-1.39.63-.41-.91 1.39-.63.41.91zm-4 1.8l-1.39.63-.41-.91 1.39-.63.41.91zm-4 1.8l-1.4.63-.4-.91 1.39-.63.41.91zm-4 1.8l-1.4.63-.4-.91 1.39-.63.41.91z"></path>
-            </svg>
-          </div>
+          
 
           {/* Brushes tool */}
-          <div
-            className="brushes-submenu-trigger"
-            style={styles.numberBox}
-            onClick={() => setShowBrushesSubmenu(!showBrushesSubmenu)}
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 28" width="28" height="28">
-              <g fill="currentColor" fillRule="nonzero">
-                <path d="M1.789 23l.859-.854.221-.228c.18-.19.38-.409.597-.655.619-.704 1.238-1.478 1.815-2.298.982-1.396 1.738-2.776 2.177-4.081 1.234-3.667 5.957-4.716 8.923-1.263 3.251 3.785-.037 9.38-5.379 9.38h-9.211zm9.211-1c4.544 0 7.272-4.642 4.621-7.728-2.45-2.853-6.225-2.015-7.216.931-.474 1.408-1.273 2.869-2.307 4.337-.599.852-1.241 1.653-1.882 2.383l-.068.078h6.853z"></path>
-                <path d="M18.182 6.002l-1.419 1.286c-1.031.935-1.075 2.501-.096 3.48l1.877 1.877c.976.976 2.553.954 3.513-.045l5.65-5.874-.721-.693-5.65 5.874c-.574.596-1.507.609-2.086.031l-1.877-1.877c-.574-.574-.548-1.48.061-2.032l1.419-1.286-.672-.741z"></path>
-              </g>
-            </svg>
-          </div>
+          
 
           {/* Position tool */}
           <div
@@ -2211,15 +2190,7 @@ export default function MainChart() {
             </svg>
           </div>
 
-          {/* Text tool */}
-          <div style={styles.numberBox}>
-            T
-          </div>
-
-          {/* Ruler tool */}
-          <div style={styles.numberBox}>
-            <i className="fa-solid fa-ruler"></i>
-          </div>
+          
 
           {/* Settings tool */}
           {activeDrawingTool && (
