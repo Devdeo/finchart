@@ -1428,11 +1428,13 @@ export default function MainChart() {
           setIsDrawing(true);
           setHasActiveDrawing(false);
           setSelectedOverlayId(null);
+          setShowDrawingSettings(false);
         },
-        onDrawEnd: () => {
+        onDrawEnd: (overlayInfo) => {
           // Drawing is finished
           setIsDrawing(false);
           setHasActiveDrawing(true);
+          setSelectedOverlayId(overlayInfo?.id || null);
           console.log(`${toolName} drawing completed`);
         },
         onSelected: (overlayInfo) => {
@@ -1441,6 +1443,7 @@ export default function MainChart() {
           setHasActiveDrawing(true);
           setIsDrawing(false);
           setSelectedOverlayId(overlayInfo?.id || null);
+          setShowDrawingSettings(false);
         },
         onDeselected: () => {
           // Hide settings when drawing is deselected
@@ -2871,9 +2874,28 @@ export default function MainChart() {
                 onClick={removeSelectedDrawing}
                 title="Remove Drawing"
               >
-                <i className="fa-solid fa-trash" style={{ fontSize: '12px', color: '#f44336' }}></i>
+                <i className="fa-solid fa-times" style={{ fontSize: '14px', color: '#f44336' }}></i>
               </button>
             )}
+          </div>
+        )}
+
+        {/* Compact Settings Panel for Selected Drawings */}
+        {hasActiveDrawing && selectedOverlayId && !isDrawing && (
+          <div style={styles.compactSettingsPanel}>
+            <div style={styles.compactSettingsHeader}>
+              <span style={styles.compactSettingsTitle}>
+                <i className="fa-solid fa-gear" style={styles.compactSettingsIcon}></i>
+                {activeDrawingTool}
+              </span>
+              <button
+                style={styles.compactRemoveButton}
+                onClick={removeSelectedDrawing}
+                title="Remove Drawing"
+              >
+                <i className="fa-solid fa-times"></i>
+              </button>
+            </div>
           </div>
         )}
 
@@ -3409,6 +3431,54 @@ const styles = {
     boxShadow: "0 2px 8px rgba(0, 0, 0, 0.15)",
     transition: "all 0.2s ease",
     outline: "none",
+  },
+  compactSettingsPanel: {
+    position: "absolute",
+    top: "10px",
+    right: "10px",
+    backgroundColor: "#ffffff",
+    border: "1px solid #e0e3eb",
+    borderRadius: "8px",
+    boxShadow: "0 4px 12px rgba(0, 0, 0, 0.15)",
+    zIndex: 1000,
+    overflow: "hidden",
+    fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif",
+    minWidth: "200px",
+  },
+  compactSettingsHeader: {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    padding: "12px 16px",
+    backgroundColor: "#f8f9fa",
+    borderBottom: "1px solid #e0e3eb",
+  },
+  compactSettingsTitle: {
+    display: "flex",
+    alignItems: "center",
+    gap: "8px",
+    fontSize: "13px",
+    fontWeight: "600",
+    color: "#131722",
+  },
+  compactSettingsIcon: {
+    fontSize: "12px",
+    color: "#2196f3",
+  },
+  compactRemoveButton: {
+    background: "none",
+    border: "none",
+    fontSize: "16px",
+    color: "#f44336",
+    cursor: "pointer",
+    width: "24px",
+    height: "24px",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    borderRadius: "4px",
+    transition: "all 0.2s ease",
+    fontWeight: "normal",
   },
   drawingSettingsPanel: {
     position: "absolute",
