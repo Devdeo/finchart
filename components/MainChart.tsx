@@ -1473,15 +1473,6 @@ export default function MainChart() {
           
           setAllDrawings(prev => [...prev, newDrawing]);
           
-          // Automatically show modification popup after drawing is completed
-          setTimeout(() => {
-            setShowDrawingSettings(true);
-            setTempDrawingSettings({
-              color: styles.line?.color || drawingSettings.color,
-              thickness: styles.line?.size || drawingSettings.thickness
-            });
-          }, 100);
-          
           console.log(`${toolName} drawing completed`);
         },
         onSelected: (overlayInfo) => {
@@ -1505,11 +1496,6 @@ export default function MainChart() {
               thickness: drawingSettings.thickness
             });
           }
-          
-          // Show modification popup when drawing is selected
-          setTimeout(() => {
-            setShowDrawingSettings(true);
-          }, 50);
           
           console.log(`Selected drawing: ${toolName} (ID: ${drawingId})`);
         },
@@ -1767,15 +1753,6 @@ export default function MainChart() {
             
             setAllDrawings(prev => [...prev, newDrawing]);
             
-            // Automatically show modification popup after drawing is completed
-            setTimeout(() => {
-              setShowDrawingSettings(true);
-              setTempDrawingSettings({
-                color: styles.line?.color || drawingSettings.color,
-                thickness: styles.line?.size || drawingSettings.thickness
-              });
-            }, 100);
-            
             console.log('Fib Retracement drawing completed');
           },
           onSelected: (overlayInfo) => {
@@ -1798,11 +1775,6 @@ export default function MainChart() {
                 thickness: drawingSettings.thickness
               });
             }
-            
-            // Show modification popup when drawing is selected
-            setTimeout(() => {
-              setShowDrawingSettings(true);
-            }, 50);
             
             console.log(`Selected Fib Retracement (ID: ${drawingId})`);
           },
@@ -1879,15 +1851,6 @@ export default function MainChart() {
           
           setAllDrawings(prev => [...prev, newDrawing]);
           
-          // Automatically show modification popup after drawing is completed
-          setTimeout(() => {
-            setShowDrawingSettings(true);
-            setTempDrawingSettings({
-              color: styles.line?.color || drawingSettings.color,
-              thickness: styles.line?.size || drawingSettings.thickness
-            });
-          }, 100);
-          
           console.log('XABCD Pattern drawing completed');
         },
         onSelected: (overlayInfo) => {
@@ -1910,11 +1873,6 @@ export default function MainChart() {
               thickness: drawingSettings.thickness
             });
           }
-          
-          // Show modification popup when drawing is selected
-          setTimeout(() => {
-            setShowDrawingSettings(true);
-          }, 50);
           
           console.log(`Selected XABCD Pattern (ID: ${drawingId})`);
         },
@@ -1949,7 +1907,6 @@ export default function MainChart() {
           setActiveDrawingTool('Cypher Pattern');
           setHasActiveDrawing(true);
           setSelectedOverlayId(overlayInfo?.id || null);
-          setShowDrawingSettings(true); // Show settings panel when selected
         },
         onDeselected: () => {
           setActiveDrawingTool(null);
@@ -1975,7 +1932,6 @@ export default function MainChart() {
           setActiveDrawingTool('Head and Shoulders');
           setHasActiveDrawing(true);
           setSelectedOverlayId(overlayInfo?.id || null);
-          setShowDrawingSettings(true); // Show settings panel when selected
         },
         onDeselected: () => {
           setActiveDrawingTool(null);
@@ -2001,7 +1957,6 @@ export default function MainChart() {
           setActiveDrawingTool('ABCD Pattern');
           setHasActiveDrawing(true);
           setSelectedOverlayId(overlayInfo?.id || null);
-          setShowDrawingSettings(true); // Show settings panel when selected
         },
         onDeselected: () => {
           setActiveDrawingTool(null);
@@ -2027,7 +1982,6 @@ export default function MainChart() {
           setActiveDrawingTool('Triangle Pattern');
           setHasActiveDrawing(true);
           setSelectedOverlayId(overlayInfo?.id || null);
-          setShowDrawingSettings(true); // Show settings panel when selected
         },
         onDeselected: () => {
           setActiveDrawingTool(null);
@@ -2053,7 +2007,6 @@ export default function MainChart() {
           setActiveDrawingTool('Three Drives Pattern');
           setHasActiveDrawing(true);
           setSelectedOverlayId(overlayInfo?.id || null);
-          setShowDrawingSettings(true); // Show settings panel when selected
         },
         onDeselected: () => {
           setActiveDrawingTool(null);
@@ -2079,7 +2032,6 @@ export default function MainChart() {
           setActiveDrawingTool('Elliott Impulse Wave');
           setHasActiveDrawing(true);
           setSelectedOverlayId(overlayInfo?.id || null);
-          setShowDrawingSettings(true); // Show settings panel when selected
         },
         onDeselected: () => {
           setActiveDrawingTool(null);
@@ -2105,7 +2057,6 @@ export default function MainChart() {
           setActiveDrawingTool('Elliott Correction Wave');
           setHasActiveDrawing(true);
           setSelectedOverlayId(overlayInfo?.id || null);
-          setShowDrawingSettings(true); // Show settings panel when selected
         },
         onDeselected: () => {
           setActiveDrawingTool(null);
@@ -3268,37 +3219,7 @@ export default function MainChart() {
           </div>
         )}
 
-        {/* Floating Remove Button - Only When Selecting Existing Drawing */}
-        {selectedOverlayId && !isDrawing && (
-          <div style={styles.floatingSettingsContainer}>
-            <button
-              style={styles.floatingRemoveButton}
-              onClick={removeSelectedDrawing}
-              title="Remove Drawing"
-            >
-              <i className="fa-solid fa-times" style={{ fontSize: '14px', color: '#f44336' }}></i>
-            </button>
-          </div>
-        )}
-
-        {/* Compact Settings Panel for Selected Drawings */}
-        {selectedOverlayId && !isDrawing && activeDrawingTool && (
-          <div style={styles.compactSettingsPanel}>
-            <div style={styles.compactSettingsHeader}>
-              <span style={styles.compactSettingsTitle}>
-                <i className="fa-solid fa-gear" style={styles.compactSettingsIcon}></i>
-                {activeDrawingTool}
-              </span>
-              <button
-                style={styles.compactRemoveButton}
-                onClick={removeSelectedDrawing}
-                title="Remove Drawing"
-              >
-                <i className="fa-solid fa-times"></i>
-              </button>
-            </div>
-          </div>
-        )}
+        
 
         {/* Context Menu */}
         {contextMenu && (
