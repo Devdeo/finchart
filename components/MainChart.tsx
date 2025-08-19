@@ -181,6 +181,291 @@ const registerCustomOverlays = () => {
       return figures;
     },
   });
+
+  // Fib Circles (full circles at fib radii)
+  registerOverlay({
+    name: "fibCircles",
+    totalStep: 2,
+    needDefaultPointFigure: false,
+    createPointFigures: ({ coordinates }) => {
+      if (!coordinates || coordinates.length < 2) return [];
+      const [p1, p2] = coordinates;
+      const dx = p2.x - p1.x;
+      const dy = p2.y - p1.y;
+      const r = Math.sqrt(dx * dx + dy * dy);
+      const levels = [0.236, 0.382, 0.5, 0.618, 1];
+      const figures = [];
+      
+      for (let i = 0; i < levels.length; i++) {
+        const level = levels[i];
+        figures.push({
+          type: "arc",
+          attrs: { 
+            x: p1.x, 
+            y: p1.y, 
+            r: r * level, 
+            startAngle: 0, 
+            endAngle: Math.PI * 2 
+          },
+          styles: {
+            color: level === 0.382 || level === 0.618 ? '#ff9800' : '#999',
+            size: level === 0.382 || level === 0.618 ? 2 : 1,
+            style: 'solid'
+          }
+        });
+      }
+      return figures;
+    },
+  });
+
+  // Fib Spiral (simple poly-line approximation)
+  registerOverlay({
+    name: "fibSpiral",
+    totalStep: 2,
+    needDefaultPointFigure: false,
+    createPointFigures: ({ coordinates }) => {
+      if (!coordinates || coordinates.length < 2) return [];
+      const [p1, p2] = coordinates;
+      const dx = p2.x - p1.x;
+      const dy = p2.y - p1.y;
+      const r = Math.sqrt(dx * dx + dy * dy);
+      const steps = 64;
+      const pts = [];
+      for (let i = 0; i <= steps; i++) {
+        const theta = i * (Math.PI / 16);
+        const radius = r * Math.pow(1.618, i / 12);
+        pts.push({ x: p1.x + radius * Math.cos(theta), y: p1.y + radius * Math.sin(theta) });
+      }
+      return [{
+        type: "line",
+        attrs: { coordinates: pts },
+        styles: {
+          color: '#9c27b0',
+          size: 2,
+          style: 'solid'
+        }
+      }];
+    },
+  });
+
+  // Fib Arcs (half arcs at fib radii)
+  registerOverlay({
+    name: "fibArcs",
+    totalStep: 2,
+    needDefaultPointFigure: false,
+    createPointFigures: ({ coordinates }) => {
+      if (!coordinates || coordinates.length < 2) return [];
+      const [p1, p2] = coordinates;
+      const dx = p2.x - p1.x;
+      const dy = p2.y - p1.y;
+      const r = Math.sqrt(dx * dx + dy * dy);
+      const levels = [0.382, 0.5, 0.618, 1];
+      const figures = [];
+      
+      for (let i = 0; i < levels.length; i++) {
+        const level = levels[i];
+        figures.push({
+          type: "arc",
+          attrs: { 
+            x: p1.x, 
+            y: p1.y, 
+            r: r * level, 
+            startAngle: 0, 
+            endAngle: Math.PI 
+          },
+          styles: {
+            color: level === 0.382 || level === 0.618 ? '#ff9800' : '#4caf50',
+            size: level === 0.382 || level === 0.618 ? 2 : 1,
+            style: 'solid'
+          }
+        });
+      }
+      return figures;
+    },
+  });
+
+  // Fib Wedge (two rays from p1 to right edge)
+  registerOverlay({
+    name: "fibWedge",
+    totalStep: 3,
+    needDefaultPointFigure: false,
+    createPointFigures: ({ coordinates, bounding }) => {
+      if (!coordinates || coordinates.length < 3 || !bounding) return [];
+      const [p1, p2, p3] = coordinates;
+      const { left, width } = bounding;
+      const x2 = left + width;
+      return [
+        { 
+          type: "line", 
+          attrs: { coordinates: [p1, { x: x2, y: p2.y }] },
+          styles: { color: '#e91e63', size: 2, style: 'solid' }
+        },
+        { 
+          type: "line", 
+          attrs: { coordinates: [p1, { x: x2, y: p3.y }] },
+          styles: { color: '#e91e63', size: 2, style: 'solid' }
+        },
+      ];
+    },
+  });
+
+  // Fib Fan (speed resistance fan with fib ratios)
+  registerOverlay({
+    name: "fibFan",
+    totalStep: 2,
+    needDefaultPointFigure: false,
+    createPointFigures: ({ coordinates }) => {
+      if (!coordinates || coordinates.length < 2) return [];
+      const [p1, p2] = coordinates;
+      const dx = p2.x - p1.x;
+      const dy = p2.y - p1.y;
+      const ratios = [0.382, 0.5, 0.618, 1];
+      const figures = [];
+      
+      for (let i = 0; i < ratios.length; i++) {
+        const r = ratios[i];
+        figures.push({
+          type: "line",
+          attrs: { coordinates: [p1, { x: p1.x + dx, y: p1.y + dy * r }] },
+          styles: {
+            color: r === 0.382 || r === 0.618 ? '#ff9800' : '#795548',
+            size: r === 0.382 || r === 0.618 ? 2 : 1,
+            style: 'solid'
+          }
+        });
+      }
+      return figures;
+    },
+  });
+
+  // Trend-based Fib Extension (horizontal levels past p2)
+  registerOverlay({
+    name: "fibExtension",
+    totalStep: 2,
+    needDefaultPointFigure: false,
+    createPointFigures: ({ coordinates, bounding, yAxis }) => {
+      if (!coordinates || coordinates.length < 2 || !bounding || !yAxis) return [];
+      const [p1, p2] = coordinates;
+      
+      const price1 = yAxis.convertFromPixel(p1.y);
+      const price2 = yAxis.convertFromPixel(p2.y);
+      const dy = price2 - price1;
+      
+      const { left, width } = bounding;
+      const xEnd = left + width;
+      const levels = [1.272, 1.618, 2.0];
+      const figures = [];
+      
+      for (let i = 0; i < levels.length; i++) {
+        const lv = levels[i];
+        const extPrice = price1 + dy * lv;
+        const y = yAxis.convertToPixel(extPrice);
+        
+        figures.push({
+          type: "line",
+          attrs: { coordinates: [
+            { x: p2.x, y },
+            { x: xEnd, y },
+          ] },
+          styles: {
+            color: lv === 1.618 ? '#ff9800' : '#00bcd4',
+            size: lv === 1.618 ? 2 : 1,
+            style: 'dashed'
+          }
+        });
+        
+        // Label
+        figures.push({
+          type: "text",
+          attrs: {
+            x: p2.x + 10,
+            y: y - 3,
+            text: `${(lv * 100).toFixed(1)}% (${extPrice.toFixed(2)})`
+          },
+          styles: {
+            color: lv === 1.618 ? '#ff9800' : '#00bcd4',
+            size: 11,
+            family: 'Arial, sans-serif'
+          }
+        });
+      }
+      return figures;
+    },
+  });
+
+  // Fib Time Zones (vertical lines at fib-number spacings)
+  registerOverlay({
+    name: "fibTimeZone",
+    totalStep: 2,
+    needDefaultPointFigure: false,
+    createPointFigures: ({ coordinates, bounding }) => {
+      if (!coordinates || coordinates.length < 2 || !bounding) return [];
+      const [p1, p2] = coordinates;
+      const dx = p2.x - p1.x;
+      const fibs = [1, 2, 3, 5, 8, 13];
+      const figures = [];
+      
+      for (let i = 0; i < fibs.length; i++) {
+        const n = fibs[i];
+        const x = p1.x + dx * n;
+        figures.push({
+          type: "line",
+          attrs: { coordinates: [
+            { x, y: bounding.top },
+            { x, y: bounding.top + bounding.height },
+          ] },
+          styles: {
+            color: '#607d8b',
+            size: 1,
+            style: 'dashed'
+          }
+        });
+      }
+      return figures;
+    },
+  });
+
+  // Fib Channel
+  registerOverlay({
+    name: "fibChannel",
+    totalStep: 3,
+    needDefaultPointFigure: false,
+    createPointFigures: ({ coordinates, bounding }) => {
+      if (!coordinates || coordinates.length < 3 || !bounding) return [];
+      const [p1, p2, p3] = coordinates;
+      
+      // Calculate parallel lines
+      const dx = p2.x - p1.x;
+      const dy = p2.y - p1.y;
+      const offset = (p3.y - p1.y) - ((p3.x - p1.x) / dx) * dy;
+      
+      const { left, width } = bounding;
+      const xEnd = left + width;
+      
+      const levels = [0, 0.382, 0.618, 1];
+      const figures = [];
+      
+      for (let i = 0; i < levels.length; i++) {
+        const level = levels[i];
+        const y1 = p1.y + offset * level;
+        const y2 = p2.y + offset * level;
+        
+        figures.push({
+          type: "line",
+          attrs: { coordinates: [
+            { x: p1.x, y: y1 },
+            { x: xEnd, y: y2 },
+          ] },
+          styles: {
+            color: level === 0.382 || level === 0.618 ? '#ff9800' : '#3f51b5',
+            size: level === 0.382 || level === 0.618 ? 2 : 1,
+            style: level === 0 || level === 1 ? 'solid' : 'dashed'
+          }
+        });
+      }
+      return figures;
+    },
+  });
 };
 import SMAIndicator from "./SMAIndicator";
 import EMAIndicator from "./EMAIndicator";
@@ -1096,6 +1381,102 @@ export default function MainChart() {
     setShowFibSubmenu(false);
   };
 
+  const drawFibExtension = () => {
+    if (chartInstanceRef.current) {
+      chartInstanceRef.current.createOverlay({
+        name: 'fibExtension',
+        styles: {
+          line: { color: '#00bcd4', size: 2, style: 'dashed' }
+        }
+      });
+    }
+    setShowFibSubmenu(false);
+  };
+
+  const drawFibChannel = () => {
+    if (chartInstanceRef.current) {
+      chartInstanceRef.current.createOverlay({
+        name: 'fibChannel',
+        styles: {
+          line: { color: '#3f51b5', size: 2 }
+        }
+      });
+    }
+    setShowFibSubmenu(false);
+  };
+
+  const drawFibTimeZone = () => {
+    if (chartInstanceRef.current) {
+      chartInstanceRef.current.createOverlay({
+        name: 'fibTimeZone',
+        styles: {
+          line: { color: '#607d8b', size: 1, style: 'dashed' }
+        }
+      });
+    }
+    setShowFibSubmenu(false);
+  };
+
+  const drawFibFan = () => {
+    if (chartInstanceRef.current) {
+      chartInstanceRef.current.createOverlay({
+        name: 'fibFan',
+        styles: {
+          line: { color: '#795548', size: 2 }
+        }
+      });
+    }
+    setShowFibSubmenu(false);
+  };
+
+  const drawFibWedge = () => {
+    if (chartInstanceRef.current) {
+      chartInstanceRef.current.createOverlay({
+        name: 'fibWedge',
+        styles: {
+          line: { color: '#e91e63', size: 2 }
+        }
+      });
+    }
+    setShowFibSubmenu(false);
+  };
+
+  const drawFibCircles = () => {
+    if (chartInstanceRef.current) {
+      chartInstanceRef.current.createOverlay({
+        name: 'fibCircles',
+        styles: {
+          arc: { color: '#999', size: 1, style: 'stroke' }
+        }
+      });
+    }
+    setShowFibSubmenu(false);
+  };
+
+  const drawFibSpiral = () => {
+    if (chartInstanceRef.current) {
+      chartInstanceRef.current.createOverlay({
+        name: 'fibSpiral',
+        styles: {
+          line: { color: '#9c27b0', size: 2 }
+        }
+      });
+    }
+    setShowFibSubmenu(false);
+  };
+
+  const drawFibArcs = () => {
+    if (chartInstanceRef.current) {
+      chartInstanceRef.current.createOverlay({
+        name: 'fibArcs',
+        styles: {
+          arc: { color: '#4caf50', size: 1, style: 'stroke' }
+        }
+      });
+    }
+    setShowFibSubmenu(false);
+  };
+
   const handleChartTypeChange = (type) => {
     setChartType(type);
     if (chartInstanceRef.current) {
@@ -1777,7 +2158,7 @@ export default function MainChart() {
             </div>
 
             {/* Trend-Based Fib Extension */}
-            <div style={styles.submenuItem}>
+            <div style={styles.submenuItem} onClick={drawFibExtension}>
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 28" width="20" height="20">
                 <g fill="currentColor" fillRule="nonzero">
                   <path d="M4 25h22v-1h-22z" id="Line"></path>
@@ -1791,7 +2172,7 @@ export default function MainChart() {
             </div>
 
             {/* Fib Channel */}
-            <div style={styles.submenuItem}>
+            <div style={styles.submenuItem} onClick={drawFibChannel}>
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 28" width="20" height="20">
                 <g fill="currentColor" fillRule="nonzero">
                   <path d="M7.463 12.026l13.537-7.167-.468-.884-13.537 7.167z"></path>
@@ -1804,7 +2185,7 @@ export default function MainChart() {
             </div>
 
             {/* Fib Time Zone */}
-            <div style={styles.submenuItem}>
+            <div style={styles.submenuItem} onClick={drawFibTimeZone}>
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 28" width="20" height="20">
                 <path fill="currentColor" fillRule="evenodd" clipRule="evenodd" d="M19 4v21h1V4h-1Zm5 0v21h1V4h-1ZM6 12.95V25H5V12.95a2.5 2.5 0 0 1 0-4.9V4h1v4.05a2.5 2.5 0 0 1 1.67 3.7L8.7 12.8 8 13.5l-1-1c-.3.22-.63.38-1 .45ZM5.5 9a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3Zm1 5.5v-3.05A2.5 2.5 0 0 1 12.5 18l-1-1 .7-.7 1.05 1.03c.23-.13.48-.23.75-.28V4h1v13.05a2.5 2.5 0 0 1 0 4.9V25h-1ZM8.97 14.47l1.56 1.56.7-.71-1.55-1.55-.7.7Z"></path>
               </svg>
@@ -1812,7 +2193,7 @@ export default function MainChart() {
             </div>
 
             {/* Fib Speed Resistance Fan */}
-            <div style={styles.submenuItem}>
+            <div style={styles.submenuItem} onClick={drawFibFan}>
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 28" width="20" height="20">
                 <g fill="currentColor" fillRule="nonzero">
                   <path d="M8 9.5c0 3.038 2.462 5.5 5.5 5.5s5.5-2.462 5.5-5.5v-.5h-1v.5c0 2.485-2.015 4.5-4.5 4.5s-4.5-2.015-4.5-4.5v-.5h-1v.5z"></path>
@@ -1826,7 +2207,7 @@ export default function MainChart() {
             </div>
 
             {/* Fib Wedge */}
-            <div style={styles.submenuItem}>
+            <div style={styles.submenuItem} onClick={drawFibWedge}>
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 28" width="20" height="20">
                 <g fill="currentColor" fillRule="nonzero">
                   <path d="M21.5 23h-14v1h14zM5 7.5v14h1v-14z"></path>
@@ -1839,20 +2220,40 @@ export default function MainChart() {
               <span style={styles.submenuText}>Fib Wedge</span>
             </div>
 
-            {/* Pitchfan */}
-            <div style={styles.submenuItem}>
+            {/* Fib Circles */}
+            <div style={styles.submenuItem} onClick={drawFibCircles}>
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 28" width="20" height="20">
                 <g fill="currentColor" fillRule="nonzero">
-                  <path d="M20.349 20.654l4.489-.711-.156-.988-4.489.711z"></path>
-                  <path d="M7.254 22.728l9.627-1.525-.156-.988-9.627 1.525z"></path>
-                  <path d="M7.284 22.118l15.669-8.331-.469-.883-15.669 8.331z"></path>
-                  <path d="M6.732 21.248l8.364-15.731-.883-.469-8.364 15.731z"></path>
-                  <path d="M17.465 18.758l-8.188-8.188-.707.707 8.188 8.188z"></path>
-                  <path d="M6.273 20.818l1.499-9.467-.988-.156-1.499 9.467z"></path>
-                  <path d="M8.329 7.834l.715-4.516-.988-.156-.715 4.51"></path>
+                  <path d="M14 2c6.627 0 12 5.373 12 12s-5.373 12-12 12S2 20.627 2 14 7.373 2 14 2zm0 1C7.925 3 3 7.925 3 14s4.925 11 11 11 11-4.925 11-11S20.075 3 14 3z"></path>
+                  <path d="M14 6c4.418 0 8 3.582 8 8s-3.582 8-8 8-8-3.582-8-8 3.582-8 8-8zm0 1c-3.866 0-7 3.134-7 7s3.134 7 7 7 7-3.134 7-7-3.134-7-7-7z"></path>
+                  <path d="M14 10c2.209 0 4 1.791 4 4s-1.791 4-4 4-4-1.791-4-4 1.791-4 4-4zm0 1c-1.657 0-3 1.343-3 3s1.343 3 3 3 3-1.343 3-3-1.343-3-3-3z"></path>
                 </g>
               </svg>
-              <span style={styles.submenuText}>Pitchfan</span>
+              <span style={styles.submenuText}>Fib Circles</span>
+            </div>
+
+            {/* Fib Spiral */}
+            <div style={styles.submenuItem} onClick={drawFibSpiral}>
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 28" width="20" height="20">
+                <g fill="currentColor" fillRule="nonzero">
+                  <path d="M14 2c6.627 0 12 5.373 12 12s-5.373 12-12 12S2 20.627 2 14 7.373 2 14 2zm0 1C7.925 3 3 7.925 3 14s4.925 11 11 11 11-4.925 11-11S20.075 3 14 3z"></path>
+                  <path d="M14 6c4.418 0 8 3.582 8 8s-3.582 8-8 8-8-3.582-8-8 3.582-8 8-8zm0 1c-3.866 0-7 3.134-7 7s3.134 7 7 7 7-3.134 7-7-3.134-7-7-7z"></path>
+                  <path d="M18.5 14c0 2.485-2.015 4.5-4.5 4.5s-4.5-2.015-4.5-4.5 2.015-4.5 4.5-4.5 4.5 2.015 4.5 4.5zm-1 0c0-1.933-1.567-3.5-3.5-3.5s-3.5 1.567-3.5 3.5 1.567 3.5 3.5 3.5 3.5-1.567 3.5-3.5z"></path>
+                </g>
+              </svg>
+              <span style={styles.submenuText}>Fib Spiral</span>
+            </div>
+
+            {/* Fib Arcs */}
+            <div style={styles.submenuItem} onClick={drawFibArcs}>
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 28" width="20" height="20">
+                <g fill="currentColor" fillRule="nonzero">
+                  <path d="M14 2c6.627 0 12 5.373 12 12h-1C25 7.925 20.075 3 14 3S3 7.925 3 14h-1c0-6.627 5.373-12 12-12z"></path>
+                  <path d="M14 6c4.418 0 8 3.582 8 8h-1c0-3.866-3.134-7-7-7s-7 3.134-7 7H6c0-4.418 3.582-8 8-8z"></path>
+                  <path d="M14 10c2.209 0 4 1.791 4 4h-1c0-1.657-1.343-3-3-3s-3 1.343-3 3h-1c0-2.209 1.791-4 4-4z"></path>
+                </g>
+              </svg>
+              <span style={styles.submenuText}>Fib Arcs</span>
             </div>
           </div>
         )}
