@@ -2851,33 +2851,7 @@ export default function MainChart() {
           </div>
         )}
 
-        {/* Floating Settings Icon - During Drawing */}
-        {activeDrawingTool && isDrawing && (
-          <div style={styles.floatingSettingsContainer}>
-            <button
-              className="drawing-settings-trigger"
-              style={{
-                ...styles.floatingSettingsButton,
-                backgroundColor: showDrawingSettings ? '#2196f3' : '#ffffff'
-              }}
-              onClick={() => {
-                setTempDrawingSettings(drawingSettings);
-                setShowDrawingSettings(!showDrawingSettings);
-              }}
-              title="Drawing Settings"
-            >
-              <i 
-                className="fa-solid fa-gear" 
-                style={{ 
-                  color: showDrawingSettings ? '#ffffff' : '#131722',
-                  fontSize: '14px'
-                }}
-              ></i>
-            </button>
-          </div>
-        )}
-
-        {/* Floating Remove Button - When Selecting Existing Drawing */}
+        {/* Floating Remove Button - Only When Selecting Existing Drawing */}
         {hasActiveDrawing && selectedOverlayId && !isDrawing && (
           <div style={styles.floatingSettingsContainer}>
             <button
