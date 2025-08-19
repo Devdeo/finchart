@@ -1406,6 +1406,12 @@ export default function MainChart() {
           color: drawingSettings.color, 
           size: drawingSettings.thickness,
           ...defaultStyles.line 
+        },
+        text: {
+          color: drawingSettings.color,
+          size: 11,
+          family: 'Arial, sans-serif',
+          ...defaultStyles.text
         }
       };
       
@@ -1415,6 +1421,7 @@ export default function MainChart() {
       });
       
       setActiveDrawingTool(toolName);
+      setShowDrawingSettings(true);
     }
     setShowSubmenu(false);
     setShowFibSubmenu(false);
@@ -2585,14 +2592,25 @@ export default function MainChart() {
         {showDrawingSettings && activeDrawingTool && (
           <div ref={drawingSettingsRef} style={styles.drawingSettingsPanel}>
             <div style={styles.drawingSettingsHeader}>
-              <span style={styles.drawingSettingsTitle}>
-                {activeDrawingTool} Settings
-              </span>
+              <div style={styles.drawingSettingsHeaderLeft}>
+                <i className="fa-solid fa-gear" style={styles.drawingSettingsIcon}></i>
+                <span style={styles.drawingSettingsTitle}>
+                  {activeDrawingTool}
+                </span>
+              </div>
               <button
                 style={styles.drawingSettingsCloseButton}
                 onClick={() => {
                   setShowDrawingSettings(false);
                   setActiveDrawingTool(null);
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = "rgba(239, 83, 80, 0.1)";
+                  e.currentTarget.style.color = "#ef5350";
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = "transparent";
+                  e.currentTarget.style.color = "#787b86";
                 }}
               >
                 ×
@@ -2602,34 +2620,95 @@ export default function MainChart() {
             <div style={styles.drawingSettingsContent}>
               {/* Color Setting */}
               <div style={styles.settingGroup}>
-                <label style={styles.settingLabel}>Color</label>
+                <label style={styles.settingLabel}>
+                  <i className="fa-solid fa-palette" style={styles.settingIcon}></i>
+                  Color
+                </label>
                 <div style={styles.colorPickerContainer}>
-                  <input
-                    type="color"
-                    value={drawingSettings.color}
-                    onChange={(e) => setDrawingSettings(prev => ({ ...prev, color: e.target.value }))}
-                    style={styles.colorPicker}
-                  />
-                  <span style={styles.colorValue}>{drawingSettings.color}</span>
+                  <div style={styles.colorPickerWrapper}>
+                    <input
+                      type="color"
+                      value={drawingSettings.color}
+                      onChange={(e) => setDrawingSettings(prev => ({ ...prev, color: e.target.value }))}
+                      style={styles.colorPicker}
+                    />
+                    <div style={{...styles.colorPreview, backgroundColor: drawingSettings.color}}></div>
+                  </div>
+                  <span style={styles.colorValue}>{drawingSettings.color.toUpperCase()}</span>
                 </div>
               </div>
 
               {/* Thickness Setting */}
               <div style={styles.settingGroup}>
-                <label style={styles.settingLabel}>Line Width</label>
-                <input
-                  type="range"
-                  min={1}
-                  max={8}
-                  value={drawingSettings.thickness}
-                  onChange={(e) => setDrawingSettings(prev => ({ ...prev, thickness: parseInt(e.target.value) }))}
-                  style={styles.thicknessSlider}
-                />
-                <div style={styles.thicknessLabels}>
-                  <span>1</span>
-                  <span style={styles.currentThickness}>{drawingSettings.thickness}px</span>
-                  <span>8</span>
+                <label style={styles.settingLabel}>
+                  <i className="fa-solid fa-minus" style={styles.settingIcon}></i>
+                  Line Width
+                </label>
+                <div style={styles.thicknessContainer}>
+                  <input
+                    type="range"
+                    min={1}
+                    max={8}
+                    value={drawingSettings.thickness}
+                    onChange={(e) => setDrawingSettings(prev => ({ ...prev, thickness: parseInt(e.target.value) }))}
+                    style={styles.thicknessSlider}
+                  />
+                  <div style={styles.thicknessLabels}>
+                    <span style={styles.thicknessLabelMin}>1</span>
+                    <span style={styles.currentThickness}>{drawingSettings.thickness}px</span>
+                    <span style={styles.thicknessLabelMax}>8</span>
+                  </div>
+                  <div style={styles.thicknessPreview}>
+                    <div 
+                      style={{
+                        ...styles.thicknessLine,
+                        height: `${drawingSettings.thickness}px`,
+                        backgroundColor: drawingSettings.color
+                      }}
+                    ></div>
+                  </div>
                 </div>
+              </div>
+
+              {/* Quick Color Presets */}
+              <div style={styles.settingGroup}>
+                <label style={styles.settingLabel}>
+                  <i className="fa-solid fa-swatchbook" style={styles.settingIcon}></i>
+                  Quick Colors
+                </label>
+                <div style={styles.colorPresets}>
+                  {['#1e88e5', '#f44336', '#4caf50', '#ff9800', '#9c27b0', '#607d8b', '#000000', '#ffffff'].map((color, index) => (
+                    <button
+                      key={index}
+                      style={{
+                        ...styles.colorPresetButton,
+                        backgroundColor: color,
+                        border: drawingSettings.color === color ? '2px solid #2196f3' : '1px solid #e0e3eb'
+                      }}
+                      onClick={() => setDrawingSettings(prev => ({ ...prev, color }))}
+                      title={color}
+                    ></button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Apply/Reset Actions */}
+              <div style={styles.settingActions}>
+                <button
+                  style={styles.resetButton}
+                  onClick={() => setDrawingSettings({ color: '#1e88e5', thickness: 2 })}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.backgroundColor = "rgba(33, 150, 243, 0.1)";
+                    e.currentTarget.style.color = "#2196f3";
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = "transparent";
+                    e.currentTarget.style.color = "#787b86";
+                  }}
+                >
+                  <i className="fa-solid fa-rotate-left" style={styles.buttonIcon}></i>
+                  Reset
+                </button>
               </div>
             </div>
           </div>
@@ -2995,92 +3074,195 @@ const styles = {
     position: "absolute",
     right: "10px",
     top: "50px",
-    width: "280px",
+    width: "320px",
     backgroundColor: "#ffffff",
     border: "1px solid #e0e3eb",
-    borderRadius: "8px",
-    boxShadow: "0 4px 12px rgba(0, 0, 0, 0.15)",
+    borderRadius: "12px",
+    boxShadow: "0 8px 24px rgba(0, 0, 0, 0.12), 0 4px 8px rgba(0, 0, 0, 0.08)",
     zIndex: 1000,
     overflow: "hidden",
+    fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif",
   },
   drawingSettingsHeader: {
     display: "flex",
     justifyContent: "space-between",
     alignItems: "center",
-    padding: "12px 16px",
+    padding: "16px 20px",
     backgroundColor: "#f8f9fa",
     borderBottom: "1px solid #e0e3eb",
   },
+  drawingSettingsHeaderLeft: {
+    display: "flex",
+    alignItems: "center",
+    gap: "8px",
+  },
+  drawingSettingsIcon: {
+    fontSize: "16px",
+    color: "#2196f3",
+  },
   drawingSettingsTitle: {
-    fontSize: "14px",
+    fontSize: "15px",
     fontWeight: "600",
     color: "#131722",
   },
   drawingSettingsCloseButton: {
     background: "none",
     border: "none",
-    fontSize: "18px",
+    fontSize: "20px",
     color: "#787b86",
     cursor: "pointer",
-    width: "24px",
-    height: "24px",
+    width: "28px",
+    height: "28px",
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
-    borderRadius: "4px",
-    transition: "all 0.2s",
+    borderRadius: "6px",
+    transition: "all 0.2s ease",
+    fontWeight: "300",
   },
   drawingSettingsContent: {
-    padding: "16px",
+    padding: "20px",
   },
   settingGroup: {
-    marginBottom: "20px",
+    marginBottom: "24px",
   },
   settingLabel: {
-    display: "block",
-    fontSize: "12px",
+    display: "flex",
+    alignItems: "center",
+    gap: "8px",
+    fontSize: "13px",
     fontWeight: "500",
     color: "#131722",
-    marginBottom: "8px",
+    marginBottom: "12px",
+  },
+  settingIcon: {
+    fontSize: "12px",
+    color: "#787b86",
+    width: "12px",
   },
   colorPickerContainer: {
     display: "flex",
     alignItems: "center",
-    gap: "8px",
+    gap: "12px",
+  },
+  colorPickerWrapper: {
+    position: "relative",
+    width: "44px",
+    height: "36px",
   },
   colorPicker: {
-    width: "40px",
-    height: "32px",
-    border: "1px solid #e0e3eb",
-    borderRadius: "4px",
+    width: "44px",
+    height: "36px",
+    border: "2px solid #e0e3eb",
+    borderRadius: "8px",
     cursor: "pointer",
     backgroundColor: "transparent",
+    opacity: 0,
+    position: "absolute",
+    top: 0,
+    left: 0,
+  },
+  colorPreview: {
+    width: "44px",
+    height: "36px",
+    borderRadius: "8px",
+    border: "2px solid #e0e3eb",
+    cursor: "pointer",
+    position: "relative",
+    boxShadow: "inset 0 1px 2px rgba(0, 0, 0, 0.1)",
   },
   colorValue: {
-    fontSize: "12px",
+    fontSize: "13px",
     color: "#787b86",
-    fontFamily: "monospace",
+    fontFamily: "Consolas, Monaco, 'Courier New', monospace",
+    fontWeight: "500",
+    letterSpacing: "0.5px",
+  },
+  thicknessContainer: {
+    width: "100%",
   },
   thicknessSlider: {
     width: "100%",
-    height: "6px",
+    height: "8px",
     backgroundColor: "#e0e3eb",
-    borderRadius: "3px",
+    borderRadius: "4px",
     outline: "none",
     cursor: "pointer",
     appearance: "none",
     WebkitAppearance: "none",
+    marginBottom: "8px",
   },
   thicknessLabels: {
     display: "flex",
     justifyContent: "space-between",
     fontSize: "11px",
     color: "#787b86",
-    marginTop: "6px",
+    marginBottom: "12px",
+  },
+  thicknessLabelMin: {
+    fontSize: "11px",
+    color: "#787b86",
+  },
+  thicknessLabelMax: {
+    fontSize: "11px",
+    color: "#787b86",
   },
   currentThickness: {
-    fontWeight: "500",
+    fontWeight: "600",
     color: "#131722",
+    fontSize: "12px",
+  },
+  thicknessPreview: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    height: "32px",
+    backgroundColor: "#f8f9fa",
+    borderRadius: "6px",
+    border: "1px solid #e0e3eb",
+  },
+  thicknessLine: {
+    width: "60px",
+    borderRadius: "2px",
+    transition: "all 0.2s ease",
+  },
+  colorPresets: {
+    display: "grid",
+    gridTemplateColumns: "repeat(8, 1fr)",
+    gap: "8px",
+  },
+  colorPresetButton: {
+    width: "28px",
+    height: "28px",
+    borderRadius: "6px",
+    cursor: "pointer",
+    transition: "all 0.2s ease",
+    outline: "none",
+    boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
+  },
+  settingActions: {
+    display: "flex",
+    justifyContent: "flex-end",
+    paddingTop: "16px",
+    borderTop: "1px solid #f0f0f0",
+    marginTop: "20px",
+  },
+  resetButton: {
+    display: "flex",
+    alignItems: "center",
+    gap: "6px",
+    background: "none",
+    border: "1px solid #e0e3eb",
+    borderRadius: "6px",
+    padding: "8px 16px",
+    fontSize: "12px",
+    color: "#787b86",
+    cursor: "pointer",
+    transition: "all 0.2s ease",
+    fontWeight: "500",
+  },
+  buttonIcon: {
+    fontSize: "11px",
   },
   mainArea: {
     display: "flex",
