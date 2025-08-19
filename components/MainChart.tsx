@@ -1477,8 +1477,18 @@ export default function MainChart() {
           setHasActiveDrawing(true);
           setIsDrawing(false);
           setSelectedOverlayId(overlayInfo?.id || null);
-          setShowDrawingSettings(false);
+          setShowDrawingSettings(true); // Show settings panel when drawing is selected
           setIsDragMode(false);
+          
+          // Set temp settings to current drawing settings for editing
+          const existingDrawing = allDrawings.find(d => d.id === overlayInfo?.id);
+          if (existingDrawing && existingDrawing.styles) {
+            setTempDrawingSettings({
+              color: existingDrawing.styles.line?.color || drawingSettings.color,
+              thickness: existingDrawing.styles.line?.size || drawingSettings.thickness
+            });
+          }
+          
           console.log(`Selected drawing: ${toolName} (ID: ${overlayInfo?.id})`);
         },
         onDeselected: () => {
@@ -1505,6 +1515,7 @@ export default function MainChart() {
           setActiveDrawingTool(null);
           setHasActiveDrawing(false);
           setSelectedOverlayId(null);
+          setShowDrawingSettings(false);
           console.log(`Removed drawing: ${toolName} (ID: ${overlayInfo?.id})`);
         },
         onRightClick: (overlayInfo, event) => {
@@ -1722,6 +1733,7 @@ export default function MainChart() {
             setHasActiveDrawing(true);
             setIsDrawing(false);
             setSelectedOverlayId(overlayInfo?.id || null);
+            setShowDrawingSettings(true); // Show settings panel when selected
           },
           onDeselected: () => {
             setActiveDrawingTool(null);
@@ -1772,6 +1784,7 @@ export default function MainChart() {
           setHasActiveDrawing(true);
           setIsDrawing(false);
           setSelectedOverlayId(overlayInfo?.id || null);
+          setShowDrawingSettings(true); // Show settings panel when selected
         },
         onDeselected: () => {
           setActiveDrawingTool(null);
@@ -1792,13 +1805,16 @@ export default function MainChart() {
         onDrawEnd: () => {
           console.log('Cypher Pattern drawing completed');
         },
-        onSelected: () => {
+        onSelected: (overlayInfo) => {
           setActiveDrawingTool('Cypher Pattern');
           setHasActiveDrawing(true);
+          setSelectedOverlayId(overlayInfo?.id || null);
+          setShowDrawingSettings(true); // Show settings panel when selected
         },
         onDeselected: () => {
           setActiveDrawingTool(null);
           setHasActiveDrawing(false);
+          setSelectedOverlayId(null);
           setShowDrawingSettings(false);
         }
       });
@@ -1815,13 +1831,16 @@ export default function MainChart() {
         onDrawEnd: () => {
           console.log('Head and Shoulders drawing completed');
         },
-        onSelected: () => {
+        onSelected: (overlayInfo) => {
           setActiveDrawingTool('Head and Shoulders');
           setHasActiveDrawing(true);
+          setSelectedOverlayId(overlayInfo?.id || null);
+          setShowDrawingSettings(true); // Show settings panel when selected
         },
         onDeselected: () => {
           setActiveDrawingTool(null);
           setHasActiveDrawing(false);
+          setSelectedOverlayId(null);
           setShowDrawingSettings(false);
         }
       });
@@ -1838,13 +1857,16 @@ export default function MainChart() {
         onDrawEnd: () => {
           console.log('ABCD Pattern drawing completed');
         },
-        onSelected: () => {
+        onSelected: (overlayInfo) => {
           setActiveDrawingTool('ABCD Pattern');
           setHasActiveDrawing(true);
+          setSelectedOverlayId(overlayInfo?.id || null);
+          setShowDrawingSettings(true); // Show settings panel when selected
         },
         onDeselected: () => {
           setActiveDrawingTool(null);
           setHasActiveDrawing(false);
+          setSelectedOverlayId(null);
           setShowDrawingSettings(false);
         }
       });
@@ -1861,13 +1883,16 @@ export default function MainChart() {
         onDrawEnd: () => {
           console.log('Triangle Pattern drawing completed');
         },
-        onSelected: () => {
+        onSelected: (overlayInfo) => {
           setActiveDrawingTool('Triangle Pattern');
           setHasActiveDrawing(true);
+          setSelectedOverlayId(overlayInfo?.id || null);
+          setShowDrawingSettings(true); // Show settings panel when selected
         },
         onDeselected: () => {
           setActiveDrawingTool(null);
           setHasActiveDrawing(false);
+          setSelectedOverlayId(null);
           setShowDrawingSettings(false);
         }
       });
@@ -1884,13 +1909,16 @@ export default function MainChart() {
         onDrawEnd: () => {
           console.log('Three Drives Pattern drawing completed');
         },
-        onSelected: () => {
+        onSelected: (overlayInfo) => {
           setActiveDrawingTool('Three Drives Pattern');
           setHasActiveDrawing(true);
+          setSelectedOverlayId(overlayInfo?.id || null);
+          setShowDrawingSettings(true); // Show settings panel when selected
         },
         onDeselected: () => {
           setActiveDrawingTool(null);
           setHasActiveDrawing(false);
+          setSelectedOverlayId(null);
           setShowDrawingSettings(false);
         }
       });
@@ -1907,13 +1935,16 @@ export default function MainChart() {
         onDrawEnd: () => {
           console.log('Elliott Impulse Wave drawing completed');
         },
-        onSelected: () => {
+        onSelected: (overlayInfo) => {
           setActiveDrawingTool('Elliott Impulse Wave');
           setHasActiveDrawing(true);
+          setSelectedOverlayId(overlayInfo?.id || null);
+          setShowDrawingSettings(true); // Show settings panel when selected
         },
         onDeselected: () => {
           setActiveDrawingTool(null);
           setHasActiveDrawing(false);
+          setSelectedOverlayId(null);
           setShowDrawingSettings(false);
         }
       });
@@ -1930,13 +1961,16 @@ export default function MainChart() {
         onDrawEnd: () => {
           console.log('Elliott Correction Wave drawing completed');
         },
-        onSelected: () => {
+        onSelected: (overlayInfo) => {
           setActiveDrawingTool('Elliott Correction Wave');
           setHasActiveDrawing(true);
+          setSelectedOverlayId(overlayInfo?.id || null);
+          setShowDrawingSettings(true); // Show settings panel when selected
         },
         onDeselected: () => {
           setActiveDrawingTool(null);
           setHasActiveDrawing(false);
+          setSelectedOverlayId(null);
           setShowDrawingSettings(false);
         }
       });
