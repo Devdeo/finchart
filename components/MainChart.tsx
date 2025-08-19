@@ -98,7 +98,7 @@ const registerCustomOverlays = () => {
     },
   });
 
-  // Fibonacci Retracement overlay
+  // Fibonacci Retracement overlay (custom implementation as fallback)
   registerOverlay({
     name: "fibRetracement",
     totalStep: 2,
@@ -125,6 +125,11 @@ const registerCustomOverlays = () => {
         type: "line",
         attrs: {
           coordinates: [p1, p2]
+        },
+        styles: {
+          color: '#ff9800',
+          size: 2,
+          style: 'solid'
         }
       });
       
@@ -161,6 +166,11 @@ const registerCustomOverlays = () => {
               { x: leftBound, y },
               { x: rightBound, y }
             ]
+          },
+          styles: {
+            color: lineColor,
+            size: lineSize,
+            style: 'solid'
           }
         });
         
@@ -171,6 +181,11 @@ const registerCustomOverlays = () => {
             x: rightBound - 120,
             y: y - 5,
             text: `${fibLabels[i]} (${fibPrice.toFixed(2)})`
+          },
+          styles: {
+            color: lineColor,
+            size: 11,
+            family: 'Arial, sans-serif'
           }
         });
       }
@@ -1371,8 +1386,8 @@ export default function MainChart() {
       console.log('Creating Fib Retracement overlay...');
       try {
         chartInstanceRef.current.createOverlay({
-          name: 'fibRetracement',
-          needDefaultPointFigure: false,
+          name: 'fibonacciLine', // Use built-in Fibonacci Retracement tool
+          needDefaultPointFigure: true,
           styles: {
             line: { color: '#ff9800', size: 2, style: 'solid' },
             text: { color: '#ff9800', size: 11, family: 'Arial, sans-serif' }
