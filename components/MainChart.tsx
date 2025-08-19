@@ -641,6 +641,11 @@ export default function MainChart() {
         setOpenMenu(null);
       }
 
+      // Close context menu when clicking outside
+      if (contextMenu && !e.target.closest(".context-menu")) {
+        setContextMenu(null);
+      }
+
       // Close indicator controls when clicking outside
       if (
         showIndicatorControls &&
@@ -1404,7 +1409,12 @@ export default function MainChart() {
     return "other";
   };
 
-  // Drawing tool functions - Interactive drawing
+  // Enhanced drawing system with modification capabilities
+  const [allDrawings, setAllDrawings] = useState([]);
+  const [isDragMode, setIsDragMode] = useState(false);
+  const [selectedPointIndex, setSelectedPointIndex] = useState(null);
+
+  // Drawing tool functions - Interactive drawing with modification support
   const createDrawingTool = (toolName, overlayName, defaultStyles = {}) => {
     if (chartInstanceRef.current) {
       const styles = {
@@ -1419,43 +1429,88 @@ export default function MainChart() {
           size: 11,
           family: 'Arial, sans-serif',
           ...defaultStyles.text
+        },
+        point: {
+          show: true,
+          color: drawingSettings.color,
+          borderColor: drawingSettings.color,
+          size: 6,
+          activeSize: 8,
+          ...defaultStyles.point
         }
       };
       
-      // Create overlay and listen for when it's actually placed
+      // Create overlay with enhanced event handling
       const overlay = chartInstanceRef.current.createOverlay({
         name: overlayName,
         styles: styles,
-        onDrawStart: () => {
-          // Drawing has started
+        lock: false, // Allow modification
+        modifiable: true, // Enable modification
+        onDrawStart: (drawingInfo) => {
           setActiveDrawingTool(toolName);
           setIsDrawing(true);
           setHasActiveDrawing(false);
           setSelectedOverlayId(null);
           setShowDrawingSettings(false);
+          setIsDragMode(false);
         },
         onDrawEnd: (overlayInfo) => {
-          // Drawing is finished
           setIsDrawing(false);
           setHasActiveDrawing(true);
           setSelectedOverlayId(overlayInfo?.id || null);
+          
+          // Store drawing in our state for management
+          const newDrawing = {
+            id: overlayInfo?.id || Date.now().toString(),
+            name: toolName,
+            overlayName: overlayName,
+            points: overlayInfo?.points || [],
+            styles: styles,
+            timestamp: Date.now()
+          };
+          
+          setAllDrawings(prev => [...prev, newDrawing]);
           console.log(`${toolName} drawing completed`);
         },
         onSelected: (overlayInfo) => {
-          // This is called when user clicks on an existing drawing
           setActiveDrawingTool(toolName);
           setHasActiveDrawing(true);
           setIsDrawing(false);
           setSelectedOverlayId(overlayInfo?.id || null);
           setShowDrawingSettings(false);
+          setIsDragMode(false);
+          console.log(`Selected drawing: ${toolName} (ID: ${overlayInfo?.id})`);
         },
         onDeselected: () => {
-          // Hide settings when drawing is deselected
           setActiveDrawingTool(null);
           setHasActiveDrawing(false);
           setIsDrawing(false);
           setSelectedOverlayId(null);
           setShowDrawingSettings(false);
+          setIsDragMode(false);
+          setSelectedPointIndex(null);
+        },
+        onModified: (overlayInfo) => {
+          // Update drawing in state when modified
+          setAllDrawings(prev => prev.map(drawing => 
+            drawing.id === overlayInfo?.id 
+              ? { ...drawing, points: overlayInfo?.points || [] }
+              : drawing
+          ));
+          console.log(`Modified drawing: ${toolName} (ID: ${overlayInfo?.id})`);
+        },
+        onRemoved: (overlayInfo) => {
+          // Remove from state when deleted
+          setAllDrawings(prev => prev.filter(drawing => drawing.id !== overlayInfo?.id));
+          setActiveDrawingTool(null);
+          setHasActiveDrawing(false);
+          setSelectedOverlayId(null);
+          console.log(`Removed drawing: ${toolName} (ID: ${overlayInfo?.id})`);
+        },
+        onRightClick: (overlayInfo, event) => {
+          // Right-click context menu
+          event.preventDefault();
+          showDrawingContextMenu(overlayInfo, event);
         }
       });
     }
@@ -1466,6 +1521,132 @@ export default function MainChart() {
     setShowBrushesSubmenu(false);
     setShowPositionSubmenu(false);
     setShowShapesSubmenu(false);
+  };
+
+  // Context menu for drawings
+  const [contextMenu, setContextMenu] = useState(null);
+
+  const showDrawingContextMenu = (overlayInfo, event) => {
+    const menuItems = [
+      {
+        label: 'Modify Points',
+        icon: 'fa-edit',
+        action: () => enablePointModification(overlayInfo)
+      },
+      {
+        label: 'Change Color',
+        icon: 'fa-palette',
+        action: () => showColorPicker(overlayInfo)
+      },
+      {
+        label: 'Change Line Width',
+        icon: 'fa-minus',
+        action: () => showLineWidthPicker(overlayInfo)
+      },
+      {
+        label: 'Duplicate',
+        icon: 'fa-copy',
+        action: () => duplicateDrawing(overlayInfo)
+      },
+      {
+        label: 'Lock/Unlock',
+        icon: 'fa-lock',
+        action: () => toggleDrawingLock(overlayInfo)
+      },
+      {
+        label: 'Delete',
+        icon: 'fa-trash',
+        action: () => removeDrawing(overlayInfo),
+        className: 'danger'
+      }
+    ];
+
+    setContextMenu({
+      x: event.clientX,
+      y: event.clientY,
+      items: menuItems,
+      overlayInfo: overlayInfo
+    });
+  };
+
+  // Drawing modification functions
+  const enablePointModification = (overlayInfo) => {
+    setIsDragMode(true);
+    setSelectedOverlayId(overlayInfo?.id);
+    setContextMenu(null);
+    console.log('Point modification mode enabled');
+  };
+
+  const showColorPicker = (overlayInfo) => {
+    setSelectedOverlayId(overlayInfo?.id);
+    setShowDrawingSettings(true);
+    setContextMenu(null);
+  };
+
+  const showLineWidthPicker = (overlayInfo) => {
+    setSelectedOverlayId(overlayInfo?.id);
+    setShowDrawingSettings(true);
+    setContextMenu(null);
+  };
+
+  const duplicateDrawing = (overlayInfo) => {
+    if (chartInstanceRef.current && overlayInfo) {
+      const originalDrawing = allDrawings.find(d => d.id === overlayInfo.id);
+      if (originalDrawing) {
+        // Create a duplicate with offset position
+        const duplicatePoints = originalDrawing.points.map(point => ({
+          ...point,
+          timestamp: point.timestamp + 60000, // Offset by 1 minute
+          value: point.value * 1.01 // Slight value offset
+        }));
+
+        const duplicateOverlay = chartInstanceRef.current.createOverlay({
+          name: originalDrawing.overlayName,
+          points: duplicatePoints,
+          styles: originalDrawing.styles
+        });
+
+        console.log('Drawing duplicated');
+      }
+    }
+    setContextMenu(null);
+  };
+
+  const toggleDrawingLock = (overlayInfo) => {
+    if (chartInstanceRef.current && overlayInfo?.id) {
+      try {
+        // Toggle lock state
+        const drawing = allDrawings.find(d => d.id === overlayInfo.id);
+        const newLockState = !drawing?.locked;
+        
+        chartInstanceRef.current.overrideOverlay({
+          id: overlayInfo.id,
+          lock: newLockState
+        });
+
+        // Update state
+        setAllDrawings(prev => prev.map(d => 
+          d.id === overlayInfo.id ? { ...d, locked: newLockState } : d
+        ));
+
+        console.log(`Drawing ${newLockState ? 'locked' : 'unlocked'}`);
+      } catch (error) {
+        console.warn('Toggle lock failed:', error);
+      }
+    }
+    setContextMenu(null);
+  };
+
+  const removeDrawing = (overlayInfo) => {
+    if (chartInstanceRef.current && overlayInfo?.id) {
+      chartInstanceRef.current.removeOverlay({ id: overlayInfo.id });
+      setAllDrawings(prev => prev.filter(d => d.id !== overlayInfo.id));
+      setActiveDrawingTool(null);
+      setHasActiveDrawing(false);
+      setSelectedOverlayId(null);
+      console.log('Drawing removed');
+    }
+    setContextMenu(null);
   };
 
   const drawTrendline = () => {
@@ -1955,11 +2136,48 @@ export default function MainChart() {
   const removeSelectedDrawing = () => {
     if (chartInstanceRef.current && selectedOverlayId) {
       chartInstanceRef.current.removeOverlay({ id: selectedOverlayId });
+      setAllDrawings(prev => prev.filter(d => d.id !== selectedOverlayId));
       setActiveDrawingTool(null);
       setHasActiveDrawing(false);
       setIsDrawing(false);
       setSelectedOverlayId(null);
       setShowDrawingSettings(false);
+    }
+  };
+
+  // Clear all drawings
+  const clearAllDrawings = () => {
+    if (chartInstanceRef.current) {
+      chartInstanceRef.current.removeOverlay();
+      setAllDrawings([]);
+      setActiveDrawingTool(null);
+      setHasActiveDrawing(false);
+      setSelectedOverlayId(null);
+      setShowDrawingSettings(false);
+      console.log('All drawings cleared');
+    }
+  };
+
+  // Apply new styles to selected drawing
+  const applyStylesToDrawing = (overlayId, newStyles) => {
+    if (chartInstanceRef.current && overlayId) {
+      try {
+        chartInstanceRef.current.overrideOverlay({
+          id: overlayId,
+          styles: newStyles
+        });
+
+        // Update drawing in state
+        setAllDrawings(prev => prev.map(drawing => 
+          drawing.id === overlayId 
+            ? { ...drawing, styles: { ...drawing.styles, ...newStyles } }
+            : drawing
+        ));
+        
+        console.log('Applied new styles to drawing:', overlayId);
+      } catch (error) {
+        console.warn('Failed to apply styles:', error);
+      }
     }
   };
 
@@ -2582,6 +2800,31 @@ export default function MainChart() {
               <span style={styles.submenuText}>Cross Line</span>
             </div>
 
+            {/* Drawing Management Section */}
+            <div style={styles.submenuSectionHeader}>Drawing Tools</div>
+            
+            {/* Clear All Drawings */}
+            <div style={styles.submenuItem} onClick={clearAllDrawings}>
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 28" width="20" height="20">
+                <g fill="currentColor">
+                  <path d="M14 2C7.4 2 2 7.4 2 14s5.4 12 12 12 12-5.4 12-12S20.6 2 14 2zm0 22c-5.5 0-10-4.5-10-10S8.5 4 14 4s10 4.5 10 10-4.5 10-10 10z"></path>
+                  <path d="M18.5 9.5L9.5 18.5m0-9l9 9"></path>
+                </g>
+              </svg>
+              <span style={styles.submenuText}>Clear All</span>
+            </div>
+
+            {/* Show Drawing Settings */}
+            <div style={styles.submenuItem} onClick={() => setShowDrawingSettings(true)}>
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 28" width="20" height="20">
+                <g fill="currentColor">
+                  <path d="M14 9c-2.8 0-5 2.2-5 5s2.2 5 5 5 5-2.2 5-5-2.2-5-5-5zm0 8c-1.7 0-3-1.3-3-3s1.3-3 3-3 3 1.3 3 3-1.3 3-3 3z"></path>
+                  <path d="M25.5 14c0-.4-.1-.8-.2-1.2l1.4-1.1-1.4-2.4-1.7.7c-.5-.4-1.1-.7-1.7-.9L21.5 7h-2.8l-.4 2.1c-.6.2-1.2.5-1.7.9l-1.7-.7-1.4 2.4 1.4 1.1c-.1.4-.2.8-.2 1.2s.1.8.2 1.2l-1.4 1.1 1.4 2.4 1.7-.7c.5.4 1.1.7 1.7.9l.4 2.1h2.8l.4-2.1c.6-.2 1.2-.5 1.7-.9l1.7.7 1.4-2.4-1.4-1.1c.1-.4.2-.8.2-1.2zm-5.4 3c-1.7 0-3-1.3-3-3s1.3-3 3-3 3 1.3 3 3-1.3 3-3 3z"></path>
+                </g>
+              </svg>
+              <span style={styles.submenuText}>Settings</span>
+            </div>
+
             {/* Parallel Channel */}
             <div style={styles.submenuItem} onClick={drawParallelChannel}>
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 28" width="20" height="20">
@@ -2883,8 +3126,94 @@ export default function MainChart() {
           </div>
         )}
 
+        {/* Context Menu */}
+        {contextMenu && (
+          <div 
+            className="context-menu"
+            style={{
+              ...styles.contextMenu,
+              top: contextMenu.y,
+              left: contextMenu.x
+            }}
+          >
+            {contextMenu.items.map((item, index) => (
+              <div
+                key={index}
+                style={{
+                  ...styles.contextMenuItem,
+                  ...(item.className === 'danger' ? styles.contextMenuItemDanger : {})
+                }}
+                onClick={item.action}
+              >
+                <i className={item.icon} style={styles.contextMenuIcon}></i>
+                <span>{item.label}</span>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* Drawing Management Panel */}
+        {allDrawings.length > 0 && (
+          <div style={styles.drawingManagementPanel}>
+            <div style={styles.drawingManagementHeader}>
+              <span style={styles.drawingManagementTitle}>
+                <i className="fa-solid fa-layer-group" style={styles.drawingManagementIcon}></i>
+                Drawings ({allDrawings.length})
+              </span>
+              <button
+                style={styles.clearAllButton}
+                onClick={clearAllDrawings}
+                title="Clear All Drawings"
+              >
+                <i className="fa-solid fa-trash"></i>
+              </button>
+            </div>
+            <div style={styles.drawingsList}>
+              {allDrawings.slice(-5).map((drawing) => (
+                <div
+                  key={drawing.id}
+                  style={{
+                    ...styles.drawingItem,
+                    ...(selectedOverlayId === drawing.id ? styles.drawingItemSelected : {})
+                  }}
+                  onClick={() => {
+                    setSelectedOverlayId(drawing.id);
+                    setActiveDrawingTool(drawing.name);
+                    setHasActiveDrawing(true);
+                  }}
+                >
+                  <span style={styles.drawingItemName}>{drawing.name}</span>
+                  <div style={styles.drawingItemActions}>
+                    <button
+                      style={styles.drawingItemButton}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setSelectedOverlayId(drawing.id);
+                        setShowDrawingSettings(true);
+                      }}
+                      title="Settings"
+                    >
+                      <i className="fa-solid fa-gear"></i>
+                    </button>
+                    <button
+                      style={styles.drawingItemButton}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        removeDrawing(drawing);
+                      }}
+                      title="Remove"
+                    >
+                      <i className="fa-solid fa-times"></i>
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
         {/* Drawing Settings Panel */}
-        {showDrawingSettings && activeDrawingTool && (
+        {showDrawingSettings && (selectedOverlayId || activeDrawingTool) && (
           <div ref={drawingSettingsRef} style={styles.drawingSettingsPanel}>
             <div style={styles.drawingSettingsHeader}>
               <div style={styles.drawingSettingsHeaderLeft}>
@@ -3026,36 +3355,23 @@ export default function MainChart() {
                   onClick={() => {
                     setDrawingSettings(tempDrawingSettings);
                     if (chartInstanceRef.current && selectedOverlayId) {
-                      try {
-                        // First, try using overrideOverlay
-                        chartInstanceRef.current.overrideOverlay({
-                          id: selectedOverlayId,
-                          styles: {
-                            line: { 
-                              color: tempDrawingSettings.color, 
-                              size: tempDrawingSettings.thickness 
-                            },
-                            text: {
-                              color: tempDrawingSettings.color,
-                              size: 11,
-                              family: 'Arial, sans-serif'
-                            },
-                            point: {
-                              color: tempDrawingSettings.color,
-                              borderColor: tempDrawingSettings.color
-                            }
-                          }
-                        });
-                        console.log('Applied settings to overlay:', selectedOverlayId);
-                      } catch (error) {
-                        console.warn('overrideOverlay failed, trying alternative approach:', error);
-                        // Alternative approach: get overlay and update its styles
-                        const overlays = chartInstanceRef.current.getOverlayById(selectedOverlayId);
-                        if (overlays) {
-                          chartInstanceRef.current.removeOverlay({ id: selectedOverlayId });
-                          // The overlay will be recreated with new styles when user draws again
+                      const newStyles = {
+                        line: { 
+                          color: tempDrawingSettings.color, 
+                          size: tempDrawingSettings.thickness 
+                        },
+                        text: {
+                          color: tempDrawingSettings.color,
+                          size: 11,
+                          family: 'Arial, sans-serif'
+                        },
+                        point: {
+                          color: tempDrawingSettings.color,
+                          borderColor: tempDrawingSettings.color
                         }
-                      }
+                      };
+                      
+                      applyStylesToDrawing(selectedOverlayId, newStyles);
                     }
                     setShowDrawingSettings(false);
                   }}
@@ -3745,6 +4061,119 @@ const styles = {
   },
   buttonIcon: {
     fontSize: "11px",
+  },
+  contextMenu: {
+    position: "fixed",
+    backgroundColor: "#ffffff",
+    border: "1px solid #e0e3eb",
+    borderRadius: "8px",
+    boxShadow: "0 4px 12px rgba(0, 0, 0, 0.15)",
+    zIndex: 2000,
+    overflow: "hidden",
+    minWidth: "160px",
+    fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif",
+  },
+  contextMenuItem: {
+    display: "flex",
+    alignItems: "center",
+    gap: "8px",
+    padding: "8px 12px",
+    fontSize: "13px",
+    color: "#131722",
+    cursor: "pointer",
+    transition: "background-color 0.2s",
+    borderBottom: "1px solid #f0f0f0",
+  },
+  contextMenuItemDanger: {
+    color: "#f44336",
+  },
+  contextMenuIcon: {
+    fontSize: "12px",
+    width: "12px",
+    textAlign: "center",
+  },
+  drawingManagementPanel: {
+    position: "absolute",
+    bottom: "10px",
+    left: "10px",
+    backgroundColor: "#ffffff",
+    border: "1px solid #e0e3eb",
+    borderRadius: "8px",
+    boxShadow: "0 4px 12px rgba(0, 0, 0, 0.15)",
+    zIndex: 1000,
+    overflow: "hidden",
+    maxWidth: "250px",
+    fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif",
+  },
+  drawingManagementHeader: {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    padding: "8px 12px",
+    backgroundColor: "#f8f9fa",
+    borderBottom: "1px solid #e0e3eb",
+  },
+  drawingManagementTitle: {
+    display: "flex",
+    alignItems: "center",
+    gap: "6px",
+    fontSize: "12px",
+    fontWeight: "600",
+    color: "#131722",
+  },
+  drawingManagementIcon: {
+    fontSize: "11px",
+    color: "#2196f3",
+  },
+  clearAllButton: {
+    background: "none",
+    border: "none",
+    fontSize: "12px",
+    color: "#f44336",
+    cursor: "pointer",
+    padding: "4px",
+    borderRadius: "4px",
+    transition: "background-color 0.2s",
+  },
+  drawingsList: {
+    maxHeight: "120px",
+    overflowY: "auto",
+  },
+  drawingItem: {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    padding: "6px 12px",
+    fontSize: "11px",
+    cursor: "pointer",
+    transition: "background-color 0.2s",
+    borderBottom: "1px solid #f5f5f5",
+  },
+  drawingItemSelected: {
+    backgroundColor: "#e3f2fd",
+    borderColor: "#2196f3",
+  },
+  drawingItemName: {
+    color: "#131722",
+    fontWeight: "500",
+    flex: 1,
+    overflow: "hidden",
+    textOverflow: "ellipsis",
+    whiteSpace: "nowrap",
+  },
+  drawingItemActions: {
+    display: "flex",
+    gap: "4px",
+  },
+  drawingItemButton: {
+    background: "none",
+    border: "none",
+    fontSize: "10px",
+    color: "#787b86",
+    cursor: "pointer",
+    padding: "2px 4px",
+    borderRadius: "3px",
+    transition: "all 0.2s",
   },
   mainArea: {
     display: "flex",
