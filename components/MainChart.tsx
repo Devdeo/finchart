@@ -89,12 +89,76 @@ const registerCustomOverlays = () => {
           type: "line",
           attrs: {
             coordinates: [
-              { x: xAxis.convertToPixel(fromIndex), y: yAxis.convertToPixel(yStart) },
+              { x: xAxis.convertToPixel(fromIndex), y: yAxis.convertToPixel(yEnd) },
               { x: xAxis.convertToPixel(toIndex), y: yAxis.convertToPixel(yEnd) },
             ],
           },
         },
       ];
+    },
+  });
+
+  // Fibonacci Retracement overlay
+  registerOverlay({
+    name: "fibRetracement",
+    totalStep: 2,
+    needDefaultPointFigure: false,
+    createPointFigures: ({ coordinates, bounding }) => {
+      if (!coordinates || coordinates.length < 2 || !bounding) return [];
+      const [p1, p2] = coordinates;
+      
+      // Fibonacci levels
+      const fibLevels = [0, 0.236, 0.382, 0.5, 0.618, 0.786, 1];
+      const fibLabels = ['0%', '23.6%', '38.2%', '50%', '61.8%', '78.6%', '100%'];
+      
+      const priceRange = Math.abs(p2.y - p1.y);
+      const isUptrend = p1.y > p2.y;
+      
+      const figures = [];
+      
+      // Draw horizontal lines for each fib level
+      for (let i = 0; i < fibLevels.length; i++) {
+        const level = fibLevels[i];
+        const y = isUptrend ? p1.y - (priceRange * level) : p1.y + (priceRange * level);
+        
+        // Horizontal line
+        figures.push({
+          type: "line",
+          attrs: {
+            coordinates: [
+              { x: bounding.left, y },
+              { x: bounding.left + bounding.width, y }
+            ]
+          },
+          styles: {
+            line: {
+              style: level === 0 || level === 1 ? 'solid' : 'dashed',
+              color: level === 0.382 || level === 0.618 ? '#ff9800' : 
+                     level === 0.5 ? '#2196f3' : '#9e9e9e',
+              size: level === 0.382 || level === 0.618 || level === 0.5 ? 2 : 1
+            }
+          }
+        });
+        
+        // Label
+        figures.push({
+          type: "text",
+          attrs: {
+            x: bounding.left + 10,
+            y: y - 5,
+            text: fibLabels[i]
+          },
+          styles: {
+            text: {
+              color: level === 0.382 || level === 0.618 ? '#ff9800' : 
+                     level === 0.5 ? '#2196f3' : '#666',
+              size: 12
+            }
+          }
+        });
+      }
+      
+      return figures;
     },
   });
 };
@@ -1000,6 +1064,18 @@ export default function MainChart() {
     setShowSubmenu(false);
   };
 
+  const drawFibRetracement = () => {
+    if (chartInstanceRef.current) {
+      chartInstanceRef.current.createOverlay({
+        name: 'fibRetracement',
+        styles: {
+          line: { color: '#ff9800', size: 2 }
+        }
+      });
+    }
+    setShowFibSubmenu(false);
+  };
+
   const handleChartTypeChange = (type) => {
     setChartType(type);
     if (chartInstanceRef.current) {
@@ -1667,7 +1743,7 @@ export default function MainChart() {
         {showFibSubmenu && (
           <div ref={fibSubmenuRef} style={styles.fibSubmenu}>
             {/* Fib Retracement */}
-            <div style={styles.submenuItem}>
+            <div style={styles.submenuItem} onClick={drawFibRetracement}>
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 28" width="20" height="20">
                 <g fill="currentColor" fillRule="nonzero">
                   <path d="M3 5h22v-1h-22z"></path>
