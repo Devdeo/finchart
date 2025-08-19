@@ -1,8 +1,103 @@
 import { useState, useRef, useEffect } from "react";
+import { registerOverlay } from "klinecharts";
 import OIChartAlpha5 from "./OIChartAlpha5";
 import { applyCandlestickPatternRecognition } from "./CandlestickPatternChart";
 import { applyChartPatternRecognition } from "./ChartPatternRecognition";
 import { applyHarmonicPatternRecognition } from "./DetectHarmonicPatterns";
+
+// Register custom overlays for drawing tools
+let overlaysRegistered = false;
+
+const registerCustomOverlays = () => {
+  if (overlaysRegistered) return;
+  overlaysRegistered = true;
+
+  // Trend Angle overlay
+  registerOverlay({
+    name: "trendAngle",
+    totalStep: 2,
+    needDefaultPointFigure: false,
+    createPointFigures: ({ coordinates }) => {
+      if (!coordinates || coordinates.length < 2) return [];
+      const [p1, p2] = coordinates;
+      const angle = (Math.atan2(p2.y - p1.y, p2.x - p1.x) * 180) / Math.PI;
+      return [
+        { type: "line", attrs: { coordinates: [p1, p2] } },
+        { type: "text", attrs: { x: p2.x, y: p2.y, text: `${angle.toFixed(1)}°` } },
+      ];
+    },
+  });
+
+  // Cross Line overlay
+  registerOverlay({
+    name: "crossLine",
+    totalStep: 1,
+    needDefaultPointFigure: false,
+    createPointFigures: ({ coordinates, bounding }) => {
+      if (!coordinates || !coordinates[0] || !bounding) return [];
+      const p = coordinates[0];
+      return [
+        { type: "line", attrs: { coordinates: [{ x: bounding.left, y: p.y }, { x: bounding.left + bounding.width, y: p.y }] } },
+        { type: "line", attrs: { coordinates: [{ x: p.x, y: bounding.top }, { x: p.x, y: bounding.top + bounding.height }] } },
+      ];
+    },
+  });
+
+  // Flat Top/Bottom overlay
+  registerOverlay({
+    name: "flatTopBottom",
+    totalStep: 2,
+    needDefaultPointFigure: false,
+    createPointFigures: ({ coordinates, bounding }) => {
+      if (!coordinates || coordinates.length < 2 || !bounding) return [];
+      const [p1, p2] = coordinates;
+      return [
+        { type: "line", attrs: { coordinates: [{ x: bounding.left, y: p1.y }, { x: bounding.left + bounding.width, y: p1.y }] } },
+        { type: "line", attrs: { coordinates: [{ x: bounding.left, y: p2.y }, { x: bounding.left + bounding.width, y: p2.y }] } },
+      ];
+    },
+  });
+
+  // Regression Trend overlay
+  registerOverlay({
+    name: "regressionTrend",
+    totalStep: 2,
+    needDefaultPointFigure: false,
+    createPointFigures: ({ coordinates, data, xAxis, yAxis }) => {
+      if (!coordinates || coordinates.length < 2 || !data || !xAxis || !yAxis) return [];
+      const [p1, p2] = coordinates;
+      const fromIndex = Math.min(p1.dataIndex, p2.dataIndex);
+      const toIndex = Math.max(p1.dataIndex, p2.dataIndex);
+      const slice = data.slice(fromIndex, toIndex + 1);
+      if (slice.length < 2) return [];
+
+      const xs = slice.map((d, i) => i);
+      const ys = slice.map((d) => d.close);
+      const n = xs.length;
+      const sumX = xs.reduce((a, b) => a + b, 0);
+      const sumY = ys.reduce((a, b) => a + b, 0);
+      const sumXY = xs.reduce((a, b, i) => a + b * ys[i], 0);
+      const sumX2 = xs.reduce((a, b) => a + b * b, 0);
+      const slope = (n * sumXY - sumX * sumY) / (n * sumX2 - sumX * sumX);
+      const intercept = (sumY - slope * sumX) / n;
+
+      const yStart = intercept;
+      const yEnd = slope * (n - 1) + intercept;
+
+      return [
+        {
+          type: "line",
+          attrs: {
+            coordinates: [
+              { x: xAxis.convertToPixel(fromIndex), y: yAxis.convertToPixel(yStart) },
+              { x: xAxis.convertToPixel(toIndex), y: yAxis.convertToPixel(yEnd) },
+            ],
+          },
+        },
+      ];
+    },
+  });
+};
 import SMAIndicator from "./SMAIndicator";
 import EMAIndicator from "./EMAIndicator";
 import WMAIndicator from "./WMAIndicator";
@@ -748,351 +843,159 @@ export default function MainChart() {
     return "other";
   };
 
-  // Drawing tool functions
+  // Drawing tool functions - Interactive drawing
   const drawTrendline = () => {
     if (chartInstanceRef.current) {
-      // Create a trend line overlay
-      const chartData = chartInstanceRef.current.getDataList();
-      if (chartData && chartData.length > 10) {
-        const startIndex = Math.floor(chartData.length * 0.2);
-        const endIndex = Math.floor(chartData.length * 0.8);
-        
-        chartInstanceRef.current.createOverlay({
-          name: 'segment',
-          points: [
-            { timestamp: chartData[startIndex].timestamp, value: chartData[startIndex].low },
-            { timestamp: chartData[endIndex].timestamp, value: chartData[endIndex].high }
-          ],
-          styles: {
-            line: { color: '#1e88e5', size: 2 }
-          }
-        });
-      }
+      chartInstanceRef.current.createOverlay({
+        name: 'segment',
+        styles: {
+          line: { color: '#1e88e5', size: 2 }
+        }
+      });
     }
     setShowSubmenu(false);
   };
 
   const drawRay = () => {
     if (chartInstanceRef.current) {
-      const chartData = chartInstanceRef.current.getDataList();
-      if (chartData && chartData.length > 10) {
-        const startIndex = Math.floor(chartData.length * 0.3);
-        const endIndex = Math.floor(chartData.length * 0.7);
-        
-        chartInstanceRef.current.createOverlay({
-          name: 'ray',
-          points: [
-            { timestamp: chartData[startIndex].timestamp, value: chartData[startIndex].close },
-            { timestamp: chartData[endIndex].timestamp, value: chartData[endIndex].close }
-          ],
-          styles: {
-            line: { color: '#ff9800', size: 2 }
-          }
-        });
-      }
+      chartInstanceRef.current.createOverlay({
+        name: 'rayLine',
+        styles: {
+          line: { color: '#ff9800', size: 2 }
+        }
+      });
     }
     setShowSubmenu(false);
   };
 
   const drawInfoLine = () => {
     if (chartInstanceRef.current) {
-      const chartData = chartInstanceRef.current.getDataList();
-      if (chartData && chartData.length > 10) {
-        const midIndex = Math.floor(chartData.length / 2);
-        
-        chartInstanceRef.current.createOverlay({
-          name: 'segment',
-          points: [
-            { timestamp: chartData[midIndex - 5].timestamp, value: chartData[midIndex - 5].close },
-            { timestamp: chartData[midIndex + 5].timestamp, value: chartData[midIndex + 5].close }
-          ],
-          styles: {
-            line: { color: '#4caf50', size: 2, style: 'dashed' }
-          }
-        });
-      }
+      chartInstanceRef.current.createOverlay({
+        name: 'priceLine',
+        styles: {
+          line: { color: '#4caf50', size: 2, style: 'dashed' }
+        }
+      });
     }
     setShowSubmenu(false);
   };
 
   const drawTrendAngle = () => {
     if (chartInstanceRef.current) {
-      const chartData = chartInstanceRef.current.getDataList();
-      if (chartData && chartData.length > 10) {
-        const startIndex = Math.floor(chartData.length * 0.25);
-        const endIndex = Math.floor(chartData.length * 0.75);
-        
-        chartInstanceRef.current.createOverlay({
-          name: 'segment',
-          points: [
-            { timestamp: chartData[startIndex].timestamp, value: chartData[startIndex].high },
-            { timestamp: chartData[endIndex].timestamp, value: chartData[endIndex].low }
-          ],
-          styles: {
-            line: { color: '#9c27b0', size: 2 }
-          }
-        });
-      }
+      chartInstanceRef.current.createOverlay({
+        name: 'trendAngle',
+        styles: {
+          line: { color: '#9c27b0', size: 2 }
+        }
+      });
     }
     setShowSubmenu(false);
   };
 
   const drawHorizontalLine = () => {
     if (chartInstanceRef.current) {
-      const chartData = chartInstanceRef.current.getDataList();
-      if (chartData && chartData.length > 5) {
-        const midIndex = Math.floor(chartData.length / 2);
-        const price = chartData[midIndex].close;
-        
-        chartInstanceRef.current.createOverlay({
-          name: 'horizontalStraightLine',
-          points: [
-            { timestamp: chartData[0].timestamp, value: price }
-          ],
-          styles: {
-            line: { color: '#f44336', size: 2 }
-          }
-        });
-      }
+      chartInstanceRef.current.createOverlay({
+        name: 'horizontalStraightLine',
+        styles: {
+          line: { color: '#f44336', size: 2 }
+        }
+      });
     }
     setShowSubmenu(false);
   };
 
   const drawHorizontalRay = () => {
     if (chartInstanceRef.current) {
-      const chartData = chartInstanceRef.current.getDataList();
-      if (chartData && chartData.length > 5) {
-        const startIndex = Math.floor(chartData.length * 0.4);
-        const price = chartData[startIndex].close;
-        
-        chartInstanceRef.current.createOverlay({
-          name: 'horizontalRay',
-          points: [
-            { timestamp: chartData[startIndex].timestamp, value: price }
-          ],
-          styles: {
-            line: { color: '#607d8b', size: 2 }
-          }
-        });
-      }
+      chartInstanceRef.current.createOverlay({
+        name: 'horizontalRayLine',
+        styles: {
+          line: { color: '#607d8b', size: 2 }
+        }
+      });
     }
     setShowSubmenu(false);
   };
 
   const drawExtendedLine = () => {
     if (chartInstanceRef.current) {
-      const chartData = chartInstanceRef.current.getDataList();
-      if (chartData && chartData.length > 10) {
-        const startIndex = Math.floor(chartData.length * 0.3);
-        const endIndex = Math.floor(chartData.length * 0.7);
-        
-        chartInstanceRef.current.createOverlay({
-          name: 'straightLine',
-          points: [
-            { timestamp: chartData[startIndex].timestamp, value: chartData[startIndex].low },
-            { timestamp: chartData[endIndex].timestamp, value: chartData[endIndex].high }
-          ],
-          styles: {
-            line: { color: '#795548', size: 2 }
-          }
-        });
-      }
+      chartInstanceRef.current.createOverlay({
+        name: 'straightLine',
+        styles: {
+          line: { color: '#795548', size: 2 }
+        }
+      });
     }
     setShowSubmenu(false);
   };
 
   const drawVerticalLine = () => {
     if (chartInstanceRef.current) {
-      const chartData = chartInstanceRef.current.getDataList();
-      if (chartData && chartData.length > 5) {
-        const midIndex = Math.floor(chartData.length / 2);
-        
-        chartInstanceRef.current.createOverlay({
-          name: 'verticalStraightLine',
-          points: [
-            { timestamp: chartData[midIndex].timestamp, value: chartData[midIndex].close }
-          ],
-          styles: {
-            line: { color: '#00bcd4', size: 2 }
-          }
-        });
-      }
+      chartInstanceRef.current.createOverlay({
+        name: 'verticalStraightLine',
+        styles: {
+          line: { color: '#00bcd4', size: 2 }
+        }
+      });
     }
     setShowSubmenu(false);
   };
 
   const drawCrossLine = () => {
     if (chartInstanceRef.current) {
-      const chartData = chartInstanceRef.current.getDataList();
-      if (chartData && chartData.length > 5) {
-        const midIndex = Math.floor(chartData.length / 2);
-        const price = chartData[midIndex].close;
-        
-        // Draw horizontal line
-        chartInstanceRef.current.createOverlay({
-          name: 'horizontalStraightLine',
-          points: [
-            { timestamp: chartData[0].timestamp, value: price }
-          ],
-          styles: {
-            line: { color: '#ffeb3b', size: 1 }
-          }
-        });
-        
-        // Draw vertical line
-        chartInstanceRef.current.createOverlay({
-          name: 'verticalStraightLine',
-          points: [
-            { timestamp: chartData[midIndex].timestamp, value: price }
-          ],
-          styles: {
-            line: { color: '#ffeb3b', size: 1 }
-          }
-        });
-      }
+      chartInstanceRef.current.createOverlay({
+        name: 'crossLine',
+        styles: {
+          line: { color: '#ffeb3b', size: 1 }
+        }
+      });
     }
     setShowSubmenu(false);
   };
 
   const drawParallelChannel = () => {
     if (chartInstanceRef.current) {
-      const chartData = chartInstanceRef.current.getDataList();
-      if (chartData && chartData.length > 20) {
-        const startIndex = Math.floor(chartData.length * 0.2);
-        const endIndex = Math.floor(chartData.length * 0.8);
-        const offset = (chartData[endIndex].high - chartData[startIndex].low) * 0.1;
-        
-        // Upper line
-        chartInstanceRef.current.createOverlay({
-          name: 'segment',
-          points: [
-            { timestamp: chartData[startIndex].timestamp, value: chartData[startIndex].high + offset },
-            { timestamp: chartData[endIndex].timestamp, value: chartData[endIndex].high + offset }
-          ],
-          styles: {
-            line: { color: '#3f51b5', size: 2 }
-          }
-        });
-        
-        // Lower line
-        chartInstanceRef.current.createOverlay({
-          name: 'segment',
-          points: [
-            { timestamp: chartData[startIndex].timestamp, value: chartData[startIndex].low - offset },
-            { timestamp: chartData[endIndex].timestamp, value: chartData[endIndex].low - offset }
-          ],
-          styles: {
-            line: { color: '#3f51b5', size: 2 }
-          }
-        });
-      }
+      chartInstanceRef.current.createOverlay({
+        name: 'parallelStraightLine',
+        styles: {
+          line: { color: '#3f51b5', size: 2 }
+        }
+      });
     }
     setShowSubmenu(false);
   };
 
   const drawPriceChannel = () => {
     if (chartInstanceRef.current) {
-      const chartData = chartInstanceRef.current.getDataList();
-      if (chartData && chartData.length > 20) {
-        const startIndex = Math.floor(chartData.length * 0.2);
-        const midIndex = Math.floor(chartData.length * 0.5);
-        const endIndex = Math.floor(chartData.length * 0.8);
-        
-        // Upper channel line
-        chartInstanceRef.current.createOverlay({
-          name: 'segment',
-          points: [
-            { timestamp: chartData[startIndex].timestamp, value: chartData[startIndex].high },
-            { timestamp: chartData[endIndex].timestamp, value: chartData[endIndex].high }
-          ],
-          styles: {
-            line: { color: '#e91e63', size: 2 }
-          }
-        });
-        
-        // Lower channel line
-        chartInstanceRef.current.createOverlay({
-          name: 'segment',
-          points: [
-            { timestamp: chartData[startIndex].timestamp, value: chartData[startIndex].low },
-            { timestamp: chartData[endIndex].timestamp, value: chartData[endIndex].low }
-          ],
-          styles: {
-            line: { color: '#e91e63', size: 2 }
-          }
-        });
-      }
+      chartInstanceRef.current.createOverlay({
+        name: 'priceChannelLine',
+        styles: {
+          line: { color: '#e91e63', size: 2 }
+        }
+      });
     }
     setShowSubmenu(false);
   };
 
   const drawRegressionTrend = () => {
     if (chartInstanceRef.current) {
-      const chartData = chartInstanceRef.current.getDataList();
-      if (chartData && chartData.length > 20) {
-        // Simple linear regression calculation
-        const n = chartData.length;
-        let sumX = 0, sumY = 0, sumXY = 0, sumXX = 0;
-        
-        for (let i = 0; i < n; i++) {
-          sumX += i;
-          sumY += chartData[i].close;
-          sumXY += i * chartData[i].close;
-          sumXX += i * i;
+      chartInstanceRef.current.createOverlay({
+        name: 'regressionTrend',
+        styles: {
+          line: { color: '#ff5722', size: 2, style: 'dashed' }
         }
-        
-        const slope = (n * sumXY - sumX * sumY) / (n * sumXX - sumX * sumX);
-        const intercept = (sumY - slope * sumX) / n;
-        
-        const startValue = intercept;
-        const endValue = slope * (n - 1) + intercept;
-        
-        chartInstanceRef.current.createOverlay({
-          name: 'segment',
-          points: [
-            { timestamp: chartData[0].timestamp, value: startValue },
-            { timestamp: chartData[n - 1].timestamp, value: endValue }
-          ],
-          styles: {
-            line: { color: '#ff5722', size: 2, style: 'dashed' }
-          }
-        });
-      }
+      });
     }
     setShowSubmenu(false);
   };
 
   const drawFlatTopBottom = () => {
     if (chartInstanceRef.current) {
-      const chartData = chartInstanceRef.current.getDataList();
-      if (chartData && chartData.length > 10) {
-        // Find recent high and low
-        const recentData = chartData.slice(-20);
-        const maxPrice = Math.max(...recentData.map(d => d.high));
-        const minPrice = Math.min(...recentData.map(d => d.low));
-        
-        // Draw resistance (top) line
-        chartInstanceRef.current.createOverlay({
-          name: 'horizontalStraightLine',
-          points: [
-            { timestamp: chartData[0].timestamp, value: maxPrice }
-          ],
-          styles: {
-            line: { color: '#f44336', size: 2, style: 'solid' }
-          }
-        });
-        
-        // Draw support (bottom) line
-        chartInstanceRef.current.createOverlay({
-          name: 'horizontalStraightLine',
-          points: [
-            { timestamp: chartData[0].timestamp, value: minPrice }
-          ],
-          styles: {
-            line: { color: '#4caf50', size: 2, style: 'solid' }
-          }
-        });
-      }
+      chartInstanceRef.current.createOverlay({
+        name: 'flatTopBottom',
+        styles: {
+          line: { color: '#f44336', size: 2 }
+        }
+      });
     }
     setShowSubmenu(false);
   };
@@ -2492,6 +2395,10 @@ export default function MainChart() {
 
           <OIChartAlpha5 showOiData={oiData} onChartReady={(chart) => {
             chartInstanceRef.current = chart;
+            
+            // Register custom overlays for drawing tools
+            registerCustomOverlays();
+            
             // Apply initial chart type and styles
             chart.setStyles({
               grid: {
