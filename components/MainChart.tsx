@@ -551,6 +551,7 @@ export default function MainChart() {
   const [showShapesSubmenu, setShowShapesSubmenu] = useState(false);
   const [activeDrawingTool, setActiveDrawingTool] = useState(null);
   const [showDrawingSettings, setShowDrawingSettings] = useState(false);
+  const [hasActiveDrawing, setHasActiveDrawing] = useState(false);
   const [drawingSettings, setDrawingSettings] = useState({
     color: '#1e88e5',
     thickness: 2
@@ -1415,13 +1416,21 @@ export default function MainChart() {
         }
       };
       
-      chartInstanceRef.current.createOverlay({
+      // Create overlay and listen for when it's actually placed
+      const overlay = chartInstanceRef.current.createOverlay({
         name: overlayName,
-        styles: styles
+        styles: styles,
+        onDrawEnd: () => {
+          // This is called when the user finishes drawing
+          setActiveDrawingTool(toolName);
+          setHasActiveDrawing(true);
+          setShowDrawingSettings(false); // Don't auto-open settings
+        }
       });
       
-      setActiveDrawingTool(toolName);
-      setShowDrawingSettings(true);
+      // Don't set active tool until drawing is placed
+      setHasActiveDrawing(false);
+      setShowDrawingSettings(false);
     }
     setShowSubmenu(false);
     setShowFibSubmenu(false);
@@ -1488,9 +1497,15 @@ export default function MainChart() {
           styles: {
             line: { color: drawingSettings.color, size: drawingSettings.thickness, style: 'solid' },
             text: { color: drawingSettings.color, size: 11, family: 'Arial, sans-serif' }
+          },
+          onDrawEnd: () => {
+            setActiveDrawingTool('Fib Retracement');
+            setHasActiveDrawing(true);
+            setShowDrawingSettings(false);
           }
         });
-        setActiveDrawingTool('Fib Retracement');
+        setHasActiveDrawing(false);
+        setShowDrawingSettings(false);
         console.log('Fib Retracement overlay created successfully');
       } catch (error) {
         console.error('Error creating Fib Retracement overlay:', error);
@@ -1515,9 +1530,13 @@ export default function MainChart() {
   const drawXABCDPattern = () => {
     if (chartInstanceRef.current) {
       chartInstanceRef.current.createOverlay({
-        name: 'xabcdPattern'
+        name: 'xabcdPattern',
+        onDrawEnd: () => {
+          setActiveDrawingTool('XABCD Pattern');
+          setHasActiveDrawing(true);
+        }
       });
-      setActiveDrawingTool('XABCD Pattern');
+      setHasActiveDrawing(false);
     }
     setShowPatternSubmenu(false);
   };
@@ -1525,9 +1544,13 @@ export default function MainChart() {
   const drawCypherPattern = () => {
     if (chartInstanceRef.current) {
       chartInstanceRef.current.createOverlay({
-        name: 'cypherPattern'
+        name: 'cypherPattern',
+        onDrawEnd: () => {
+          setActiveDrawingTool('Cypher Pattern');
+          setHasActiveDrawing(true);
+        }
       });
-      setActiveDrawingTool('Cypher Pattern');
+      setHasActiveDrawing(false);
     }
     setShowPatternSubmenu(false);
   };
@@ -1535,9 +1558,13 @@ export default function MainChart() {
   const drawHeadAndShoulders = () => {
     if (chartInstanceRef.current) {
       chartInstanceRef.current.createOverlay({
-        name: 'headShoulders'
+        name: 'headShoulders',
+        onDrawEnd: () => {
+          setActiveDrawingTool('Head and Shoulders');
+          setHasActiveDrawing(true);
+        }
       });
-      setActiveDrawingTool('Head and Shoulders');
+      setHasActiveDrawing(false);
     }
     setShowPatternSubmenu(false);
   };
@@ -1545,9 +1572,13 @@ export default function MainChart() {
   const drawABCDPattern = () => {
     if (chartInstanceRef.current) {
       chartInstanceRef.current.createOverlay({
-        name: 'abcdPattern'
+        name: 'abcdPattern',
+        onDrawEnd: () => {
+          setActiveDrawingTool('ABCD Pattern');
+          setHasActiveDrawing(true);
+        }
       });
-      setActiveDrawingTool('ABCD Pattern');
+      setHasActiveDrawing(false);
     }
     setShowPatternSubmenu(false);
   };
@@ -1555,9 +1586,13 @@ export default function MainChart() {
   const drawTrianglePattern = () => {
     if (chartInstanceRef.current) {
       chartInstanceRef.current.createOverlay({
-        name: 'trianglePattern'
+        name: 'trianglePattern',
+        onDrawEnd: () => {
+          setActiveDrawingTool('Triangle Pattern');
+          setHasActiveDrawing(true);
+        }
       });
-      setActiveDrawingTool('Triangle Pattern');
+      setHasActiveDrawing(false);
     }
     setShowPatternSubmenu(false);
   };
@@ -1565,9 +1600,13 @@ export default function MainChart() {
   const drawThreeDrivesPattern = () => {
     if (chartInstanceRef.current) {
       chartInstanceRef.current.createOverlay({
-        name: 'threeDrives'
+        name: 'threeDrives',
+        onDrawEnd: () => {
+          setActiveDrawingTool('Three Drives Pattern');
+          setHasActiveDrawing(true);
+        }
       });
-      setActiveDrawingTool('Three Drives Pattern');
+      setHasActiveDrawing(false);
     }
     setShowPatternSubmenu(false);
   };
@@ -1575,9 +1614,13 @@ export default function MainChart() {
   const drawElliottImpulseWave = () => {
     if (chartInstanceRef.current) {
       chartInstanceRef.current.createOverlay({
-        name: 'elliottImpulse'
+        name: 'elliottImpulse',
+        onDrawEnd: () => {
+          setActiveDrawingTool('Elliott Impulse Wave');
+          setHasActiveDrawing(true);
+        }
       });
-      setActiveDrawingTool('Elliott Impulse Wave');
+      setHasActiveDrawing(false);
     }
     setShowPatternSubmenu(false);
   };
@@ -1585,9 +1628,13 @@ export default function MainChart() {
   const drawElliottCorrectionWave = () => {
     if (chartInstanceRef.current) {
       chartInstanceRef.current.createOverlay({
-        name: 'elliottCorrection'
+        name: 'elliottCorrection',
+        onDrawEnd: () => {
+          setActiveDrawingTool('Elliott Correction Wave');
+          setHasActiveDrawing(true);
+        }
       });
-      setActiveDrawingTool('Elliott Correction Wave');
+      setHasActiveDrawing(false);
     }
     setShowPatternSubmenu(false);
   };
@@ -1607,7 +1654,12 @@ export default function MainChart() {
           { timestamp: last.timestamp, value: last.close * 0.98 }, // Stop Loss below entry
           { timestamp: last.timestamp, value: last.close * 1.05 }, // Take Profit above entry
         ],
+        onDrawEnd: () => {
+          setActiveDrawingTool('Long Position');
+          setHasActiveDrawing(true);
+        }
       });
+      setHasActiveDrawing(false);
     }
     setShowPositionSubmenu(false);
   };
@@ -1626,7 +1678,12 @@ export default function MainChart() {
           { timestamp: last.timestamp, value: last.close * 1.02 }, // Stop Loss above entry
           { timestamp: last.timestamp, value: last.close * 0.95 }, // Take Profit below entry
         ],
+        onDrawEnd: () => {
+          setActiveDrawingTool('Short Position');
+          setHasActiveDrawing(true);
+        }
       });
+      setHasActiveDrawing(false);
     }
     setShowPositionSubmenu(false);
   };
@@ -1639,9 +1696,13 @@ export default function MainChart() {
         styles: {
           point: { show: true, activeSize: 6, inactiveSize: 4 },
           polygon: { style: 'stroke_fill', color: `${drawingSettings.color}33`, borderColor: drawingSettings.color, borderSize: drawingSettings.thickness }
+        },
+        onDrawEnd: () => {
+          setActiveDrawingTool('Rectangle');
+          setHasActiveDrawing(true);
         }
       });
-      setActiveDrawingTool('Rectangle');
+      setHasActiveDrawing(false);
     }
     setShowShapesSubmenu(false);
   };
@@ -1653,9 +1714,13 @@ export default function MainChart() {
         styles: {
           point: { show: true, activeSize: 6, inactiveSize: 4 },
           polygon: { style: 'stroke_fill', color: `${drawingSettings.color}33`, borderColor: drawingSettings.color, borderSize: drawingSettings.thickness }
+        },
+        onDrawEnd: () => {
+          setActiveDrawingTool('Rotated Rectangle');
+          setHasActiveDrawing(true);
         }
       });
-      setActiveDrawingTool('Rotated Rectangle');
+      setHasActiveDrawing(false);
     }
     setShowShapesSubmenu(false);
   };
@@ -1667,9 +1732,13 @@ export default function MainChart() {
         styles: {
           point: { show: true, activeSize: 6, inactiveSize: 4 },
           circle: { style: 'stroke_fill', color: `${drawingSettings.color}33`, borderColor: drawingSettings.color, borderSize: drawingSettings.thickness }
+        },
+        onDrawEnd: () => {
+          setActiveDrawingTool('Circle');
+          setHasActiveDrawing(true);
         }
       });
-      setActiveDrawingTool('Circle');
+      setHasActiveDrawing(false);
     }
     setShowShapesSubmenu(false);
   };
@@ -1681,9 +1750,13 @@ export default function MainChart() {
         styles: {
           point: { show: true, activeSize: 6, inactiveSize: 4 },
           polygon: { style: 'stroke_fill', color: `${drawingSettings.color}33`, borderColor: drawingSettings.color, borderSize: drawingSettings.thickness }
+        },
+        onDrawEnd: () => {
+          setActiveDrawingTool('Triangle');
+          setHasActiveDrawing(true);
         }
       });
-      setActiveDrawingTool('Triangle');
+      setHasActiveDrawing(false);
     }
     setShowShapesSubmenu(false);
   };
@@ -2200,7 +2273,7 @@ export default function MainChart() {
           
 
           {/* Settings tool */}
-          {activeDrawingTool && (
+          {activeDrawingTool && hasActiveDrawing && (
             <div
               className="drawing-settings-trigger"
               style={{
@@ -2589,7 +2662,7 @@ export default function MainChart() {
         )}
 
         {/* Drawing Settings Panel */}
-        {showDrawingSettings && activeDrawingTool && (
+        {showDrawingSettings && activeDrawingTool && hasActiveDrawing && (
           <div ref={drawingSettingsRef} style={styles.drawingSettingsPanel}>
             <div style={styles.drawingSettingsHeader}>
               <div style={styles.drawingSettingsHeaderLeft}>
@@ -2603,6 +2676,7 @@ export default function MainChart() {
                 onClick={() => {
                   setShowDrawingSettings(false);
                   setActiveDrawingTool(null);
+                  setHasActiveDrawing(false);
                 }}
                 onMouseEnter={(e) => {
                   e.currentTarget.style.backgroundColor = "rgba(239, 83, 80, 0.1)";
