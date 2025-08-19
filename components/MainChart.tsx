@@ -2852,7 +2852,7 @@ export default function MainChart() {
         )}
 
         {/* Floating Remove Button - Only When Selecting Existing Drawing */}
-        {hasActiveDrawing && selectedOverlayId && !isDrawing && (
+        {selectedOverlayId && !isDrawing && (
           <div style={styles.floatingSettingsContainer}>
             <button
               style={styles.floatingRemoveButton}
@@ -2865,7 +2865,7 @@ export default function MainChart() {
         )}
 
         {/* Compact Settings Panel for Selected Drawings */}
-        {hasActiveDrawing && selectedOverlayId && !isDrawing && (
+        {selectedOverlayId && !isDrawing && activeDrawingTool && (
           <div style={styles.compactSettingsPanel}>
             <div style={styles.compactSettingsHeader}>
               <span style={styles.compactSettingsTitle}>
