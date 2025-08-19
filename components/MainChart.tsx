@@ -1457,11 +1457,13 @@ export default function MainChart() {
         onDrawEnd: (overlayInfo) => {
           setIsDrawing(false);
           setHasActiveDrawing(true);
-          setSelectedOverlayId(overlayInfo?.id || null);
+          const drawingId = overlayInfo?.id || Date.now().toString();
+          setSelectedOverlayId(drawingId);
+          setActiveDrawingTool(toolName);
           
           // Store drawing in our state for management
           const newDrawing = {
-            id: overlayInfo?.id || Date.now().toString(),
+            id: drawingId,
             name: toolName,
             overlayName: overlayName,
             points: overlayInfo?.points || [],
@@ -1470,26 +1472,46 @@ export default function MainChart() {
           };
           
           setAllDrawings(prev => [...prev, newDrawing]);
+          
+          // Automatically show modification popup after drawing is completed
+          setTimeout(() => {
+            setShowDrawingSettings(true);
+            setTempDrawingSettings({
+              color: styles.line?.color || drawingSettings.color,
+              thickness: styles.line?.size || drawingSettings.thickness
+            });
+          }, 100);
+          
           console.log(`${toolName} drawing completed`);
         },
         onSelected: (overlayInfo) => {
+          const drawingId = overlayInfo?.id;
           setActiveDrawingTool(toolName);
           setHasActiveDrawing(true);
           setIsDrawing(false);
-          setSelectedOverlayId(overlayInfo?.id || null);
-          setShowDrawingSettings(true); // Show settings panel when drawing is selected
+          setSelectedOverlayId(drawingId);
           setIsDragMode(false);
           
           // Set temp settings to current drawing settings for editing
-          const existingDrawing = allDrawings.find(d => d.id === overlayInfo?.id);
+          const existingDrawing = allDrawings.find(d => d.id === drawingId);
           if (existingDrawing && existingDrawing.styles) {
             setTempDrawingSettings({
               color: existingDrawing.styles.line?.color || drawingSettings.color,
               thickness: existingDrawing.styles.line?.size || drawingSettings.thickness
             });
+          } else {
+            setTempDrawingSettings({
+              color: drawingSettings.color,
+              thickness: drawingSettings.thickness
+            });
           }
           
-          console.log(`Selected drawing: ${toolName} (ID: ${overlayInfo?.id})`);
+          // Show modification popup when drawing is selected
+          setTimeout(() => {
+            setShowDrawingSettings(true);
+          }, 50);
+          
+          console.log(`Selected drawing: ${toolName} (ID: ${drawingId})`);
         },
         onDeselected: () => {
           setActiveDrawingTool(null);
@@ -1710,35 +1732,92 @@ export default function MainChart() {
     if (chartInstanceRef.current) {
       console.log('Creating Fib Retracement overlay...');
       try {
+        const styles = {
+          line: { color: drawingSettings.color, size: drawingSettings.thickness, style: 'solid' },
+          text: { color: drawingSettings.color, size: 11, family: 'Arial, sans-serif' }
+        };
+        
         chartInstanceRef.current.createOverlay({
           name: 'fibonacciLine',
           needDefaultPointFigure: true,
-          styles: {
-            line: { color: drawingSettings.color, size: drawingSettings.thickness, style: 'solid' },
-            text: { color: drawingSettings.color, size: 11, family: 'Arial, sans-serif' }
-          },
+          styles: styles,
           onDrawStart: () => {
             setActiveDrawingTool('Fib Retracement');
             setIsDrawing(true);
             setHasActiveDrawing(false);
             setSelectedOverlayId(null);
+            setShowDrawingSettings(false);
           },
-          onDrawEnd: () => {
+          onDrawEnd: (overlayInfo) => {
             setIsDrawing(false);
             setHasActiveDrawing(true);
+            const drawingId = overlayInfo?.id || Date.now().toString();
+            setSelectedOverlayId(drawingId);
+            setActiveDrawingTool('Fib Retracement');
+            
+            // Store drawing in our state for management
+            const newDrawing = {
+              id: drawingId,
+              name: 'Fib Retracement',
+              overlayName: 'fibonacciLine',
+              points: overlayInfo?.points || [],
+              styles: styles,
+              timestamp: Date.now()
+            };
+            
+            setAllDrawings(prev => [...prev, newDrawing]);
+            
+            // Automatically show modification popup after drawing is completed
+            setTimeout(() => {
+              setShowDrawingSettings(true);
+              setTempDrawingSettings({
+                color: styles.line?.color || drawingSettings.color,
+                thickness: styles.line?.size || drawingSettings.thickness
+              });
+            }, 100);
+            
             console.log('Fib Retracement drawing completed');
           },
           onSelected: (overlayInfo) => {
+            const drawingId = overlayInfo?.id;
             setActiveDrawingTool('Fib Retracement');
             setHasActiveDrawing(true);
             setIsDrawing(false);
-            setSelectedOverlayId(overlayInfo?.id || null);
-            setShowDrawingSettings(true); // Show settings panel when selected
+            setSelectedOverlayId(drawingId);
+            
+            // Set temp settings for editing
+            const existingDrawing = allDrawings.find(d => d.id === drawingId);
+            if (existingDrawing && existingDrawing.styles) {
+              setTempDrawingSettings({
+                color: existingDrawing.styles.line?.color || drawingSettings.color,
+                thickness: existingDrawing.styles.line?.size || drawingSettings.thickness
+              });
+            } else {
+              setTempDrawingSettings({
+                color: drawingSettings.color,
+                thickness: drawingSettings.thickness
+              });
+            }
+            
+            // Show modification popup when drawing is selected
+            setTimeout(() => {
+              setShowDrawingSettings(true);
+            }, 50);
+            
+            console.log(`Selected Fib Retracement (ID: ${drawingId})`);
           },
           onDeselected: () => {
             setActiveDrawingTool(null);
             setHasActiveDrawing(false);
             setIsDrawing(false);
+            setSelectedOverlayId(null);
+            setShowDrawingSettings(false);
+          },
+          onRemoved: (overlayInfo) => {
+            // Remove from state when deleted
+            setAllDrawings(prev => prev.filter(drawing => drawing.id !== overlayInfo?.id));
+            setActiveDrawingTool(null);
+            setHasActiveDrawing(false);
             setSelectedOverlayId(null);
             setShowDrawingSettings(false);
           }
@@ -1766,30 +1845,91 @@ export default function MainChart() {
   // Pattern drawing functions
   const drawXABCDPattern = () => {
     if (chartInstanceRef.current) {
+      const styles = {
+        line: { color: drawingSettings.color, size: drawingSettings.thickness },
+        text: { color: drawingSettings.color, size: 11, family: 'Arial, sans-serif' }
+      };
+      
       chartInstanceRef.current.createOverlay({
         name: 'xabcdPattern',
+        styles: styles,
         onDrawStart: () => {
           setActiveDrawingTool('XABCD Pattern');
           setIsDrawing(true);
           setHasActiveDrawing(false);
           setSelectedOverlayId(null);
+          setShowDrawingSettings(false);
         },
-        onDrawEnd: () => {
+        onDrawEnd: (overlayInfo) => {
           setIsDrawing(false);
           setHasActiveDrawing(true);
+          const drawingId = overlayInfo?.id || Date.now().toString();
+          setSelectedOverlayId(drawingId);
+          setActiveDrawingTool('XABCD Pattern');
+          
+          // Store drawing in our state for management
+          const newDrawing = {
+            id: drawingId,
+            name: 'XABCD Pattern',
+            overlayName: 'xabcdPattern',
+            points: overlayInfo?.points || [],
+            styles: styles,
+            timestamp: Date.now()
+          };
+          
+          setAllDrawings(prev => [...prev, newDrawing]);
+          
+          // Automatically show modification popup after drawing is completed
+          setTimeout(() => {
+            setShowDrawingSettings(true);
+            setTempDrawingSettings({
+              color: styles.line?.color || drawingSettings.color,
+              thickness: styles.line?.size || drawingSettings.thickness
+            });
+          }, 100);
+          
           console.log('XABCD Pattern drawing completed');
         },
         onSelected: (overlayInfo) => {
+          const drawingId = overlayInfo?.id;
           setActiveDrawingTool('XABCD Pattern');
           setHasActiveDrawing(true);
           setIsDrawing(false);
-          setSelectedOverlayId(overlayInfo?.id || null);
-          setShowDrawingSettings(true); // Show settings panel when selected
+          setSelectedOverlayId(drawingId);
+          
+          // Set temp settings for editing
+          const existingDrawing = allDrawings.find(d => d.id === drawingId);
+          if (existingDrawing && existingDrawing.styles) {
+            setTempDrawingSettings({
+              color: existingDrawing.styles.line?.color || drawingSettings.color,
+              thickness: existingDrawing.styles.line?.size || drawingSettings.thickness
+            });
+          } else {
+            setTempDrawingSettings({
+              color: drawingSettings.color,
+              thickness: drawingSettings.thickness
+            });
+          }
+          
+          // Show modification popup when drawing is selected
+          setTimeout(() => {
+            setShowDrawingSettings(true);
+          }, 50);
+          
+          console.log(`Selected XABCD Pattern (ID: ${drawingId})`);
         },
         onDeselected: () => {
           setActiveDrawingTool(null);
           setHasActiveDrawing(false);
           setIsDrawing(false);
+          setSelectedOverlayId(null);
+          setShowDrawingSettings(false);
+        },
+        onRemoved: (overlayInfo) => {
+          // Remove from state when deleted
+          setAllDrawings(prev => prev.filter(drawing => drawing.id !== overlayInfo?.id));
+          setActiveDrawingTool(null);
+          setHasActiveDrawing(false);
           setSelectedOverlayId(null);
           setShowDrawingSettings(false);
         }
