@@ -83,21 +83,21 @@ export default function MainChart() {
     highPrice: true,
     lowPrice: true,
     openPrice: false,
-    
+
     // Chart Display
     gridShow: true,
     crosshairShow: true,
     volumeShow: true,
     reverseCoord: false,
-    
+
     // Chart Appearance
     candleStyle: 'candle_solid',
     theme: 'light',
-    
+
     // Technical Analysis
     autoScale: true,
     logScale: false,
-    
+
     // Performance
     animationEnabled: true,
   });
@@ -206,7 +206,7 @@ export default function MainChart() {
   const toggleSetting = (key) => {
     setSettings((prev) => {
       const newSettings = { ...prev, [key]: !prev[key] };
-      
+
       // Apply changes to chart immediately
       if (chartInstanceRef.current) {
         switch (key) {
@@ -236,7 +236,7 @@ export default function MainChart() {
             break;
         }
       }
-      
+
       return newSettings;
     });
   };
@@ -244,7 +244,7 @@ export default function MainChart() {
   const changeSetting = (key, value) => {
     setSettings((prev) => {
       const newSettings = { ...prev, [key]: value };
-      
+
       // Apply changes to chart immediately
       if (chartInstanceRef.current) {
         switch (key) {
@@ -271,7 +271,7 @@ export default function MainChart() {
             break;
         }
       }
-      
+
       return newSettings;
     });
   };
@@ -904,85 +904,83 @@ export default function MainChart() {
 
             {openMenu === "indicator" && (
               <>
-                <strong>Pattern Recognition</strong>
-                {[
-                  "Chart Pattern Recognition",
-                  "Candlestick Pattern Recognition",
-                  "Harmonic Pattern Recognition",
-                ].map((item) => (
-                  <div
-                    key={item}
-                    style={styles.dropdownItem}
-                    onClick={() => addIndicator(item)}
-                  >
-                    {item}
-                  </div>
-                ))}
+                <div style={styles.dropdownItem} onClick={() => addIndicator("Candlestick Pattern Recognition")}>
+                  <strong>Pattern Recognition</strong>
+                  Candlestick Pattern Recognition
+                </div>
+                <div style={styles.dropdownItem} onClick={() => addIndicator("Chart Pattern Recognition")}>
+                  Chart Pattern Recognition
+                </div>
+                <div style={styles.dropdownItem} onClick={() => addIndicator("Harmonic Pattern Recognition")}>
+                  Harmonic Pattern Recognition
+                </div>
                 <strong>Trend</strong>
-                {[
-                  "SMA – Simple Moving Average",
-                  "EMA – Exponential Moving Average",
-                  "WMA – Weighted Moving Average",
-                  "MACD – Moving Average Convergence Divergence",
-                  "Ichimoku Cloud",
-                  "Supertrend",
-                  "Parabolic SAR",
-                  "ADX – Average Directional Index",
-                  "HMA – Hull Moving Average",
-                ].map((item) => (
-                  <div
-                    key={item}
-                    style={styles.dropdownItem}
-                    onClick={() => addIndicator(item)}
-                  >
-                    {item}
-                  </div>
-                ))}
+                <div style={styles.dropdownItem} onClick={() => addIndicator("SMA – Simple Moving Average")}>
+                  SMA – Simple Moving Average
+                </div>
+                <div style={styles.dropdownItem} onClick={() => addIndicator("EMA – Exponential Moving Average")}>
+                  EMA – Exponential Moving Average
+                </div>
+                <div style={styles.dropdownItem} onClick={() => addIndicator("WMA – Weighted Moving Average")}>
+                  WMA – Weighted Moving Average
+                </div>
+                <div style={styles.dropdownItem} onClick={() => addIndicator("MACD – Moving Average Convergence Divergence")}>
+                  MACD – Moving Average Convergence Divergence
+                </div>
+                <div style={styles.dropdownItem} onClick={() => addIndicator("Ichimoku Cloud")}>
+                  Ichimoku Cloud
+                </div>
+                <div style={styles.dropdownItem} onClick={() => addIndicator("Supertrend")}>
+                  Supertrend
+                </div>
+                <div style={styles.dropdownItem} onClick={() => addIndicator("Parabolic SAR")}>
+                  Parabolic SAR
+                </div>
+                <div style={styles.dropdownItem} onClick={() => addIndicator("ADX – Average Directional Index")}>
+                  ADX – Average Directional Index
+                </div>
+                <div style={styles.dropdownItem} onClick={() => addIndicator("HMA – Hull Moving Average")}>
+                  HMA – Hull Moving Average
+                </div>
                 <strong>Momentum</strong>
-                {[
-                  "RSI – Relative Strength Index",
-                  "Stochastic Oscillator",
-                  "Stochastic RSI",
-                  "CCI – Commodity Channel Index",
-                  "Williams %R",
-                  "ROC – Rate of Change",
-                ].map((item) => (
-                  <div
-                    key={item}
-                    style={styles.dropdownItem}
-                    onClick={() => addIndicator(item)}
-                  >
-                    {item}
-                  </div>
-                ))}
+                <div style={styles.dropdownItem} onClick={() => addIndicator("RSI – Relative Strength Index")}>
+                  RSI – Relative Strength Index
+                </div>
+                <div style={styles.dropdownItem} onClick={() => addIndicator("Stochastic Oscillator")}>
+                  Stochastic Oscillator
+                </div>
+                <div style={styles.dropdownItem} onClick={() => addIndicator("Stochastic RSI")}>
+                  Stochastic RSI
+                </div>
+                <div style={styles.dropdownItem} onClick={() => addIndicator("CCI – Commodity Channel Index")}>
+                  CCI – Commodity Channel Index
+                </div>
+                <div style={styles.dropdownItem} onClick={() => addIndicator("Williams %R")}>
+                  Williams %R
+                </div>
+                <div style={styles.dropdownItem} onClick={() => addIndicator("ROC – Rate of Change")}>
+                  ROC – Rate of Change
+                </div>
                 <strong>Volatility</strong>
-                {[
-                  "Bollinger Bands",
-                  "Keltner Channels",
-                  "Donchian Channels",
-                  "ATR – Average True Range",
-                  "Standard Deviation Channel",
-                ].map((item) => (
-                  <div
-                    key={item}
-                    style={styles.dropdownItem}
-                    onClick={() => addIndicator(item)}
-                  >
-                    {item}
-                  </div>
-                ))}
+                <div style={styles.dropdownItem} onClick={() => addIndicator("Bollinger Bands")}>
+                  Bollinger Bands
+                </div>
+                <div style={styles.dropdownItem} onClick={() => addIndicator("Keltner Channels")}>
+                  Keltner Channels
+                </div>
+                <div style={styles.dropdownItem} onClick={() => addIndicator("Donchian Channels")}>
+                  Donchian Channels
+                </div>
+                <div style={styles.dropdownItem} onClick={() => addIndicator("ATR – Average True Range")}>
+                  ATR – Average True Range
+                </div>
+                <div style={styles.dropdownItem} onClick={() => addIndicator("Standard Deviation Channel")}>
+                  Standard Deviation Channel
+                </div>
                 <strong>Volume</strong>
-                {[
-                  "Volume Histogram",
-                ].map((item) => (
-                  <div
-                    key={item}
-                    style={styles.dropdownItem}
-                    onClick={() => addIndicator(item)}
-                  >
-                    {item}
-                  </div>
-                ))}
+                <div style={styles.dropdownItem} onClick={() => addIndicator("Volume Histogram")}>
+                  Volume Histogram
+                </div>
               </>
             )}
 
@@ -1260,8 +1258,10 @@ export default function MainChart() {
         {/* Submenu - positioned absolutely to not affect layout */}
         {showSubmenu && (
           <div ref={submenuRef} style={styles.submenu}>
+            <div style={styles.submenuSectionHeader}>Lines</div>
+
             {/* Trend Line */}
-            <div style={styles.submenuItem}>
+            <div style={styles.submenuItem} onClick={drawTrendline}>
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 28" width="20" height="20">
                 <g fill="currentColor" fillRule="nonzero">
                   <path d="M7.354 21.354l14-14-.707-.707-14 14z"></path>
@@ -1272,7 +1272,7 @@ export default function MainChart() {
             </div>
 
             {/* Ray */}
-            <div style={styles.submenuItem}>
+            <div style={styles.submenuItem} onClick={drawRay}>
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 28" width="20" height="20">
                 <g fill="currentColor" fillRule="nonzero">
                   <path d="M8.354 20.354l5-5-.707-.707-5 5z"></path>
@@ -1284,36 +1284,21 @@ export default function MainChart() {
             </div>
 
             {/* Info Line */}
-            <div style={styles.submenuItem}>
+            <div style={styles.submenuItem} onClick={drawInfoLine}>
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 28" width="20" height="20">
-                <g fill="currentColor" fillRule="nonzero" clipRule="evenodd">
-                  <path d="M22.4989 4C21.6705 4 20.9989 4.67157 20.9989 5.5C20.9989 5.91456 21.1664 6.28904 21.4387 6.56106C21.7106 6.83282 22.0848 7 22.4989 7C23.3274 7 23.9989 6.32843 23.9989 5.5C23.9989 4.67157 23.3274 4 22.4989 4ZM19.9989 5.5C19.9989 4.11929 21.1182 3 22.4989 3C23.8796 3 24.9989 4.11929 24.9989 5.5C24.9989 6.88071 23.8796 8 22.4989 8C21.9899 8 21.5159 7.8475 21.1209 7.58617L7.58575 21.1214C7.84733 21.5165 8 21.9907 8 22.5C8 23.8807 6.88071 25 5.5 25C4.11929 25 3 23.8807 3 22.5C3 21.1193 4.11929 20 5.5 20C6.00932 20 6.48351 20.1527 6.87864 20.4143L20.4136 6.87929C20.1518 6.48403 19.9989 6.0096 19.9989 5.5ZM5.5 21C4.67157 21 4 21.6716 4 22.5C4 23.3284 4.67157 24 5.5 24C6.32843 24 7 23.3284 7 22.5C7 22.0856 6.83265 21.7113 6.56066 21.4393C6.28867 21.1673 5.91435 21 5.5 21Z"></path>
-                  <path d="M16 19.5C16 18.1193 17.1193 17 18.5 17H23.5C24.8807 17 26 18.1193 26 19.5V22.5C26 23.8807 24.8807 25 23.5 25H18.5C17.1193 25 16 23.8807 16 22.5V19.5ZM18.5 18C17.6716 18 17 18.6716 17 19.5V22.5C17 23.3284 17.6716 24 18.5 24H23.5C24.3284 24 25 23.3284 25 22.5V19.5C25 18.6716 24.3284 18 23.5 18H18.5Z"></path>
+                <g fill="currentColor" fillRule="nonzero">
+                  <path d="M7.354 21.354l14-14-.707-.707-14 14z"></path>
+                  <path d="M22.5 7c.828 0 1.5-.672 1.5-1.5s-.672-1.5-1.5-1.5-1.5.672-1.5 1.5.672 1.5 1.5 1.5zm0 1c-1.381 0-2.5-1.119-2.5-2.5s1.119-2.5 2.5-2.5 2.5 1.119 2.5 2.5-1.119 2.5-2.5 2.5zM5.5 24c.828 0 1.5-.672 1.5-1.5s-.672-1.5-1.5-1.5-1.5.672-1.5 1.5.672 1.5 1.5 1.5zm0 1c-1.381 0-2.5-1.119-2.5-2.5s1.119-2.5 2.5-2.5 2.5 1.119 2.5 2.5-1.119 2.5-2.5 2.5z"></path>
                 </g>
               </svg>
               <span style={styles.submenuText}>Info Line</span>
             </div>
 
-            {/* Extended Line */}
-            <div style={styles.submenuItem}>
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 28" width="20" height="20">
-                <g fill="currentColor" fillRule="nonzero">
-                  <path d="M4.354 25.354l5-5-.707-.707-5 5z"></path>
-                  <path d="M12.354 17.354l5-5-.707-.707-5 5z"></path>
-                  <path d="M20.354 9.354l5-5-.707-.707-5 5z"></path>
-                  <path d="M18.5 12c.828 0 1.5-.672 1.5-1.5s-.672-1.5-1.5-1.5-1.5.672-1.5 1.5.672 1.5 1.5 1.5zm0 1c-1.381 0-2.5-1.119-2.5-2.5s1.119-2.5 2.5-2.5 2.5 1.119 2.5 2.5-1.119 2.5-2.5 2.5zM10.5 20c.828 0 1.5-.672 1.5-1.5s-.672-1.5-1.5-1.5-1.5.672-1.5 1.5.672 1.5 1.5 1.5zm0 1c-1.381 0-2.5-1.119-2.5-2.5s1.119-2.5 2.5-2.5 2.5 1.119 2.5 2.5-1.119 2.5-2.5 2.5z"></path>
-                </g>
-              </svg>
-              <span style={styles.submenuText}>Extended Line</span>
-            </div>
-
             {/* Trend Angle */}
-            <div style={styles.submenuItem}>
+            <div style={styles.submenuItem} onClick={drawTrendAngle}>
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 28" width="20" height="20">
                 <g fill="currentColor" fillRule="nonzero">
-                  <path d="M15.5 22.5c0-2.697-1.073-5.225-2.947-7.089l-.705.709c1.687 1.679 2.652 3.952 2.652 6.38h1z"></path>
                   <path d="M7.354 21.354l14-14-.707-.707-14 14z"></path>
-                  <path d="M7.5 23h16.5v-1h-16.5z"></path>
                   <path d="M22.5 7c.828 0 1.5-.672 1.5-1.5s-.672-1.5-1.5-1.5-1.5.672-1.5 1.5.672 1.5 1.5 1.5zm0 1c-1.381 0-2.5-1.119-2.5-2.5s1.119-2.5 2.5-2.5 2.5 1.119 2.5 2.5-1.119 2.5-2.5 2.5zM5.5 24c.828 0 1.5-.672 1.5-1.5s-.672-1.5-1.5-1.5-1.5.672-1.5 1.5.672 1.5 1.5 1.5zm0 1c-1.381 0-2.5-1.119-2.5-2.5s1.119-2.5 2.5-2.5 2.5 1.119 2.5 2.5-1.119 2.5-2.5 2.5z"></path>
                 </g>
               </svg>
@@ -1321,7 +1306,7 @@ export default function MainChart() {
             </div>
 
             {/* Horizontal Line */}
-            <div style={styles.submenuItem}>
+            <div style={styles.submenuItem} onClick={drawHorizontalLine}>
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 28" width="20" height="20">
                 <g fill="currentColor" fillRule="nonzero">
                   <path d="M4 15h8.5v-1h-8.5zM16.5 15h8.5v-1h-8.5z"></path>
@@ -1332,7 +1317,7 @@ export default function MainChart() {
             </div>
 
             {/* Horizontal Ray */}
-            <div style={styles.submenuItem}>
+            <div style={styles.submenuItem} onClick={drawHorizontalRay}>
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 28" width="20" height="20">
                 <g fill="currentColor" fillRule="nonzero">
                   <path d="M8.5 15h16.5v-1h-16.5z"></path>
@@ -1342,11 +1327,22 @@ export default function MainChart() {
               <span style={styles.submenuText}>Horizontal Ray</span>
             </div>
 
-            {/* Vertical Line */}
-            <div style={styles.submenuItem}>
+            {/* Extended Line */}
+            <div style={styles.submenuItem} onClick={drawExtendedLine}>
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 28" width="20" height="20">
                 <g fill="currentColor" fillRule="nonzero">
-                  <path d="M15 12.5v-8.5h-1v8.5zM14 16.5v8.5h1v-8.5z"></path>
+                  <path d="M7.354 21.354l14-14-.707-.707-14 14z"></path>
+                  <path d="M22.5 7c.828 0 1.5-.672 1.5-1.5s-.672-1.5-1.5-1.5-1.5.672-1.5 1.5.672 1.5 1.5 1.5zm0 1c-1.381 0-2.5-1.119-2.5-2.5s1.119-2.5 2.5-2.5 2.5 1.119 2.5 2.5-1.119 2.5-2.5 2.5zM5.5 24c.828 0 1.5-.672 1.5-1.5s-.672-1.5-1.5-1.5-1.5.672-1.5 1.5.672 1.5 1.5 1.5zm0 1c-1.381 0-2.5-1.119-2.5-2.5s1.119-2.5 2.5-2.5 2.5 1.119 2.5 2.5-1.119 2.5-2.5 2.5z"></path>
+                </g>
+              </svg>
+              <span style={styles.submenuText}>Extended Line</span>
+            </div>
+
+            {/* Vertical Line */}
+            <div style={styles.submenuItem} onClick={drawVerticalLine}>
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 28" width="20" height="20">
+                <g fill="currentColor" fillRule="nonzero">
+                  <path d="M14 3v8h1v-8zM14 18v8h1v-8z"></path>
                   <path d="M14.5 16c.828 0 1.5-.672 1.5-1.5s-.672-1.5-1.5-1.5-1.5.672-1.5 1.5.672 1.5 1.5 1.5zm0 1c-1.381 0-2.5-1.119-2.5-2.5s1.119-2.5 2.5-2.5 2.5 1.119 2.5 2.5-1.119 2.5-2.5 2.5z"></path>
                 </g>
               </svg>
@@ -1354,31 +1350,44 @@ export default function MainChart() {
             </div>
 
             {/* Cross Line */}
-            <div style={styles.submenuItem}>
+            <div style={styles.submenuItem} onClick={drawCrossLine}>
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 28" width="20" height="20">
-                <g fill="currentColor" fillRule="nonzero">
-                  <path d="M4 15h8.5v-1h-8.5zM16.5 15h8.5v-1h-8.5z"></path>
-                  <path d="M15 12v-8.5h-1v8.5zM14 16.5v8.5h1v-8.5z"></path>
-                  <path d="M14.5 16c.828 0 1.5-.672 1.5-1.5s-.672-1.5-1.5-1.5-1.5.672-1.5 1.5.672 1.5 1.5 1.5zm0 1c-1.381 0-2.5-1.119-2.5-2.5s1.119-2.5 2.5-2.5 2.5 1.119 2.5 2.5-1.119 2.5-2.5 2.5z"></path>
+                <g fill="currentColor">
+                  <path d="M18 15h8v-1h-8z"></path>
+                  <path d="M14 18v8h1v-8zM14 3v8h1v-8zM3 15h8v-1h-8z"></path>
                 </g>
               </svg>
               <span style={styles.submenuText}>Cross Line</span>
             </div>
 
             {/* Parallel Channel */}
-            <div style={styles.submenuItem}>
+            <div style={styles.submenuItem} onClick={drawParallelChannel}>
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 28" width="20" height="20">
                 <g fill="currentColor" fillRule="nonzero">
-                  <path d="M8.354 18.354l10-10-.707-.707-10 10zM12.354 25.354l5-5-.707-.707-5 5z"></path>
-                  <path d="M20.354 17.354l5-5-.707-.707-5 5z"></path>
-                  <path d="M19.5 8c.828 0 1.5-.672 1.5-1.5s-.672-1.5-1.5-1.5-1.5.672-1.5 1.5.672 1.5 1.5 1.5zm0 1c-1.381 0-2.5-1.119-2.5-2.5s1.119-2.5 2.5-2.5 2.5 1.119 2.5 2.5-1.119 2.5-2.5 2.5zM6.5 21c.828 0 1.5-.672 1.5-1.5s-.672-1.5-1.5-1.5-1.5.672-1.5 1.5.672 1.5 1.5 1.5zm0 1c-1.381 0-2.5-1.119-2.5-2.5s1.119-2.5 2.5-2.5 2.5 1.119 2.5 2.5-1.119 2.5-2.5 2.5zM18.5 20c.828 0 1.5-.672 1.5-1.5s-.672-1.5-1.5-1.5-1.5.672-1.5 1.5.672 1.5 1.5 1.5zm0 1c-1.381 0-2.5-1.119-2.5-2.5s1.119-2.5 2.5-2.5 2.5 1.119 2.5 2.5-1.119 2.5-2.5 2.5z"></path>
+                  <path d="M7.551 17.98l13.284-7.033-.468-.884-13.284 7.033z"></path>
+                  <path d="M6 11.801l16-8.471v4.17h1v-5.83l-18 9.529v5.301h1z"></path>
+                  <path d="M6 24.67v-4.17h-1v5.83l18-9.529v-5.301h-1v4.699z"></path>
+                  <path d="M5.5 20c.828 0 1.5-.672 1.5-1.5s-.672-1.5-1.5-1.5-1.5.672-1.5 1.5.672 1.5 1.5 1.5zm0 1c-1.381 0-2.5-1.119-2.5-2.5s1.119-2.5 2.5-2.5 2.5 1.119 2.5 2.5-1.119 2.5-2.5 2.5zM22.5 11c.828 0 1.5-.672 1.5-1.5s-.672-1.5-1.5-1.5-1.5.672-1.5 1.5.672 1.5 1.5 1.5zm0 1c-1.381 0-2.5-1.119-2.5-2.5s1.119-2.5 2.5-2.5 2.5 1.119 2.5 2.5-1.119 2.5-2.5 2.5z"></path>
                 </g>
               </svg>
               <span style={styles.submenuText}>Parallel Channel</span>
             </div>
 
+            {/* Price Channel */}
+            <div style={styles.submenuItem} onClick={drawPriceChannel}>
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 28" width="20" height="20">
+                <g fill="currentColor" fillRule="nonzero">
+                  <path d="M7.551 17.98l13.284-7.033-.468-.884-13.284 7.033z"></path>
+                  <path d="M6 11.801l16-8.471v4.17h1v-5.83l-18 9.529v5.301h1z"></path>
+                  <path d="M6 24.67v-4.17h-1v5.83l18-9.529v-5.301h-1v4.699z"></path>
+                  <path d="M5.5 20c.828 0 1.5-.672 1.5-1.5s-.672-1.5-1.5-1.5-1.5.672-1.5 1.5.672 1.5 1.5 1.5zm0 1c-1.381 0-2.5-1.119-2.5-2.5s1.119-2.5 2.5-2.5 2.5 1.119 2.5 2.5-1.119 2.5-2.5 2.5zM22.5 11c.828 0 1.5-.672 1.5-1.5s-.672-1.5-1.5-1.5-1.5.672-1.5 1.5.672 1.5 1.5 1.5zm0 1c-1.381 0-2.5-1.119-2.5-2.5s1.119-2.5 2.5-2.5 2.5 1.119 2.5 2.5-1.119 2.5-2.5 2.5z"></path>
+                </g>
+              </svg>
+              <span style={styles.submenuText}>Price Channel</span>
+            </div>
+
             {/* Regression Trend */}
-            <div style={styles.submenuItem}>
+            <div style={styles.submenuItem} onClick={drawRegressionTrend}>
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 28" width="20" height="20">
                 <g fill="currentColor" fillRule="nonzero">
                   <path d="M7.551 17.98l13.284-7.033-.468-.884-13.284 7.033z"></path>
@@ -1391,125 +1400,14 @@ export default function MainChart() {
             </div>
 
             {/* Flat Top/Bottom */}
-            <div style={styles.submenuItem}>
+            <div style={styles.submenuItem} onClick={drawFlatTopBottom}>
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 28" width="20" height="20">
                 <g fill="currentColor" fillRule="nonzero">
-                  <path d="M7.5 23h13v-1h-13z"></path>
-                  <path d="M7.55 13.088l13.29-6.254-.426-.905-13.29 6.254z"></path>
-                  <path d="M5.5 24c.828 0 1.5-.672 1.5-1.5s-.672-1.5-1.5-1.5-1.5.672-1.5 1.5.672 1.5 1.5 1.5zm0 1c-1.381 0-2.5-1.119-2.5-2.5s1.119-2.5 2.5-2.5 2.5 1.119 2.5 2.5-1.119 2.5-2.5 2.5zM5.5 15c.828 0 1.5-.672 1.5-1.5s-.672-1.5-1.5-1.5-1.5.672-1.5 1.5.672 1.5 1.5 1.5zm0 1c-1.381 0-2.5-1.119-2.5-2.5s1.119-2.5 2.5-2.5 2.5 1.119 2.5 2.5-1.119 2.5-2.5 2.5zM22.5 24c.828 0 1.5-.672 1.5-1.5s-.672-1.5-1.5-1.5-1.5.672-1.5 1.5.672 1.5 1.5 1.5zm0 1c-1.381 0-2.5-1.119-2.5-2.5s1.119-2.5 2.5-2.5 2.5 1.119 2.5 2.5-1.119 2.5-2.5 2.5zM22.5 7c.828 0 1.5-.672 1.5-1.5s-.672-1.5-1.5-1.5-1.5.672-1.5 1.5.672 1.5 1.5 1.5zm0 1c-1.381 0-2.5-1.119-2.5-2.5s1.119-2.5 2.5-2.5 2.5 1.119 2.5 2.5-1.119 2.5-2.5 2.5z"></path>
+                  <path d="M4 8h20v-1h-20z"></path>
+                  <path d="M4 21h20v-1h-20z"></path>
                 </g>
               </svg>
               <span style={styles.submenuText}>Flat Top/Bottom</span>
-            </div>
-          </div>
-        )}
-
-        {showPatternSubmenu && (
-          <div ref={patternSubmenuRef} style={styles.patternSubmenu}>
-            {/* XABCD Pattern */}
-            <div style={styles.submenuItem}>
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 28" width="20" height="20">
-                <g fill="currentColor" fillRule="nonzero">
-                  <path d="M20.449 8.505l2.103 9.112.974-.225-2.103-9.112zM13.943 14.011l7.631 4.856.537-.844-7.631-4.856zM14.379 11.716l4.812-3.609-.6-.8-4.812 3.609zM10.96 13.828l-4.721 6.744.819.573 4.721-6.744zM6.331 20.67l2.31-13.088-.985-.174-2.31 13.088zM9.041 7.454l1.995 3.492.868-.496-1.995-3.492z"></path>
-                  <path d="M8.5 7c.828 0 1.5-.672 1.5-1.5s-.672-1.5-1.5-1.5-1.5.672-1.5 1.5.672 1.5 1.5 1.5zm0 1c-1.381 0-2.5-1.119-2.5-2.5s1.119-2.5 2.5-2.5 2.5 1.119 2.5 2.5-1.119 2.5-2.5 2.5zM5.5 24c.828 0 1.5-.672 1.5-1.5s-.672-1.5-1.5-1.5-1.5.672-1.5 1.5.672 1.5 1.5 1.5zm0 1c-1.381 0-2.5-1.119-2.5-2.5s1.119-2.5 2.5-2.5 2.5 1.119 2.5 2.5-1.119 2.5-2.5 2.5zM12.5 14c.828 0 1.5-.672 1.5-1.5s-.672-1.5-1.5-1.5-1.5.672-1.5 1.5.672 1.5 1.5 1.5zm0 1c-1.381 0-2.5-1.119-2.5-2.5s1.119-2.5 2.5-2.5 2.5 1.119 2.5 2.5-1.119 2.5-2.5 2.5zM20.5 8c.828 0 1.5-.672 1.5-1.5s-.672-1.5-1.5-1.5-1.5.672-1.5 1.5.672 1.5 1.5 1.5zm0 1c-1.381 0-2.5-1.119-2.5-2.5s1.119-2.5 2.5-2.5 2.5 1.119 2.5 2.5-1.119 2.5-2.5 2.5zM23.5 21c.828 0 1.5-.672 1.5-1.5s-.672-1.5-1.5-1.5-1.5.672-1.5 1.5.672 1.5 1.5 1.5zm0 1c-1.381 0-2.5-1.119-2.5-2.5s1.119-2.5 2.5-2.5 2.5 1.119 2.5 2.5-1.119 2.5-2.5 2.5z"></path>
-                </g>
-              </svg>
-              <span style={styles.submenuText}>XABCD Pattern</span>
-            </div>
-
-            {/* Cypher Pattern */}
-            <div style={styles.submenuItem}>
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 28" width="20" height="20">
-                <g fill="currentColor">
-                  <path d="M15.246 21.895l1.121.355c-.172.625-.458 1.089-.857 1.393-.4.303-.907.455-1.521.455-.76 0-1.385-.26-1.875-.779-.49-.52-.734-1.23-.734-2.131 0-.953.246-1.693.738-2.221.492-.527 1.139-.791 1.941-.791.701 0 1.27.207 1.707.621.26.245.456.596.586 1.055l-1.145.273c-.068-.297-.209-.531-.424-.703-.215-.172-.476-.258-.783-.258-.424 0-.769.152-1.033.457-.264.305-.396.798-.396 1.48 0 .724.13 1.24.391 1.547.26.307.599.461 1.016.461.307 0 .572-.098.793-.293.221-.195.38-.503.477-.922z"></path>
-                  <path fillRule="nonzero" d="M20.449 8.505l2.103 9.112.974-.225-2.103-9.112zM13.943 14.011l7.631 4.856.537-.844-7.631-4.856zM14.379 11.716l4.812-3.609-.6-.8-4.812 3.609zM10.96 13.828l-4.721 6.744.819.573 4.721-6.744zM6.331 20.67l2.31-13.088-.985-.174-2.31 13.088zM9.041 7.454l1.995 3.492.868-.496-1.995-3.492z"></path>
-                  <path fillRule="nonzero" d="M8.5 7c.828 0 1.5-.672 1.5-1.5s-.672-1.5-1.5-1.5-1.5.672-1.5 1.5.672 1.5 1.5 1.5zm0 1c-1.381 0-2.5-1.119-2.5-2.5s1.119-2.5 2.5-2.5 2.5 1.119 2.5 2.5-1.119 2.5-2.5 2.5zM5.5 24c.828 0 1.5-.672 1.5-1.5s-.672-1.5-1.5-1.5-1.5.672-1.5 1.5.672 1.5 1.5 1.5zm0 1c-1.381 0-2.5-1.119-2.5-2.5s1.119-2.5 2.5-2.5 2.5 1.119 2.5 2.5-1.119 2.5-2.5 2.5zM12.5 14c.828 0 1.5-.672 1.5-1.5s-.672-1.5-1.5-1.5-1.5.672-1.5 1.5.672 1.5 1.5 1.5zm0 1c-1.381 0-2.5-1.119-2.5-2.5s1.119-2.5 2.5-2.5 2.5 1.119 2.5 2.5-1.119 2.5-2.5 2.5zM20.5 8c.828 0 1.5-.672 1.5-1.5s-.672-1.5-1.5-1.5-1.5.672-1.5 1.5.672 1.5 1.5 1.5zm0 1c-1.381 0-2.5-1.119-2.5-2.5s1.119-2.5 2.5-2.5 2.5 1.119 2.5 2.5-1.119 2.5-2.5 2.5zM23.5 21c.828 0 1.5-.672 1.5-1.5s-.672-1.5-1.5-1.5-1.5.672-1.5 1.5.672 1.5 1.5 1.5zm0 1c-1.381 0-2.5-1.119-2.5-2.5s1.119-2.5 2.5-2.5 2.5 1.119 2.5 2.5-1.119 2.5-2.5 2.5z"></path>
-                </g>
-              </svg>
-              <span style={styles.submenuText}>Cypher Pattern</span>
-            </div>
-
-            {/* Head and Shoulders */}
-            <div style={styles.submenuItem}>
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 28" width="20" height="20">
-                <g fill="currentColor" fillRule="nonzero">
-                  <path d="M4.436 21.667l2.083-9.027-.974-.225-2.083 9.027zM10.046 16.474l-2.231-4.463-.894.447 2.231 4.463zM13.461 6.318l-2.88 10.079.962.275 2.88-10.079zM18.434 16.451l-2.921-10.224-.962.275 2.921 10.224zM21.147 12.089l-2.203 4.405.894.447 2.203-4.405zM25.524 21.383l-2.09-9.055-.974.225 2.09 9.055z"></path>
-                  <path d="M1 19h7.5v-1h-7.5z"></path>
-                  <path d="M12.5 19h4v-1h-4z"></path>
-                  <path d="M20.5 19h6.5v-1h-6.5z"></path>
-                  <path d="M6.5 12c.828 0 1.5-.672 1.5-1.5s-.672-1.5-1.5-1.5-1.5.672-1.5 1.5.672 1.5 1.5 1.5zm0 1c-1.381 0-2.5-1.119-2.5-2.5s1.119-2.5 2.5-2.5 2.5 1.119 2.5 2.5-1.119 2.5-2.5 2.5zM3.5 25c.828 0 1.5-.672 1.5-1.5s-.672-1.5-1.5-1.5-1.5.672-1.5 1.5.672 1.5 1.5 1.5zm0 1c-1.381 0-2.5-1.119-2.5-2.5s1.119-2.5 2.5-2.5 2.5 1.119 2.5 2.5-1.119 2.5-2.5 2.5zM10.5 20c.828 0 1.5-.672 1.5-1.5s-.672-1.5-1.5-1.5-1.5.672-1.5 1.5.672 1.5 1.5 1.5zm0 1c-1.381 0-2.5-1.119-2.5-2.5s1.119-2.5 2.5-2.5 2.5 1.119 2.5 2.5-1.119 2.5-2.5 2.5zM18.5 20c.828 0 1.5-.672 1.5-1.5s-.672-1.5-1.5-1.5-1.5.672-1.5 1.5.672 1.5 1.5 1.5zm0 1c-1.381 0-2.5-1.119-2.5-2.5s1.119-2.5 2.5-2.5 2.5 1.119 2.5 2.5-1.119 2.5-2.5 2.5zM22.5 12c.828 0 1.5-.672 1.5-1.5s-.672-1.5-1.5-1.5-1.5.672-1.5 1.5.672 1.5 1.5 1.5zm0 1c-1.381 0-2.5-1.119-2.5-2.5s1.119-2.5 2.5-2.5 2.5 1.119 2.5 2.5-1.119 2.5-2.5 2.5zM25.5 25c.828 0 1.5-.672 1.5-1.5s-.672-1.5-1.5-1.5-1.5.672-1.5 1.5.672 1.5 1.5 1.5zm0 1c-1.381 0-2.5-1.119-2.5-2.5s1.119-2.5 2.5-2.5 2.5 1.119 2.5 2.5-1.119 2.5-2.5 2.5zM14.5 6c.828 0 1.5-.672 1.5-1.5s-.672-1.5-1.5-1.5-1.5.672-1.5 1.5.672 1.5 1.5 1.5zm0 1c-1.381 0-2.5-1.119-2.5-2.5s1.119-2.5 2.5-2.5 2.5 1.119 2.5 2.5-1.119 2.5-2.5 2.5z"></path>
-                </g>
-              </svg>
-              <span style={styles.submenuText}>Head and Shoulders</span>
-            </div>
-
-            {/* ABCD Pattern */}
-            <div style={styles.submenuItem}>
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 28" width="20" height="20">
-                <g fill="currentColor" fillRule="nonzero">
-                  <path d="M21.487 5.248l-12.019 1.502.124.992 12.019-1.502zM6.619 9.355l-2.217 11.083.981.196 2.217-11.083zM6.534 22.75l12.071-1.509-.124-.992-12.071 1.509zM21.387 18.612l2.21-11.048-.981-.196-2.21 11.048zM8.507 9.214l10.255 10.255.707-.707-10.255-10.255z"></path>
-                  <path d="M7.5 9c.828 0 1.5-.672 1.5-1.5s-.672-1.5-1.5-1.5-1.5.672-1.5 1.5.672 1.5 1.5 1.5zm0 1c-1.381 0-2.5-1.119-2.5-2.5s1.119-2.5 2.5-2.5 2.5 1.119 2.5 2.5-1.119 2.5-2.5 2.5zM4.5 24c.828 0 1.5-.672 1.5-1.5s-.672-1.5-1.5-1.5-1.5.672-1.5 1.5.672 1.5 1.5 1.5zm0 1c-1.381 0-2.5-1.119-2.5-2.5s1.119-2.5 2.5-2.5 2.5 1.119 2.5 2.5-1.119 2.5-2.5 2.5zM23.5 7c.828 0 1.5-.672 1.5-1.5s-.672-1.5-1.5-1.5-1.5.672-1.5 1.5.672 1.5 1.5 1.5zm0 1c-1.381 0-2.5-1.119-2.5-2.5s1.119-2.5 2.5-2.5 2.5 1.119 2.5 2.5-1.119 2.5-2.5 2.5zM20.5 22c.828 0 1.5-.672 1.5-1.5s-.672-1.5-1.5-1.5-1.5.672-1.5 1.5.672 1.5 1.5 1.5zm0 1c-1.381 0-2.5-1.119-2.5-2.5s1.119-2.5 2.5-2.5 2.5 1.119 2.5 2.5-1.119 2.5-2.5 2.5z"></path>
-                </g>
-              </svg>
-              <span style={styles.submenuText}>ABCD Pattern</span>
-            </div>
-
-            {/* Triangle Pattern */}
-            <div style={styles.submenuItem}>
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 28" width="20" height="20">
-                <g fill="currentColor" fillRule="nonzero">
-                  <path d="M9.457 18.844l-5.371 2.4.408.913 5.371-2.4z"></path>
-                  <path d="M13.13 17.203l.408.913 13.688-6.116-6.736-3.01-.408.913 4.692 2.097z"></path>
-                  <path d="M11.077 5.88l5.34 2.386.408-.913-5.34-2.386z"></path>
-                  <path d="M7.401 4.237l.408-.913-5.809-2.595v19.771h1v-18.229z"></path>
-                  <path d="M3.708 20.772l5.51-14.169-.932-.362-5.51 14.169zM9.265 6.39l1.46 10.218.99-.141-1.46-10.218zM13.059 17.145l4.743-6.775-.819-.573-4.743 6.775z"></path>
-                  <path d="M9.5 6c.828 0 1.5-.672 1.5-1.5s-.672-1.5-1.5-1.5-1.5.672-1.5 1.5.672 1.5 1.5 1.5zm0 1c-1.381 0-2.5-1.119-2.5-2.5s1.119-2.5 2.5-2.5 2.5 1.119 2.5 2.5-1.119 2.5-2.5 2.5zM11.5 20c.828 0 1.5-.672 1.5-1.5s-.672-1.5-1.5-1.5-1.5.672-1.5 1.5.672 1.5 1.5 1.5zm0 1c-1.381 0-2.5-1.119-2.5-2.5s1.119-2.5 2.5-2.5 2.5 1.119 2.5 2.5-1.119 2.5-2.5 2.5zM18.5 10c.828 0 1.5-.672 1.5-1.5s-.672-1.5-1.5-1.5-1.5.672-1.5 1.5.672 1.5 1.5 1.5zm0 1c-1.381 0-2.5-1.119-2.5-2.5s1.119-2.5 2.5-2.5 2.5 1.119 2.5 2.5-1.119 2.5-2.5 2.5zM2.5 24c.828 0 1.5-.672 1.5-1.5s-.672-1.5-1.5-1.5-1.5.672-1.5 1.5.672 1.5 1.5 1.5zm0 1c-1.381 0-2.5-1.119-2.5-2.5s1.119-2.5 2.5-2.5 2.5 1.119 2.5 2.5-1.119 2.5-2.5 2.5z"></path>
-                </g>
-              </svg>
-              <span style={styles.submenuText}>Triangle Pattern</span>
-            </div>
-
-            {/* Three Drives Pattern */}
-            <div style={styles.submenuItem}>
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 28" width="20" height="20">
-                <g fill="currentColor" fillRule="nonzero">
-                  <path d="M.303 17.674l1.104.473.394-.919-1.104-.473z"></path>
-                  <path d="M5.133 19.744l3.335 1.429.394-.919-3.335-1.429z"></path>
-                  <path d="M12.134 22.744l3.352 1.436.394-.919-3.352-1.436z"></path>
-                  <path d="M19.203 25.774l1.6.686.394-.919-1.6-.686z"></path>
-                  <path d="M.3 4.673l1.13.484.394-.919-1.13-.484-.394.919zm.394-.919l1.13.484-.394.919-1.13-.484.394-.919z"></path>
-                  <path d="M5.141 6.747l3.325 1.425.394-.919-3.325-1.425z"></path>
-                  <path d="M12.133 9.744l3.353 1.437.394-.919-3.353-1.437z"></path>
-                  <path d="M19.221 12.782l5.838 2.502.394-.919-5.838-2.502z"></path>
-                  <path d="M3 7.473v8.969h1v-8.969zM8.93 9.871l-4.616 6.594.819.573 4.616-6.594zM11 19.5v-9h-1v9zM15.898 12.916l-4.616 6.594.819.573 4.616-6.594zM18 22.5v-9h-1v9zM24.313 5.212l-6.57 17.247.934.356 6.57-17.247z"></path>
-                  <path d="M3.5 7c.828 0 1.5-.672 1.5-1.5s-.672-1.5-1.5-1.5-1.5.672-1.5 1.5.672 1.5 1.5 1.5zm0 1c-1.381 0-2.5-1.119-2.5-2.5s1.119-2.5 2.5-2.5 2.5 1.119 2.5 2.5-1.119 2.5-2.5 2.5zM3.5 20c.828 0 1.5-.672 1.5-1.5s-.672-1.5-1.5-1.5-1.5.672-1.5 1.5.672 1.5 1.5 1.5zm0 1c-1.381 0-2.5-1.119-2.5-2.5s1.119-2.5 2.5-2.5 2.5 1.119 2.5 2.5-1.119 2.5-2.5 2.5zM10.5 23c.828 0 1.5-.672 1.5-1.5s-.672-1.5-1.5-1.5-1.5.672-1.5 1.5.672 1.5 1.5 1.5zm0 1c-1.381 0-2.5-1.119-2.5-2.5s1.119-2.5 2.5-2.5 2.5 1.119 2.5 2.5-1.119 2.5-2.5 2.5zM17.5 13c.828 0 1.5-.672 1.5-1.5s-.672-1.5-1.5-1.5-1.5.672-1.5 1.5.672 1.5 1.5 1.5zm0 1c-1.381 0-2.5-1.119-2.5-2.5s1.119-2.5 2.5-2.5 2.5 1.119 2.5 2.5-1.119 2.5-2.5 2.5zM25.5 5c.828 0 1.5-.672 1.5-1.5s-.672-1.5-1.5-1.5-1.5.672-1.5 1.5.672 1.5 1.5 1.5zm0 1c-1.381 0-2.5-1.119-2.5-2.5s1.119-2.5 2.5-2.5 2.5 1.119 2.5 2.5-1.119 2.5-2.5 2.5zM17.5 26c.828 0 1.5-.672 1.5-1.5s-.672-1.5-1.5-1.5-1.5.672-1.5 1.5.672 1.5 1.5 1.5zm0 1c-1.381 0-2.5-1.119-2.5-2.5s1.119-2.5 2.5-2.5 2.5 1.119 2.5 2.5-1.119 2.5-2.5 2.5zM10.5 10c.828 0 1.5-.672 1.5-1.5s-.672-1.5-1.5-1.5-1.5.672-1.5 1.5.672 1.5 1.5 1.5zm0 1c-1.381 0-2.5-1.119-2.5-2.5s1.119-2.5 2.5-2.5 2.5 1.119 2.5 2.5-1.119 2.5-2.5 2.5z"></path>
-                </g>
-              </svg>
-              <span style={styles.submenuText}>Three Drives Pattern</span>
-            </div>
-
-            {/* Elliott Impulse Wave */}
-            <div style={styles.submenuItem}>
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 28" width="20" height="20">
-                <g fill="currentColor">
-                  <path fillRule="nonzero" d="M5.238 18.469l4.17-4.17-.707-.707-4.17 4.17zM16.47 17.763l-.707.707-4.265-4.265.707-.707zM22.747 13.546l-4.192 4.192.707.707 4.192-4.192z"></path>
-                  <path fillRule="nonzero" d="M10.5 14c.828 0 1.5-.672 1.5-1.5s-.672-1.5-1.5-1.5-1.5.672-1.5 1.5.672 1.5 1.5 1.5zm0 1c-1.381 0-2.5-1.119-2.5-2.5s1.119-2.5 2.5-2.5 2.5 1.119 2.5 2.5-1.119 2.5-2.5 2.5zM17.5 21c.828 0 1.5-.672 1.5-1.5s-.672-1.5-1.5-1.5-1.5.672-1.5 1.5.672 1.5 1.5 1.5zm0 1c-1.381 0-2.5-1.119-2.5-2.5s1.119-2.5 2.5-2.5 2.5 1.119 2.5 2.5-1.119 2.5-2.5 2.5zM24.5 14c.828 0 1.5-.672 1.5-1.5s-.672-1.5-1.5-1.5-1.5.672-1.5 1.5.672 1.5 1.5 1.5zm0 1c-1.381 0-2.5-1.119-2.5-2.5s1.119-2.5 2.5-2.5 2.5 1.119 2.5 2.5-1.119 2.5-2.5 2.5zM3.5 21c.828 0 1.5-.672 1.5-1.5s-.672-1.5-1.5-1.5-1.5.672-1.5 1.5.672 1.5 1.5 1.5zm0 1c-1.381 0-2.5-1.119-2.5-2.5s1.119-2.5 2.5-2.5 2.5 1.119 2.5 2.5-1.119 2.5-2.5 2.5z"></path>
-                  <path d="M11.148 7h-1.098v-4.137c-.401.375-.874.652-1.418.832v-.996c.286-.094.598-.271.934-.533.336-.262.566-.567.691-.916h.891v5.75z"></path>
-                </g>
-              </svg>
-              <span style={styles.submenuText}>Elliott Impulse Wave</span>
-            </div>
-
-            {/* Elliott Correction Wave */}
-            <div style={styles.submenuItem}>
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 28" width="20" height="20">
-                <g fill="currentColor">
-                  <path fillRule="nonzero" d="M5.238 18.469l4.17-4.17-.707-.707-4.17 4.17zM16.47 17.763l-.707.707-4.265-4.265.707-.707zM22.747 13.546l-4.192 4.192.707.707 4.192-4.192z"></path>
-                  <path fillRule="nonzero" d="M10.5 14c.828 0 1.5-.672 1.5-1.5s-.672-1.5-1.5-1.5-1.5.672-1.5 1.5.672 1.5 1.5 1.5zm0 1c-1.381 0-2.5-1.119-2.5-2.5s1.119-2.5 2.5-2.5 2.5 1.119 2.5 2.5-1.119 2.5-2.5 2.5zM17.5 21c.828 0 1.5-.672 1.5-1.5s-.672-1.5-1.5-1.5-1.5.672-1.5 1.5.672 1.5 1.5 1.5zm0 1c-1.381 0-2.5-1.119-2.5-2.5s1.119-2.5 2.5-2.5 2.5 1.119 2.5 2.5-1.119 2.5-2.5 2.5zM24.5 14c.828 0 1.5-.672 1.5-1.5s-.672-1.5-1.5-1.5-1.5.672-1.5 1.5.672 1.5 1.5 1.5zm0 1c-1.381 0-2.5-1.119-2.5-2.5s1.119-2.5 2.5-2.5 2.5 1.119 2.5 2.5-1.119 2.5-2.5 2.5zM3.5 21c.828 0 1.5-.672 1.5-1.5s-.672-1.5-1.5-1.5-1.5.672-1.5 1.5.672 1.5 1.5 1.5zm0 1c-1.381 0-2.5-1.119-2.5-2.5s1.119-2.5 2.5-2.5 2.5 1.119 2.5 2.5-1.119 2.5-2.5 2.5z"></path>
-                  <path d="M13.746 7h-1.258l-.5-1.301h-2.289l-.473 1.301h-1.227l2.23-5.727h1.223l2.293 5.727z"></path>
-                </g>
-              </svg>
-              <span style={styles.submenuText}>Elliott Correction Wave</span>
             </div>
           </div>
         )}
@@ -1611,6 +1509,116 @@ export default function MainChart() {
           </div>
         )}
 
+        {showPatternSubmenu && (
+          <div ref={patternSubmenuRef} style={styles.patternSubmenu}>
+            {/* XABCD Pattern */}
+            <div style={styles.submenuItem}>
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 28" width="20" height="20">
+                <g fill="currentColor" fillRule="nonzero">
+                  <path d="M20.449 8.505l2.103 9.112.974-.225-2.103-9.112zM13.943 14.011l7.631 4.856.537-.844-7.631-4.856zM14.379 11.716l4.812-3.609-.6-.8-4.812 3.609zM10.96 13.828l-4.721 6.744.819.573 4.721-6.744zM6.331 20.67l2.31-13.088-.985-.174-2.31 13.088zM9.041 7.454l1.995 3.492.868-.496-1.995-3.492z"></path>
+                  <path d="M8.5 7c.828 0 1.5-.672 1.5-1.5s-.672-1.5-1.5-1.5-1.5.672-1.5 1.5.672 1.5 1.5 1.5zm0 1c-1.381 0-2.5-1.119-2.5-2.5s1.119-2.5 2.5-2.5 2.5 1.119 2.5 2.5-1.119 2.5-2.5 2.5zM5.5 24c.828 0 1.5-.672 1.5-1.5s-.672-1.5-1.5-1.5-1.5.672-1.5 1.5.672 1.5 1.5 1.5zm0 1c-1.381 0-2.5-1.119-2.5-2.5s1.119-2.5 2.5-2.5 2.5 1.119 2.5 2.5-1.119 2.5-2.5 2.5zM12.5 14c.828 0 1.5-.672 1.5-1.5s-.672-1.5-1.5-1.5-1.5.672-1.5 1.5.672 1.5 1.5 1.5zm0 1c-1.381 0-2.5-1.119-2.5-2.5s1.119-2.5 2.5-2.5 2.5 1.119 2.5 2.5-1.119 2.5-2.5 2.5zM20.5 8c.828 0 1.5-.672 1.5-1.5s-.672-1.5-1.5-1.5-1.5.672-1.5 1.5.672 1.5 1.5 1.5zm0 1c-1.381 0-2.5-1.119-2.5-2.5s1.119-2.5 2.5-2.5 2.5 1.119 2.5 2.5-1.119 2.5-2.5 2.5zM23.5 21c.828 0 1.5-.672 1.5-1.5s-.672-1.5-1.5-1.5-1.5.672-1.5 1.5.672 1.5 1.5 1.5zm0 1c-1.381 0-2.5-1.119-2.5-2.5s1.119-2.5 2.5-2.5 2.5 1.119 2.5 2.5-1.119 2.5-2.5 2.5z"></path>
+                </g>
+              </svg>
+              <span style={styles.submenuText}>XABCD Pattern</span>
+            </div>
+
+            {/* Cypher Pattern */}
+            <div style={styles.submenuItem}>
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 28" width="20" height="20">
+                <g fill="currentColor">
+                  <path d="M15.246 21.895l1.121.355c-.172.625-.458 1.089-.857 1.393-.4.303-.907.455-1.521.455-.76 0-1.385-.26-1.875-.779-.49-.52-.734-1.23-.734-2.131 0-.953.246-1.693.738-2.221.492-.527 1.139-.791 1.941-.791.701 0 1.27.207 1.707.621.26.245.456.596.586 1.055l-1.145.273c-.068-.297-.209-.531-.424-.703-.215-.172-.476-.258-.783-.258-.424 0-.769.152-1.033.457-.264.305-.396.798-.396 1.48 0 .724.13 1.24.391 1.547.26.307.599.461 1.016.461.307 0 .572-.098.793-.293.221-.195.38-.503.477-.922z"></path>
+                  <path fillRule="nonzero" d="M20.449 8.505l2.103 9.112.974-.225-2.103-9.112zM13.943 14.011l7.631 4.856.537-.844-7.631-4.856zM14.379 11.716l4.812-3.609-.6-.8-4.812 3.609zM10.96 13.828l-4.721 6.744.819.573 4.721-6.744zM6.331 20.67l2.31-13.088-.985-.174-2.31 13.088zM9.041 7.454l1.995 3.492.868-.496-1.995-3.492z"></path>
+                  <path fillRule="nonzero" d="M8.5 7c.828 0 1.5-.672 1.5-1.5s-.672-1.5-1.5-1.5-1.5.672-1.5 1.5.672 1.5 1.5 1.5zm0 1c-1.381 0-2.5-1.119-2.5-2.5s1.119-2.5 2.5-2.5 2.5 1.119 2.5 2.5-1.119 2.5-2.5 2.5zM5.5 24c.828 0 1.5-.672 1.5-1.5s-.672-1.5-1.5-1.5-1.5.672-1.5 1.5.672 1.5 1.5 1.5zm0 1c-1.381 0-2.5-1.119-2.5-2.5s1.119-2.5 2.5-2.5 2.5 1.119 2.5 2.5-1.119 2.5-2.5 2.5zM12.5 14c.828 0 1.5-.672 1.5-1.5s-.672-1.5-1.5-1.5-1.5.672-1.5 1.5.672 1.5 1.5 1.5zm0 1c-1.381 0-2.5-1.119-2.5-2.5s1.119-2.5 2.5-2.5 2.5 1.119 2.5 2.5-1.119 2.5-2.5 2.5zM20.5 8c.828 0 1.5-.672 1.5-1.5s-.672-1.5-1.5-1.5-1.5.672-1.5 1.5.672 1.5 1.5 1.5zm0 1c-1.381 0-2.5-1.119-2.5-2.5s1.119-2.5 2.5-2.5 2.5 1.119 2.5 2.5-1.119 2.5-2.5 2.5zM23.5 21c.828 0 1.5-.672 1.5-1.5s-.672-1.5-1.5-1.5-1.5.672-1.5 1.5.672 1.5 1.5 1.5zm0 1c-1.381 0-2.5-1.119-2.5-2.5s1.119-2.5 2.5-2.5 2.5 1.119 2.5 2.5-1.119 2.5-2.5 2.5z"></path>
+                </g>
+              </svg>
+              <span style={styles.submenuText}>Cypher Pattern</span>
+            </div>
+
+            {/* Head and Shoulders */}
+            <div style={styles.submenuItem}>
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 28" width="20" height="20">
+                <g fill="currentColor" fillRule="nonzero">
+                  <path d="M4.436 21.667l2.083-9.027-.974-.225-2.083 9.027zM10.046 16.474l-2.231-4.463-.894.447 2.231 4.463zM13.461 6.318l-2.88 10.079.962.275 2.88-10.079zM18.434 16.451l-2.921-10.224-.962.275 2.921 10.224zM21.147 12.089l-2.203 4.405.894.447 2.203-4.405zM25.524 21.383l-2.09-9.055-.974.225 2.09 9.055z"></path>
+                  <path d="M1 19h7.5v-1h-7.5z"></path>
+                  <path d="M12.5 19h4v-1h-4z"></path>
+                  <path d="M20.5 19h6.5v-1h-6.5z"></path>
+                  <path d="M6.5 12c.828 0 1.5-.672 1.5-1.5s-.672-1.5-1.5-1.5-1.5.672-1.5 1.5.672 1.5 1.5 1.5zm0 1c-1.381 0-2.5-1.119-2.5-2.5s1.119-2.5 2.5-2.5 2.5 1.119 2.5 2.5-1.119 2.5-2.5 2.5zM3.5 25c.828 0 1.5-.672 1.5-1.5s-.672-1.5-1.5-1.5-1.5.672-1.5 1.5.672 1.5 1.5 1.5zm0 1c-1.381 0-2.5-1.119-2.5-2.5s1.119-2.5 2.5-2.5 2.5 1.119 2.5 2.5-1.119 2.5-2.5 2.5zM10.5 20c.828 0 1.5-.672 1.5-1.5s-.672-1.5-1.5-1.5-1.5.672-1.5 1.5.672 1.5 1.5 1.5zm0 1c-1.381 0-2.5-1.119-2.5-2.5s1.119-2.5 2.5-2.5 2.5 1.119 2.5 2.5-1.119 2.5-2.5 2.5zM18.5 20c.828 0 1.5-.672 1.5-1.5s-.672-1.5-1.5-1.5-1.5.672-1.5 1.5.672 1.5 1.5 1.5zm0 1c-1.381 0-2.5-1.119-2.5-2.5s1.119-2.5 2.5-2.5 2.5 1.119 2.5 2.5-1.119 2.5-2.5 2.5zM22.5 12c.828 0 1.5-.672 1.5-1.5s-.672-1.5-1.5-1.5-1.5.672-1.5 1.5.672 1.5 1.5 1.5zm0 1c-1.381 0-2.5-1.119-2.5-2.5s1.119-2.5 2.5-2.5 2.5 1.119 2.5 2.5-1.119 2.5-2.5 2.5zM25.5 25c.828 0 1.5-.672 1.5-1.5s-.672-1.5-1.5-1.5-1.5.672-1.5 1.5.672 1.5 1.5 1.5zm0 1c-1.381 0-2.5-1.119-2.5-2.5s1.119-2.5 2.5-2.5 2.5 1.119 2.5 2.5-1.119 2.5-2.5 2.5zM14.5 6c.828 0 1.5-.672 1.5-1.5s-.672-1.5-1.5-1.5-1.5.672-1.5 1.5.672 1.5 1.5 1.5zm0 1c-1.381 0-2.5-1.119-2.5-2.5s1.119-2.5 2.5-2.5 2.5 1.119 2.5 2.5-1.119 2.5-2.5 2.5z"></path>
+                </g>
+              </svg>
+              <span style={styles.submenuText}>Head and Shoulders</span>
+            </div>
+
+            {/* ABCD Pattern */}
+            <div style={styles.submenuItem}>
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 28" width="20" height="20">
+                <g fill="currentColor" fillRule="nonzero">
+                  <path d="M21.487 5.248l-12.019 1.502.124.992 12.019-1.502zM6.619 9.355l-2.217 11.083.981.196 2.217-11.083zM6.534 22.75l12.071-1.509-.124-.992-12.071 1.509zM21.387 18.612l2.21-11.048-.981-.196-2.21 11.048zM8.507 9.214l10.255 10.255.707-.707-10.255-10.255z"></path>
+                  <path d="M7.5 9c.828 0 1.5-.672 1.5-1.5s-.672-1.5-1.5-1.5-1.5.672-1.5 1.5.672 1.5 1.5 1.5zm0 1c-1.381 0-2.5-1.119-2.5-2.5s1.119-2.5 2.5-2.5 2.5 1.119 2.5 2.5-1.119 2.5-2.5 2.5zM4.5 24c.828 0 1.5-.672 1.5-1.5s-.672-1.5-1.5-1.5-1.5.672-1.5 1.5.672 1.5 1.5 1.5zm0 1c-1.381 0-2.5-1.119-2.5-2.5s1.119-2.5 2.5-2.5 2.5 1.119 2.5 2.5-1.119 2.5-2.5 2.5zM23.5 7c.828 0 1.5-.672 1.5-1.5s-.672-1.5-1.5-1.5-1.5.672-1.5 1.5.672 1.5 1.5 1.5zm0 1c-1.381 0-2.5-1.119-2.5-2.5s1.119-2.5 2.5-2.5 2.5 1.119 2.5 2.5-1.119 2.5-2.5 2.5zM20.5 22c.828 0 1.5-.672 1.5-1.5s-.672-1.5-1.5-1.5-1.5.672-1.5 1.5.672 1.5 1.5 1.5zm0 1c-1.381 0-2.5-1.119-2.5-2.5s1.119-2.5 2.5-2.5 2.5 1.119 2.5 2.5-1.119 2.5-2.5 2.5z"></path>
+                </g>
+              </svg>
+              <span style={styles.submenuText}>ABCD Pattern</span>
+            </div>
+
+            {/* Triangle Pattern */}
+            <div style={styles.submenuItem}>
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 28" width="20" height="20">
+                <g fill="currentColor" fillRule="nonzero">
+                  <path d="M9.457 18.844l-5.371 2.4.408.913 5.371-2.4z"></path>
+                  <path d="M13.13 17.203l.408.913 13.688-6.116-6.736-3.01-.408.913 4.692 2.097z"></path>
+                  <path d="M11.077 5.88l5.34 2.386.408-.913-5.34-2.386z"></path>
+                  <path d="M7.401 4.237l.408-.913-5.809-2.595v19.771h1v-18.229z"></path>
+                  <path d="M3.708 20.772l5.51-14.169-.932-.362-5.51 14.169zM9.265 6.39l1.46 10.218.99-.141-1.46-10.218zM13.059 17.145l4.743-6.775-.819-.573-4.743 6.775z"></path>
+                  <path d="M9.5 6c.828 0 1.5-.672 1.5-1.5s-.672-1.5-1.5-1.5-1.5.672-1.5 1.5.672 1.5 1.5 1.5zm0 1c-1.381 0-2.5-1.119-2.5-2.5s1.119-2.5 2.5-2.5 2.5 1.119 2.5 2.5-1.119 2.5-2.5 2.5zM11.5 20c.828 0 1.5-.672 1.5-1.5s-.672-1.5-1.5-1.5-1.5.672-1.5 1.5.672 1.5 1.5 1.5zm0 1c-1.381 0-2.5-1.119-2.5-2.5s1.119-2.5 2.5-2.5 2.5 1.119 2.5 2.5-1.119 2.5-2.5 2.5zM18.5 10c.828 0 1.5-.672 1.5-1.5s-.672-1.5-1.5-1.5-1.5.672-1.5 1.5.672 1.5 1.5 1.5zm0 1c-1.381 0-2.5-1.119-2.5-2.5s1.119-2.5 2.5-2.5 2.5 1.119 2.5 2.5-1.119 2.5-2.5 2.5zM2.5 24c.828 0 1.5-.672 1.5-1.5s-.672-1.5-1.5-1.5-1.5.672-1.5 1.5.672 1.5 1.5 1.5zm0 1c-1.381 0-2.5-1.119-2.5-2.5s1.119-2.5 2.5-2.5 2.5 1.119 2.5 2.5-1.119 2.5-2.5 2.5z"></path>
+                </g>
+              </svg>
+              <span style={styles.submenuText}>Triangle Pattern</span>
+            </div>
+
+            {/* Three Drives Pattern */}
+            <div style={styles.submenuItem}>
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 28" width="20" height="20">
+                <g fill="currentColor" fillRule="nonzero">
+                  <path d="M.303 17.674l1.104.473.394-.919-1.104-.473z"></path>
+                  <path d="M5.133 19.744l3.335 1.429.394-.919-3.335-1.429z"></path>
+                  <path d="M12.134 22.744l3.352 1.436.394-.919-3.352-1.436z"></path>
+                  <path d="M19.203 25.774l1.6.686.394-.919-1.6-.686z"></path>
+                  <path d="M.3 4.673l1.13.484.394-.919-1.13-.484-.394.919zm.394-.919l1.13.484-.394.919-1.13-.484.394-.919zm.394-.919l1.13.484-.394.919-1.13-.484.394-.919z"></path>
+                  <path d="M5.141 6.747l3.325 1.425.394-.919-3.325-1.425z"></path>
+                  <path d="M12.133 9.744l3.353 1.437.394-.919-3.353-1.437z"></path>
+                  <path d="M19.221 12.782l5.838 2.502.394-.919-5.838-2.502z"></path>
+                  <path d="M3 7.473v8.969h1v-8.969zM8.93 9.871l-4.616 6.594.819.573 4.616-6.594zM11 19.5v-9h-1v9zM15.898 12.916l-4.616 6.594.819.573 4.616-6.594zM18 22.5v-9h-1v9zM24.313 5.212l-6.57 17.247.934.356 6.57-17.247z"></path>
+                  <path d="M3.5 7c.828 0 1.5-.672 1.5-1.5s-.672-1.5-1.5-1.5-1.5.672-1.5 1.5.672 1.5 1.5 1.5zm0 1c-1.381 0-2.5-1.119-2.5-2.5s1.119-2.5 2.5-2.5 2.5 1.119 2.5 2.5-1.119 2.5-2.5 2.5zM3.5 20c.828 0 1.5-.672 1.5-1.5s-.672-1.5-1.5-1.5-1.5.672-1.5 1.5.672 1.5 1.5 1.5zm0 1c-1.381 0-2.5-1.119-2.5-2.5s1.119-2.5 2.5-2.5 2.5 1.119 2.5 2.5-1.119 2.5-2.5 2.5zM10.5 23c.828 0 1.5-.672 1.5-1.5s-.672-1.5-1.5-1.5-1.5.672-1.5 1.5.672 1.5 1.5 1.5zm0 1c-1.381 0-2.5-1.119-2.5-2.5s1.119-2.5 2.5-2.5 2.5 1.119 2.5 2.5-1.119 2.5-2.5 2.5zM17.5 13c.828 0 1.5-.672 1.5-1.5s-.672-1.5-1.5-1.5-1.5.672-1.5 1.5.672 1.5 1.5 1.5zm0 1c-1.381 0-2.5-1.119-2.5-2.5s1.119-2.5 2.5-2.5 2.5 1.119 2.5 2.5-1.119 2.5-2.5 2.5zM25.5 5c.828 0 1.5-.672 1.5-1.5s-.672-1.5-1.5-1.5-1.5.672-1.5 1.5.672 1.5 1.5 1.5zm0 1c-1.381 0-2.5-1.119-2.5-2.5s1.119-2.5 2.5-2.5 2.5 1.119 2.5 2.5-1.119 2.5-2.5 2.5zM17.5 26c.828 0 1.5-.672 1.5-1.5s-.672-1.5-1.5-1.5-1.5.672-1.5 1.5.672 1.5 1.5 1.5zm0 1c-1.381 0-2.5-1.119-2.5-2.5s1.119-2.5 2.5-2.5 2.5 1.119 2.5 2.5-1.119 2.5-2.5 2.5zM10.5 10c.828 0 1.5-.672 1.5-1.5s-.672-1.5-1.5-1.5-1.5.672-1.5 1.5.672 1.5 1.5 1.5zm0 1c-1.381 0-2.5-1.119-2.5-2.5s1.119-2.5 2.5-2.5 2.5 1.119 2.5 2.5-1.119 2.5-2.5 2.5z"></path>
+                </g>
+              </svg>
+              <span style={styles.submenuText}>Three Drives Pattern</span>
+            </div>
+
+            {/* Elliott Impulse Wave */}
+            <div style={styles.submenuItem}>
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 28" width="20" height="20">
+                <g fill="currentColor">
+                  <path fillRule="nonzero" d="M5.238 18.469l4.17-4.17-.707-.707-4.17 4.17zM16.47 17.763l-.707.707-4.265-4.265.707-.707zM22.747 13.546l-4.192 4.192.707.707 4.192-4.192z"></path>
+                  <path fillRule="nonzero" d="M10.5 14c.828 0 1.5-.672 1.5-1.5s-.672-1.5-1.5-1.5-1.5.672-1.5 1.5.672 1.5 1.5 1.5zm0 1c-1.381 0-2.5-1.119-2.5-2.5s1.119-2.5 2.5-2.5 2.5 1.119 2.5 2.5-1.119 2.5-2.5 2.5zM17.5 21c.828 0 1.5-.672 1.5-1.5s-.672-1.5-1.5-1.5-1.5.672-1.5 1.5.672 1.5 1.5 1.5zm0 1c-1.381 0-2.5-1.119-2.5-2.5s1.119-2.5 2.5-2.5 2.5 1.119 2.5 2.5-1.119 2.5-2.5 2.5zM24.5 14c.828 0 1.5-.672 1.5-1.5s-.672-1.5-1.5-1.5-1.5.672-1.5 1.5.672 1.5 1.5 1.5zm0 1c-1.381 0-2.5-1.119-2.5-2.5s1.119-2.5 2.5-2.5 2.5 1.119 2.5 2.5-1.119 2.5-2.5 2.5zM3.5 21c.828 0 1.5-.672 1.5-1.5s-.672-1.5-1.5-1.5-1.5.672-1.5 1.5.672 1.5 1.5 1.5zm0 1c-1.381 0-2.5-1.119-2.5-2.5s1.119-2.5 2.5-2.5 2.5 1.119 2.5 2.5-1.119 2.5-2.5 2.5z"></path>
+                  <path d="M11.148 7h-1.098v-4.137c-.401.375-.874.652-1.418.832v-.996c.286-.094.598-.271.934-.533.336-.262.566-.567.691-.916h.891v5.75z"></path>
+                </g>
+              </svg>
+              <span style={styles.submenuText}>Elliott Impulse Wave</span>
+            </div>
+
+            {/* Elliott Correction Wave */}
+            <div style={styles.submenuItem}>
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 28" width="20" height="20">
+                <g fill="currentColor">
+                  <path fillRule="nonzero" d="M5.238 18.469l4.17-4.17-.707-.707-4.17 4.17zM16.47 17.763l-.707.707-4.265-4.265.707-.707zM22.747 13.546l-4.192 4.192.707.707 4.192-4.192z"></path>
+                  <path fillRule="nonzero" d="M10.5 14c.828 0 1.5-.672 1.5-1.5s-.672-1.5-1.5-1.5-1.5.672-1.5 1.5.672 1.5 1.5 1.5zm0 1c-1.381 0-2.5-1.119-2.5-2.5s1.119-2.5 2.5-2.5 2.5 1.119 2.5 2.5-1.119 2.5-2.5 2.5zM17.5 21c.828 0 1.5-.672 1.5-1.5s-.672-1.5-1.5-1.5-1.5.672-1.5 1.5.672 1.5 1.5 1.5zm0 1c-1.381 0-2.5-1.119-2.5-2.5s1.119-2.5 2.5-2.5 2.5 1.119 2.5 2.5-1.119 2.5-2.5 2.5zM24.5 14c.828 0 1.5-.672 1.5-1.5s-.672-1.5-1.5-1.5-1.5.672-1.5 1.5.672 1.5 1.5 1.5zm0 1c-1.381 0-2.5-1.119-2.5-2.5s1.119-2.5 2.5-2.5 2.5 1.119 2.5 2.5-1.119 2.5-2.5 2.5zM3.5 21c.828 0 1.5-.672 1.5-1.5s-.672-1.5-1.5-1.5-1.5.672-1.5 1.5.672 1.5 1.5 1.5zm0 1c-1.381 0-2.5-1.119-2.5-2.5s1.119-2.5 2.5-2.5 2.5 1.119 2.5 2.5-1.119 2.5-2.5 2.5z"></path>
+                  <path d="M13.746 7h-1.258l-.5-1.301h-2.289l-.473 1.301h-1.227l2.23-5.727h1.223l2.293 5.727z"></path>
+                </g>
+              </svg>
+              <span style={styles.submenuText}>Elliott Correction Wave</span>
+            </div>
+          </div>
+        )}
+
         {showProjectionSubmenu && (
           <div ref={projectionSubmenuRef} style={styles.projectionSubmenu}>
             {/* Long Position */}
@@ -1653,7 +1661,7 @@ export default function MainChart() {
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 28" width="20" height="20">
                 <g fill="currentColor" fillRule="nonzero">
                   <path d="M6 6v6.5h1v-6.5zM7 22v-2.5h-1v2.5zM11 11v2.5h1v-2.5zM12 24v-7.5h-1v7.5zM16 5v5.5h1v-5.5zM17 21v-2.5h-1v2.5zM21 7v4.5h1v-4.5zM22 19v-2.5h-1v2.5z"></path>
-                  <path d="M6 13v6h1v-6h-1zm-1-1h3v8h-3v-8z"></path>
+                  <path d="M6 13v6h1v-6zM-1 12h3v8h-3v-8z"></path>
                   <path d="M11 16h1v-2h-1v2zm-1-3h3v4h-3v-4z"></path>
                   <path d="M16 18h1v-7h-1v7zm-1-8h3v9h-3v-9z"></path>
                   <path d="M21 16h1v-4h-1v4zm-1-5h3v6h-3v-6z"></path>
@@ -1827,8 +1835,8 @@ export default function MainChart() {
             {/* Arrow */}
             <div style={styles.submenuItem}>
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 28" width="20" height="20">
-                <g fill="currentColor">
-                  <path fillRule="nonzero" d="M7.354 21.354l14-14-.707-.707-14 14z"></path>
+                <g fill="currentColor" fillRule="nonzero">
+                  <path d="M7.354 21.354l14-14-.707-.707-14 14z"></path>
                   <path d="M21 7l-8 3 5 5z"></path>
                   <path fillRule="nonzero" d="M22.5 7c.828 0 1.5-.672 1.5-1.5s-.672-1.5-1.5-1.5-1.5.672-1.5 1.5.672 1.5 1.5 1.5zm0 1c-1.381 0-2.5-1.119-2.5-2.5s1.119-2.5 2.5-2.5 2.5 1.119 2.5 2.5-1.119 2.5-2.5 2.5zM5.5 24c.828 0 1.5-.672 1.5-1.5s-.672-1.5-1.5-1.5-1.5.672-1.5 1.5.672 1.5 1.5 1.5zm0 1c-1.381 0-2.5-1.119-2.5-2.5s1.119-2.5 2.5-2.5 2.5 1.119 2.5 2.5-1.119 2.5-2.5 2.5z"></path>
                 </g>
@@ -1891,7 +1899,7 @@ export default function MainChart() {
             <div style={styles.submenuItem}>
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 28" width="20" height="20" fill="none">
                 <path stroke="currentColor" d="M16 14a2 2 0 1 1-4 0 2 2 0 0 1 4 0Z"></path>
-                <path fill="currentColor" fillRule="evenodd" d="M4.529 18.21l3.157-1.292-.379-.926-3.157 1.292z"></path>
+                <path fill="currentColor" fillRule="evenodd" clipRule="evenodd" d="M4.529 18.21l3.157-1.292-.379-.926-3.157 1.292z"></path>
                 <path fill="currentColor" fillRule="evenodd" clipRule="evenodd" d="M4.5 14a9.5 9.5 0 0 1 18.7-2.37 2.5 2.5 0 0 0 0 4.74A9.5 9.5 0 0 1 4.5 14Zm19.7 2.5a10.5 10.5 0 1 1 0-5 2.5 2.5 0 0 1 0 5ZM22.5 14a1.5 1.5 0 1 1 3 0 1.5 1.5 0 0 1-3 0Z"></path>
               </svg>
               <span style={styles.submenuText}>Circle</span>
@@ -2485,7 +2493,7 @@ const styles = {
   settingsButton: {
     background: "none",
     border: "none",
-    color: "#686d76",
+    color: "#686D76",
     fontSize: "10px",
     cursor: "pointer",
     padding: "0 2px",
