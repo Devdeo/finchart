@@ -3432,8 +3432,8 @@ const styles = {
   },
   floatingSettingsContainer: {
     position: "absolute",
-    top: "10px",
-    right: "10px",
+    top: "15px",
+    right: "15px",
     display: "flex",
     gap: "8px",
     zIndex: 1001,
@@ -3464,6 +3464,10 @@ const styles = {
     boxShadow: "0 2px 8px rgba(0, 0, 0, 0.15)",
     transition: "all 0.2s ease",
     outline: "none",
+    '&:hover': {
+      backgroundColor: "#f5f5f5",
+      borderColor: "#f44336"
+    }
   },
   compactSettingsPanel: {
     position: "absolute",
