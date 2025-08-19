@@ -150,20 +150,20 @@ const registerCustomOverlays = () => {
     createPointFigures: ({ coordinates, bounding, yAxis }) => {
       if (!coordinates || coordinates.length < 2 || !bounding || !yAxis) return [];
       const [p1, p2] = coordinates;
-      
+
       // Convert pixel coordinates to price values
       const price1 = yAxis.convertFromPixel(p1.y);
       const price2 = yAxis.convertFromPixel(p2.y);
-      
+
       // Fibonacci levels
       const fibLevels = [0, 0.236, 0.382, 0.5, 0.618, 0.786, 1];
       const fibLabels = ['0.0%', '23.6%', '38.2%', '50.0%', '61.8%', '78.6%', '100.0%'];
-      
+
       const priceRange = price2 - price1;
       const startPrice = price1;
-      
+
       const figures = [];
-      
+
       // Main trend line from p1 to p2
       figures.push({
         type: "line",
@@ -176,21 +176,21 @@ const registerCustomOverlays = () => {
           style: 'solid'
         }
       });
-      
+
       // Get chart bounds for extending lines
       const leftBound = bounding.left;
       const rightBound = bounding.left + bounding.width;
-      
+
       // Draw horizontal lines for each fib level
       for (let i = 0; i < fibLevels.length; i++) {
         const level = fibLevels[i];
         const fibPrice = startPrice + (priceRange * level);
         const y = yAxis.convertToPixel(fibPrice);
-        
+
         // Color scheme for different levels
         let lineColor = '#999999';
         let lineSize = 1;
-        
+
         if (level === 0 || level === 1) {
           lineColor = '#666666';
           lineSize = 2;
@@ -201,7 +201,7 @@ const registerCustomOverlays = () => {
           lineColor = '#2196f3';
           lineSize = 2;
         }
-        
+
         // Horizontal line spanning the entire chart width
         figures.push({
           type: "line",
@@ -217,7 +217,7 @@ const registerCustomOverlays = () => {
             style: 'solid'
           }
         });
-        
+
         // Price and percentage labels
         figures.push({
           type: "text",
@@ -233,7 +233,7 @@ const registerCustomOverlays = () => {
           }
         });
       }
-      
+
       return figures;
     },
   });
@@ -279,13 +279,13 @@ const registerCustomOverlays = () => {
       const { left, width } = bounding;
       const x2 = left + width;
       return [
-        { 
-          type: "line", 
+        {
+          type: "line",
           attrs: { coordinates: [p1, { x: x2, y: p2.y }] },
           styles: { color: '#e91e63', size: 2, style: 'solid' }
         },
-        { 
-          type: "line", 
+        {
+          type: "line",
           attrs: { coordinates: [p1, { x: x2, y: p3.y }] },
           styles: { color: '#e91e63', size: 2, style: 'solid' }
         },
@@ -301,23 +301,23 @@ const registerCustomOverlays = () => {
     createPointFigures: ({ coordinates, bounding }) => {
       if (!coordinates || coordinates.length < 3 || !bounding) return [];
       const [p1, p2, p3] = coordinates;
-      
+
       // Calculate parallel lines
       const dx = p2.x - p1.x;
       const dy = p2.y - p1.y;
       const offset = (p3.y - p1.y) - ((p3.x - p1.x) / dx) * dy;
-      
+
       const { left, width } = bounding;
       const xEnd = left + width;
-      
+
       const levels = [0, 0.382, 0.618, 1];
       const figures = [];
-      
+
       for (let i = 0; i < levels.length; i++) {
         const level = levels[i];
         const y1 = p1.y + offset * level;
         const y2 = p2.y + offset * level;
-        
+
         figures.push({
           type: "line",
           attrs: { coordinates: [
@@ -1419,10 +1419,10 @@ export default function MainChart() {
     if (chartInstanceRef.current) {
       const styles = {
         ...defaultStyles,
-        line: { 
-          color: drawingSettings.color, 
+        line: {
+          color: drawingSettings.color,
           size: drawingSettings.thickness,
-          ...defaultStyles.line 
+          ...defaultStyles.line
         },
         text: {
           color: drawingSettings.color,
@@ -1439,7 +1439,7 @@ export default function MainChart() {
           ...defaultStyles.point
         }
       };
-      
+
       // Create overlay with enhanced event handling
       const overlay = chartInstanceRef.current.createOverlay({
         name: overlayName,
@@ -1460,7 +1460,7 @@ export default function MainChart() {
           const drawingId = overlayInfo?.id || Date.now().toString();
           setSelectedOverlayId(drawingId);
           setActiveDrawingTool(toolName);
-          
+
           // Store drawing in our state for management
           const newDrawing = {
             id: drawingId,
@@ -1470,18 +1470,18 @@ export default function MainChart() {
             styles: styles,
             timestamp: Date.now()
           };
-          
+
           setAllDrawings(prev => [...prev, newDrawing]);
-          
+
           // Automatically show modification popup after drawing is completed
-          setTimeout(() => {
-            setShowDrawingSettings(true);
-            setTempDrawingSettings({
-              color: styles.line?.color || drawingSettings.color,
-              thickness: styles.line?.size || drawingSettings.thickness
-            });
-          }, 100);
-          
+          // setTimeout(() => {
+          //   setShowDrawingSettings(true);
+          //   setTempDrawingSettings({
+          //     color: styles.line?.color || drawingSettings.color,
+          //     thickness: styles.line?.size || drawingSettings.thickness
+          //   });
+          // }, 100);
+
           console.log(`${toolName} drawing completed`);
         },
         onSelected: (overlayInfo) => {
@@ -1491,7 +1491,7 @@ export default function MainChart() {
           setIsDrawing(false);
           setSelectedOverlayId(drawingId);
           setIsDragMode(false);
-          
+
           // Set temp settings to current drawing settings for editing
           const existingDrawing = allDrawings.find(d => d.id === drawingId);
           if (existingDrawing && existingDrawing.styles) {
@@ -1505,12 +1505,12 @@ export default function MainChart() {
               thickness: drawingSettings.thickness
             });
           }
-          
+
           // Show modification popup when drawing is selected
-          setTimeout(() => {
-            setShowDrawingSettings(true);
-          }, 50);
-          
+          // setTimeout(() => {
+          //   setShowDrawingSettings(true);
+          // }, 50);
+
           console.log(`Selected drawing: ${toolName} (ID: ${drawingId})`);
         },
         onDeselected: () => {
@@ -1524,8 +1524,8 @@ export default function MainChart() {
         },
         onModified: (overlayInfo) => {
           // Update drawing in state when modified
-          setAllDrawings(prev => prev.map(drawing => 
-            drawing.id === overlayInfo?.id 
+          setAllDrawings(prev => prev.map(drawing =>
+            drawing.id === overlayInfo?.id
               ? { ...drawing, points: overlayInfo?.points || [] }
               : drawing
           ));
@@ -1538,7 +1538,7 @@ export default function MainChart() {
           setHasActiveDrawing(false);
           setSelectedOverlayId(null);
           setShowDrawingSettings(false);
-          console.log(`Removed drawing: ${toolName} (ID: ${overlayInfo?.id})`);
+          console.log('Drawing removed');
         },
         onRightClick: (overlayInfo, event) => {
           // Right-click context menu
@@ -1651,14 +1651,14 @@ export default function MainChart() {
         // Toggle lock state
         const drawing = allDrawings.find(d => d.id === overlayInfo.id);
         const newLockState = !drawing?.locked;
-        
+
         chartInstanceRef.current.overrideOverlay({
           id: overlayInfo.id,
           lock: newLockState
         });
 
         // Update state
-        setAllDrawings(prev => prev.map(d => 
+        setAllDrawings(prev => prev.map(d =>
           d.id === overlayInfo.id ? { ...d, locked: newLockState } : d
         ));
 
@@ -1736,7 +1736,7 @@ export default function MainChart() {
           line: { color: drawingSettings.color, size: drawingSettings.thickness, style: 'solid' },
           text: { color: drawingSettings.color, size: 11, family: 'Arial, sans-serif' }
         };
-        
+
         chartInstanceRef.current.createOverlay({
           name: 'fibonacciLine',
           needDefaultPointFigure: true,
@@ -1754,7 +1754,7 @@ export default function MainChart() {
             const drawingId = overlayInfo?.id || Date.now().toString();
             setSelectedOverlayId(drawingId);
             setActiveDrawingTool('Fib Retracement');
-            
+
             // Store drawing in our state for management
             const newDrawing = {
               id: drawingId,
@@ -1764,18 +1764,18 @@ export default function MainChart() {
               styles: styles,
               timestamp: Date.now()
             };
-            
+
             setAllDrawings(prev => [...prev, newDrawing]);
-            
+
             // Automatically show modification popup after drawing is completed
-            setTimeout(() => {
-              setShowDrawingSettings(true);
-              setTempDrawingSettings({
-                color: styles.line?.color || drawingSettings.color,
-                thickness: styles.line?.size || drawingSettings.thickness
-              });
-            }, 100);
-            
+            // setTimeout(() => {
+            //   setShowDrawingSettings(true);
+            //   setTempDrawingSettings({
+            //     color: styles.line?.color || drawingSettings.color,
+            //     thickness: styles.line?.size || drawingSettings.thickness
+            //   });
+            // }, 100);
+
             console.log('Fib Retracement drawing completed');
           },
           onSelected: (overlayInfo) => {
@@ -1784,7 +1784,7 @@ export default function MainChart() {
             setHasActiveDrawing(true);
             setIsDrawing(false);
             setSelectedOverlayId(drawingId);
-            
+
             // Set temp settings for editing
             const existingDrawing = allDrawings.find(d => d.id === drawingId);
             if (existingDrawing && existingDrawing.styles) {
@@ -1798,12 +1798,12 @@ export default function MainChart() {
                 thickness: drawingSettings.thickness
               });
             }
-            
+
             // Show modification popup when drawing is selected
-            setTimeout(() => {
-              setShowDrawingSettings(true);
-            }, 50);
-            
+            // setTimeout(() => {
+            //   setShowDrawingSettings(true);
+            // }, 50);
+
             console.log(`Selected Fib Retracement (ID: ${drawingId})`);
           },
           onDeselected: () => {
@@ -1849,7 +1849,7 @@ export default function MainChart() {
         line: { color: drawingSettings.color, size: drawingSettings.thickness },
         text: { color: drawingSettings.color, size: 11, family: 'Arial, sans-serif' }
       };
-      
+
       chartInstanceRef.current.createOverlay({
         name: 'xabcdPattern',
         styles: styles,
@@ -1866,7 +1866,7 @@ export default function MainChart() {
           const drawingId = overlayInfo?.id || Date.now().toString();
           setSelectedOverlayId(drawingId);
           setActiveDrawingTool('XABCD Pattern');
-          
+
           // Store drawing in our state for management
           const newDrawing = {
             id: drawingId,
@@ -1876,18 +1876,9 @@ export default function MainChart() {
             styles: styles,
             timestamp: Date.now()
           };
-          
+
           setAllDrawings(prev => [...prev, newDrawing]);
-          
-          // Automatically show modification popup after drawing is completed
-          setTimeout(() => {
-            setShowDrawingSettings(true);
-            setTempDrawingSettings({
-              color: styles.line?.color || drawingSettings.color,
-              thickness: styles.line?.size || drawingSettings.thickness
-            });
-          }, 100);
-          
+
           console.log('XABCD Pattern drawing completed');
         },
         onSelected: (overlayInfo) => {
@@ -1896,7 +1887,7 @@ export default function MainChart() {
           setHasActiveDrawing(true);
           setIsDrawing(false);
           setSelectedOverlayId(drawingId);
-          
+
           // Set temp settings for editing
           const existingDrawing = allDrawings.find(d => d.id === drawingId);
           if (existingDrawing && existingDrawing.styles) {
@@ -1910,12 +1901,7 @@ export default function MainChart() {
               thickness: drawingSettings.thickness
             });
           }
-          
-          // Show modification popup when drawing is selected
-          setTimeout(() => {
-            setShowDrawingSettings(true);
-          }, 50);
-          
+
           console.log(`Selected XABCD Pattern (ID: ${drawingId})`);
         },
         onDeselected: () => {
@@ -2126,7 +2112,7 @@ export default function MainChart() {
       const data = chartInstanceRef.current.getDataList();
       const last = data[data.length - 1];
       if (!last) return;
-      
+
       chartInstanceRef.current.createOverlay({
         name: 'position',
         extendData: { side: 'long' },
@@ -2159,7 +2145,7 @@ export default function MainChart() {
       const data = chartInstanceRef.current.getDataList();
       const last = data[data.length - 1];
       if (!last) return;
-      
+
       chartInstanceRef.current.createOverlay({
         name: 'position',
         extendData: { side: 'short' },
@@ -2342,12 +2328,12 @@ export default function MainChart() {
         });
 
         // Update drawing in state
-        setAllDrawings(prev => prev.map(drawing => 
-          drawing.id === overlayId 
+        setAllDrawings(prev => prev.map(drawing =>
+          drawing.id === overlayId
             ? { ...drawing, styles: { ...drawing.styles, ...newStyles } }
             : drawing
         ));
-        
+
         console.log('Applied new styles to drawing:', overlayId);
       } catch (error) {
         console.warn('Failed to apply styles:', error);
@@ -2825,10 +2811,10 @@ export default function MainChart() {
             </svg>
           </div>
 
-          
+
 
           {/* Brushes tool */}
-          
+
 
           {/* Position tool */}
           <div
@@ -2864,9 +2850,9 @@ export default function MainChart() {
             </svg>
           </div>
 
-          
 
-          
+
+
         </div>
 
         {/* Submenu - positioned absolutely to not affect layout */}
@@ -2976,7 +2962,7 @@ export default function MainChart() {
 
             {/* Drawing Management Section */}
             <div style={styles.submenuSectionHeader}>Drawing Tools</div>
-            
+
             {/* Clear All Drawings */}
             <div style={styles.submenuItem} onClick={clearAllDrawings}>
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 28" width="20" height="20">
@@ -3043,7 +3029,7 @@ export default function MainChart() {
               <span style={styles.submenuText}>Fib Retracement</span>
             </div>
 
-            
+
           </div>
         )}
 
@@ -3080,7 +3066,7 @@ export default function MainChart() {
                   <path d="M1 19h7.5v-1h-7.5z"></path>
                   <path d="M12.5 19h4v-1h-4z"></path>
                   <path d="M20.5 19h6.5v-1h-6.5z"></path>
-                  <path d="M6.5 12c.828 0 1.5-.672 1.5-1.5s-.672-1.5-1.5-1.5-1.5.672-1.5 1.5.672 1.5 1.5 1.5zm0 1c-1.381 0-2.5-1.119-2.5-2.5s1.119-2.5 2.5-2.5 2.5 1.119 2.5 2.5-1.119 2.5-2.5 2.5zM3.5 25c.828 0 1.5-.672 1.5-1.5s-.672-1.5-1.5-1.5-1.5.672-1.5 1.5.672 1.5 1.5 1.5zm0 1c-1.381 0-2.5-1.119-2.5-2.5s1.119-2.5 2.5-2.5 2.5 1.119 2.5 2.5-1.119 2.5-2.5 2.5zM10.5 20c.828 0 1.5-.672 1.5-1.5s-.672-1.5-1.5-1.5-1.5.672-1.5 1.5.672 1.5 1.5 1.5zm0 1c-1.381 0-2.5-1.119-2.5-2.5s1.119-2.5 2.5-2.5 2.5 1.119 2.5 2.5-1.119 2.5-2.5 2.5zM18.5 20c.828 0 1.5-.672 1.5-1.5s-.672-1.5-1.5-1.5-1.5.672-1.5 1.5.672 1.5 1.5 1.5zm0 1c-1.381 0-2.5-1.119-2.5-2.5s1.119-2.5 2.5-2.5 2.5 1.119 2.5 2.5-1.119 2.5-2.5 2.5zM22.5 12c.828 0 1.5-.672 1.5-1.5s-.672-1.5-1.5-1.5-1.5.672-1.5 1.5.672 1.5 1.5 1.5zm0 1c-1.381 0-2.5-1.119-2.5-2.5s1.119-2.5 2.5-2.5 2.5 1.119 2.5 2.5-1.119 2.5-2.5 2.5zM25.5 25c.828 0 1.5-.672 1.5-1.5s-.672-1.5-1.5-1.5-1.5.672-1.5 1.5.672 1.5 1.5 1.5zm0 1c-1.381 0-2.5-1.119-2.5-2.5s1.119-2.5 2.5-2.5 2.5 1.119 2.5 2.5-1.119 2.5-2.5 2.5zM14.5 6c.828 0 1.5-.672 1.5-1.5s-.672-1.5-1.5-1.5-1.5.672-1.5 1.5.672 1.5 1.5 1.5zm0 1c-1.381 0-2.5-1.119-2.5-2.5s1.119-2.5 2.5-2.5 2.5 1.119 2.5 2.5-1.119 2.5-2.5 2.5z"></path>
+                  <path d="M6.5 12c.828 0 1.5-.672 1.5-1.5s-.672-1.5-1.5-1.5-1.5.672-1.5 1.5.672 1.5 1.5 1.5zm0 1c-1.381 0-2.5-1.119-2.5-2.5s1.119-2.5 2.5-2.5 2.5 1.119 2.5 2.5-1.119 2.5-2.5 2.5zM3.5 25c.828 0 1.5-.672 1.5-1.5s-.672-1.5-1.5-1.5-1.5.672-1.5 1.5.672 1.5 1.5 1.5zm0 1c-1.381 0-2.5-1.119-2.5-2.5s1.119-2.5 2.5-2.5 2.5 1.119 2.5 2.5-1.119 2.5-2.5 2.5zM10.5 20c.828 0 1.5-.672 1.5-1.5s-.672-1.5-1.5-1.5-1.5.672-1.5 1.5.672 1.5 1.5 1.5zm0 1c-1.381 0-2.5-1.119-2.5-2.5s1.119-2.5 2.5-2.5 2.5 1.119 2.5 2.5-1.119 2.5-2.5 2.5zM18.5 20c.828 0 1.5-.672 1.5-1.5s-.672-1.5-1.5-1.5-1.5.672-1.5 1.5.672 1.5 1.5 1.5zm0 1c-1.381 0-2.5-1.119-2.5-2.5s1.119-2.5 2.5-2.5 2.5 1.119 2.5 2.5-1.119 2.5-2.5 2.5zM14.5 6c.828 0 1.5-.672 1.5-1.5s-.672-1.5-1.5-1.5-1.5.672-1.5 1.5.672 1.5 1.5 1.5zm0 1c-1.381 0-2.5-1.119-2.5-2.5s1.119-2.5 2.5-2.5 2.5 1.119 2.5 2.5-1.119 2.5-2.5 2.5z"></path>
                 </g>
               </svg>
               <span style={styles.submenuText}>Head and Shoulders</span>
@@ -3162,7 +3148,7 @@ export default function MainChart() {
             {/* Long Position */}
             <div style={styles.submenuItem}>
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 28" width="20" height="20" fill="none">
-                <path fill="currentColor" fillRule="evenodd" clipRule="evenodd" d="M4.5 5a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3zM2 6.5A2.5 2.5 0 0 1 6.95 6H24v1H6.95A2.5 2.5 0 0 1 2 6.5zM4.5 15a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3zM2 16.5a2.5 2.5 0 0 1 4.95-.5h13.1a2.5 2.5 0 1 1 0 1H6.95A2.5 2.5 0 0 1 2 16.5zM22.5 15a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3zm-18-6a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3zM2 22.5a2.5 2.5 0 0 1 4.95-.5H24v1H6.95A2.5 2.5 0 0 1 2 22.5z"></path>
+                <path fill="currentColor" fillRule="evenodd" clipRule="evenodd" d="M4.5 5a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3zM2 6.5A2.5 2.5 0 0 1 6.95 6H24v1H6.95A2.5 2.5 0 0 1 2 6.5zM4.5 15a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3zM2 16.5a2.5 2.5 0 0 1 4.95-.5h13.1a2.5 2.5 0 1 1 0 1H6.95A2.5 2.5 0 0 1 2 16.5zM22.5 15a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3zm-18-6a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3zM2 22.5a2.5 2.5 0 0 1 4.95-.5H24v1H6.95a2.5 2.5 0 0 0-4.95.5z"></path>
                 <path fill="currentColor" fillRule="evenodd" clipRule="evenodd" d="M22.4 8.94l-1.39.63-.41-.91 1.39-.63.41.91zm-4 1.8l-1.39.63-.41-.91 1.39-.63.41.91zm-4 1.8l-1.4.63-.4-.91 1.39-.63.41.91zm-4 1.8l-1.4.63-.4-.91 1.39-.63.41.91z"></path>
               </svg>
               <span style={styles.submenuText}>Long Position</span>
@@ -3177,13 +3163,13 @@ export default function MainChart() {
               <span style={styles.submenuText}>Short Position</span>
             </div>
 
-            
+
           </div>
         )}
 
         {showBrushesSubmenu && (
           <div ref={brushesSubmenuRef} style={styles.brushesSubmenu}>
-            
+
           </div>
         )}
 
@@ -3302,7 +3288,7 @@ export default function MainChart() {
 
         {/* Context Menu */}
         {contextMenu && (
-          <div 
+          <div
             className="context-menu"
             style={{
               ...styles.contextMenu,
@@ -3430,7 +3416,7 @@ export default function MainChart() {
                 </button>
               </div>
             </div>
-            
+
             <div style={styles.drawingSettingsContent}>
               {/* Color Setting */}
               <div style={styles.settingGroup}>
@@ -3473,7 +3459,7 @@ export default function MainChart() {
                     <span style={styles.thicknessLabelMax}>8</span>
                   </div>
                   <div style={styles.thicknessPreview}>
-                    <div 
+                    <div
                       style={{
                         ...styles.thicknessLine,
                         height: `${tempDrawingSettings.thickness}px`,
@@ -3523,16 +3509,16 @@ export default function MainChart() {
                   <i className="fa-solid fa-rotate-left" style={styles.buttonIcon}></i>
                   Reset
                 </button>
-                
+
                 <button
                   style={styles.applyButton}
                   onClick={() => {
                     setDrawingSettings(tempDrawingSettings);
                     if (chartInstanceRef.current && selectedOverlayId) {
                       const newStyles = {
-                        line: { 
-                          color: tempDrawingSettings.color, 
-                          size: tempDrawingSettings.thickness 
+                        line: {
+                          color: tempDrawingSettings.color,
+                          size: tempDrawingSettings.thickness
                         },
                         text: {
                           color: tempDrawingSettings.color,
@@ -3544,7 +3530,7 @@ export default function MainChart() {
                           borderColor: tempDrawingSettings.color
                         }
                       };
-                      
+
                       applyStylesToDrawing(selectedOverlayId, newStyles);
                     }
                     setShowDrawingSettings(false);
@@ -3564,264 +3550,262 @@ export default function MainChart() {
           </div>
         )}
 
-        <div style={styles.mainChart}>
-          {/* Applied Indicators Display */}
-          {(appliedIndicators.length > 0 || smaIndicators.length > 0 || emaIndicators.length > 0 || wmaIndicators.length > 0 || ichimokuIndicators.length > 0 || supertrendIndicators.length > 0 || psarIndicators.length > 0 || macdIndicators.length > 0 || adxIndicators.length > 0 || hmaIndicators.length > 0 || rsiIndicators.length > 0 || stochasticIndicators.length > 0 || stochasticRsiIndicators.length > 0 || cciIndicators.length > 0 || williamsRIndicators.length > 0 || rocIndicators.length > 0 || bollingerBandsIndicators.length > 0 || keltnerChannelIndicators.length > 0 || donchianChannelIndicators.length > 0 || atrIndicators.length > 0 || standardDeviationChannelIndicators.length > 0 || volumeHistogramIndicators.length > 0) && (
-            <div style={styles.indicatorsPanel}>
-              <div style={styles.indicatorsPanelTitle}>Applied Indicators</div>
-              <div style={styles.indicatorsList}>
-                {appliedIndicators.map((indicator) => (
-                  <div
-                    key={indicator.id}
-                    data-indicator-chip
-                    style={{
-                      ...styles.indicatorChip,
-                      ...(showIndicatorControls === indicator.id ? styles.indicatorChipHover : {})
-                    }}
-                    onClick={() => setShowIndicatorControls(showIndicatorControls === indicator.id ? null : indicator.id)}
-                  >
-                    <span style={styles.indicatorName}>{indicator.name}</span>
-                    {showIndicatorControls === indicator.id && (
-                      <>
-                        <button
-                          style={styles.settingsButton}
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            // Settings functionality can be added here
-                            console.log(`Settings for ${indicator.name}`);
-                          }}
-                          title="Settings"
-                        >
-                          <i className="fa-solid fa-gear"></i>
-                        </button>
-                        <button
-                          style={styles.removeButton}
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            removeIndicator(indicator.id);
-                          }}
-                          title="Remove indicator"
-                        >
-                          ×
-                        </button>
-                      </>
-                    )}
-                  </div>
-                ))}
-                {smaIndicators.map((sma) => (
-                  <SMAIndicator
-                    key={sma.id}
-                    chart={sma.chart}
-                    onRemove={() => removeSmaIndicator(sma.id)}
-                  />
-                ))}
-                {emaIndicators.map((ema) => (
-                  <EMAIndicator
-                    key={ema.id}
-                    chart={ema.chart}
-                    onRemove={() => removeEmaIndicator(ema.id)}
-                  />
-                ))}
-                {wmaIndicators.map((wma) => (
-                  <WMAIndicator
-                    key={wma.id}
-                    chart={wma.chart}
-                    onRemove={() => removeWmaIndicator(wma.id)}
-                  />
-                ))}
-                {ichimokuIndicators.map((ichimoku) => (
-                  <IchimokuIndicator
-                    key={ichimoku.id}
-                    chart={ichimoku.chart}
-                    onRemove={() => removeIchimokuIndicator(ichimoku.id)}
-                  />
-                ))}
-                {supertrendIndicators.map((supertrend) => (
-                  <SupertrendIndicator
-                    key={supertrend.id}
-                    chart={supertrend.chart}
-                    onRemove={() => removeSupertrendIndicator(supertrend.id)}
-                  />
-                ))}
-                {psarIndicators.map((psar) => (
-                  <PSARIndicator
-                    key={psar.id}
-                    chart={psar.chart}
-                    onRemove={() => removePsarIndicator(psar.id)}
-                  />
-                ))}
-                {macdIndicators.map((macd) => (
-                  <MACDIndicator
-                    key={macd.id}
-                    chart={macd.chart}
-                    onRemove={() => removeMacdIndicator(macd.id)}
-                  />
-                ))}
-                {adxIndicators.map((adx) => (
-                  <ADXIndicator
-                    key={adx.id}
-                    chart={adx.chart}
-                    onRemove={() => removeAdxIndicator(adx.id)}
-                  />
-                ))}
-                {hmaIndicators.map((hma) => (
-                  <HMAIndicator
-                    key={hma.id}
-                    chart={hma.chart}
-                    onRemove={() => removeHmaIndicator(hma.id)}
-                  />
-                ))}
-                {rsiIndicators.map((rsi) => (
-                  <RSIIndicator
-                    key={rsi.id}
-                    chart={rsi.chart}
-                    onRemove={() => removeRsiIndicator(rsi.id)}
-                  />
-                ))}
-                {stochasticIndicators.map((stochastic) => (
-                  <StochasticIndicator
-                    key={stochastic.id}
-                    chart={stochastic.chart}
-                    onRemove={() => removeStochasticIndicator(stochastic.id)}
-                  />
-                ))}
-                {stochasticRsiIndicators.map((stochasticRsi) => (
-                  <StochasticRSIIndicator
-                    key={stochasticRsi.id}
-                    chart={stochasticRsi.chart}
-                    onRemove={() => removeStochasticRsiIndicator(stochasticRsi.id)}
-                  />
-                ))}
-                {cciIndicators.map((cci) => (
-                  <CCIIndicator
-                    key={cci.id}
-                    chart={cci.chart}
-                    onRemove={() => removeCciIndicator(cci.id)}
-                  />
-                ))}
-                {williamsRIndicators.map((williamsR) => (
-                  <WilliamsRIndicator
-                    key={williamsR.id}
-                    chart={williamsR.chart}
-                    onRemove={() => removeWilliamsRIndicator(williamsR.id)}
-                  />
-                ))}
-                {rocIndicators.map((roc) => (
-                  <ROCIndicator
-                    key={roc.id}
-                    chart={roc.chart}
-                    onRemove={() => {
-                      setRocIndicators(prev => prev.filter(ind => ind.id !== roc.id));
-                    }}
-                  />
-                ))}
-                {bollingerBandsIndicators.map((indicator) => (
-                  <BollingerBandsIndicator
-                    key={indicator.id}
-                    chart={indicator.chart}
-                    onRemove={() => {
-                      setBollingerBandsIndicators(prev => prev.filter(ind => ind.id !== indicator.id));
-                    }}
-                  />
-                ))}
-                {keltnerChannelIndicators.map((indicator) => (
-                  <KeltnerChannelIndicator
-                    key={indicator.id}
-                    chart={indicator.chart}
-                    onRemove={() => {
-                      setKeltnerChannelIndicators(prev => prev.filter(ind => ind.id !== indicator.id));
-                    }}
-                  />
-                ))}
-                {donchianChannelIndicators.map((indicator) => (
-                  <DonchianChannelIndicator
-                    key={indicator.id}
-                    chart={indicator.chart}
-                    onRemove={() => removeDonchianChannelIndicator(indicator.id)}
-                  />
-                ))}
-                {atrIndicators.map((indicator) => (
-                  <ATRIndicator
-                    key={indicator.id}
-                    chart={indicator.chart}
-                    onRemove={() => removeAtrIndicator(indicator.id)}
-                  />
-                ))}
-                {standardDeviationChannelIndicators.map((indicator) => (
-                  <StandardDeviationChannelIndicator
-                    key={indicator.id}
-                    chart={indicator.chart}
-                    onRemove={() => removeStandardDeviationChannelIndicator(indicator.id)}
-                  />
-                ))}
-                {volumeHistogramIndicators.map((indicator) => (
-                  <VolumeHistogramIndicator
-                    key={indicator.id}
-                    chart={indicator.chart}
-                    onRemove={() => removeVolumeHistogramIndicator(indicator.id)}
-                  />
-                ))}
-              </div>
+        {/* Indicators Panel */}
+        {(appliedIndicators.length > 0 || smaIndicators.length > 0 || emaIndicators.length > 0 || wmaIndicators.length > 0 || ichimokuIndicators.length > 0 || supertrendIndicators.length > 0 || psarIndicators.length > 0 || macdIndicators.length > 0 || adxIndicators.length > 0 || hmaIndicators.length > 0 || rsiIndicators.length > 0 || stochasticIndicators.length > 0 || stochasticRsiIndicators.length > 0 || cciIndicators.length > 0 || williamsRIndicators.length > 0 || rocIndicators.length > 0 || bollingerBandsIndicators.length > 0 || keltnerChannelIndicators.length > 0 || donchianChannelIndicators.length > 0 || atrIndicators.length > 0 || standardDeviationChannelIndicators.length > 0 || volumeHistogramIndicators.length > 0) && (
+          <div style={styles.indicatorsPanel}>
+            <div style={styles.indicatorsPanelTitle}>Applied Indicators</div>
+            <div style={styles.indicatorsList}>
+              {appliedIndicators.map((indicator) => (
+                <div
+                  key={indicator.id}
+                  data-indicator-chip
+                  style={{
+                    ...styles.indicatorChip,
+                    ...(showIndicatorControls === indicator.id ? styles.indicatorChipHover : {})
+                  }}
+                  onClick={() => setShowIndicatorControls(showIndicatorControls === indicator.id ? null : indicator.id)}
+                >
+                  <span style={styles.indicatorName}>{indicator.name}</span>
+                  {showIndicatorControls === indicator.id && (
+                    <>
+                      <button
+                        style={styles.settingsButton}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          // Settings functionality can be added here
+                          console.log(`Settings for ${indicator.name}`);
+                        }}
+                        title="Settings"
+                      >
+                        <i className="fa-solid fa-gear"></i>
+                      </button>
+                      <button
+                        style={styles.removeButton}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          removeIndicator(indicator.id);
+                        }}
+                        title="Remove indicator"
+                      >
+                        ×
+                      </button>
+                    </>
+                  )}
+                </div>
+              ))}
+              {smaIndicators.map((sma) => (
+                <SMAIndicator
+                  key={sma.id}
+                  chart={sma.chart}
+                  onRemove={() => removeSmaIndicator(sma.id)}
+                />
+              ))}
+              {emaIndicators.map((ema) => (
+                <EMAIndicator
+                  key={ema.id}
+                  chart={ema.chart}
+                  onRemove={() => removeEmaIndicator(ema.id)}
+                />
+              ))}
+              {wmaIndicators.map((wma) => (
+                <WMAIndicator
+                  key={wma.id}
+                  chart={wma.chart}
+                  onRemove={() => removeWmaIndicator(wma.id)}
+                />
+              ))}
+              {ichimokuIndicators.map((ichimoku) => (
+                <IchimokuIndicator
+                  key={ichimoku.id}
+                  chart={ichimoku.chart}
+                  onRemove={() => removeIchimokuIndicator(ichimoku.id)}
+                />
+              ))}
+              {supertrendIndicators.map((supertrend) => (
+                <SupertrendIndicator
+                  key={supertrend.id}
+                  chart={supertrend.chart}
+                  onRemove={() => removeSupertrendIndicator(supertrend.id)}
+                />
+              ))}
+              {psarIndicators.map((psar) => (
+                <PSARIndicator
+                  key={psar.id}
+                  chart={psar.chart}
+                  onRemove={() => removePsarIndicator(psar.id)}
+                />
+              ))}
+              {macdIndicators.map((macd) => (
+                <MACDIndicator
+                  key={macd.id}
+                  chart={macd.chart}
+                  onRemove={() => removeMacdIndicator(macd.id)}
+                />
+              ))}
+              {adxIndicators.map((adx) => (
+                <ADXIndicator
+                  key={adx.id}
+                  chart={adx.chart}
+                  onRemove={() => removeAdxIndicator(adx.id)}
+                />
+              ))}
+              {hmaIndicators.map((hma) => (
+                <HMAIndicator
+                  key={hma.id}
+                  chart={hma.chart}
+                  onRemove={() => removeHmaIndicator(hma.id)}
+                />
+              ))}
+              {rsiIndicators.map((rsi) => (
+                <RSIIndicator
+                  key={rsi.id}
+                  chart={rsi.chart}
+                  onRemove={() => removeRsiIndicator(rsi.id)}
+                />
+              ))}
+              {stochasticIndicators.map((stochastic) => (
+                <StochasticIndicator
+                  key={stochastic.id}
+                  chart={stochastic.chart}
+                  onRemove={() => removeStochasticIndicator(stochastic.id)}
+                />
+              ))}
+              {stochasticRsiIndicators.map((stochasticRsi) => (
+                <StochasticRSIIndicator
+                  key={stochasticRsi.id}
+                  chart={stochasticRsi.chart}
+                  onRemove={() => removeStochasticRsiIndicator(stochasticRsi.id)}
+                />
+              ))}
+              {cciIndicators.map((cci) => (
+                <CCIIndicator
+                  key={cci.id}
+                  chart={cci.chart}
+                  onRemove={() => removeCciIndicator(cci.id)}
+                />
+              ))}
+              {williamsRIndicators.map((williamsR) => (
+                <WilliamsRIndicator
+                  key={williamsR.id}
+                  chart={williamsR.chart}
+                  onRemove={() => removeWilliamsRIndicator(williamsR.id)}
+                />
+              ))}
+              {rocIndicators.map((roc) => (
+                <ROCIndicator
+                  key={roc.id}
+                  chart={roc.chart}
+                  onRemove={() => {
+                    setRocIndicators(prev => prev.filter(ind => ind.id !== roc.id));
+                  }}
+                />
+              ))}
+              {bollingerBandsIndicators.map((indicator) => (
+                <BollingerBandsIndicator
+                  key={indicator.id}
+                  chart={indicator.chart}
+                  onRemove={() => {
+                    setBollingerBandsIndicators(prev => prev.filter(ind => ind.id !== indicator.id));
+                  }}
+                />
+              ))}
+              {keltnerChannelIndicators.map((indicator) => (
+                <KeltnerChannelIndicator
+                  key={indicator.id}
+                  chart={indicator.chart}
+                  onRemove={() => {
+                    setKeltnerChannelIndicators(prev => prev.filter(ind => ind.id !== indicator.id));
+                  }}
+                />
+              ))}
+              {donchianChannelIndicators.map((indicator) => (
+                <DonchianChannelIndicator
+                  key={indicator.id}
+                  chart={indicator.chart}
+                  onRemove={() => removeDonchianChannelIndicator(indicator.id)}
+                />
+              ))}
+              {atrIndicators.map((indicator) => (
+                <ATRIndicator
+                  key={indicator.id}
+                  chart={indicator.chart}
+                  onRemove={() => removeAtrIndicator(indicator.id)}
+                />
+              ))}
+              {standardDeviationChannelIndicators.map((indicator) => (
+                <StandardDeviationChannelIndicator
+                  key={indicator.id}
+                  chart={indicator.chart}
+                  onRemove={() => removeStandardDeviationChannelIndicator(indicator.id)}
+                />
+              ))}
+              {volumeHistogramIndicators.map((indicator) => (
+                <VolumeHistogramIndicator
+                  key={indicator.id}
+                  chart={indicator.chart}
+                  onRemove={() => removeVolumeHistogramIndicator(indicator.id)}
+                />
+              ))}
             </div>
-          )}
-
-          {/* Symbol and Price Display */}
-          <div style={styles.symbolPriceDisplay}>
-            <div style={styles.symbolName}>NIFTY 50</div>
-            <div style={styles.currentPrice}>24,567.80</div>
           </div>
+        )}
 
-          <OIChartAlpha5 showOiData={oiData} onChartReady={(chart) => {
-            chartInstanceRef.current = chart;
-            
-            // Register custom overlays for drawing tools
-            registerCustomOverlays();
-            
-            // Apply initial chart type and styles
-            chart.setStyles({
-              grid: {
-                show: settings.gridShow,
-              },
-              candle: {
-                type: "candle_solid",
-                tooltip: {
-                  showRule: 'none'
+        {/* Symbol and Price Display */}
+        <div style={styles.symbolPriceDisplay}>
+          <div style={styles.symbolName}>NIFTY 50</div>
+          <div style={styles.currentPrice}>24,567.80</div>
+        </div>
+
+        <OIChartAlpha5 showOiData={oiData} onChartReady={(chart) => {
+          chartInstanceRef.current = chart;
+
+          // Register custom overlays for drawing tools
+          registerCustomOverlays();
+
+          // Apply initial chart type and styles
+          chart.setStyles({
+            grid: {
+              show: settings.gridShow,
+            },
+            candle: {
+              type: "candle_solid",
+              tooltip: {
+                showRule: 'none'
+              }
+            },
+            crosshair: {
+              show: true,
+              horizontal: {
+                show: true,
+                line: {
+                  show: true,
+                  style: 'dashed',
+                  color: '#888',
+                  width: 1
+                },
+                text: {
+                  show: true,
+                  color: '#D9D9D9',
+                  backgroundColor: '#686D76'
                 }
               },
-              crosshair: {
+              vertical: {
                 show: true,
-                horizontal: {
+                line: {
                   show: true,
-                  line: {
-                    show: true,
-                    style: 'dashed',
-                    color: '#888',
-                    width: 1
-                  },
-                  text: {
-                    show: true,
-                    color: '#D9D9D9',
-                    backgroundColor: '#686D76'
-                  }
+                  style: 'dashed',
+                  color: '#888',
+                  width: 1
                 },
-                vertical: {
+                text: {
                   show: true,
-                  line: {
-                    show: true,
-                    style: 'dashed',
-                    color: '#888',
-                    width: 1
-                  },
-                  text: {
-                    show: true,
-                    color: '#D9D9D9',
-                    backgroundColor: '#686D76'
-                  }
+                  color: '#D9D9D9',
+                  backgroundColor: '#686D76'
                 }
               }
-            });
-          }} />
-        </div>
+            }
+          });
+        }} />
       </div>
     </div>
   );
@@ -3969,8 +3953,8 @@ const styles = {
     boxShadow: "0 4px 12px rgba(0, 0, 0, 0.15)",
     zIndex: 1000,
     overflow: "hidden",
-    fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif",
     minWidth: "200px",
+    fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif",
   },
   compactSettingsHeader: {
     display: "flex",
@@ -4245,7 +4229,7 @@ const styles = {
     zIndex: 2000,
     overflow: "hidden",
     minWidth: "160px",
-    fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif",
+    fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', sans-serif",
   },
   contextMenuItem: {
     display: "flex",
@@ -4277,7 +4261,7 @@ const styles = {
     zIndex: 1000,
     overflow: "hidden",
     maxWidth: "250px",
-    fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif",
+    fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', sans-serif",
   },
   drawingManagementHeader: {
     display: "flex",
