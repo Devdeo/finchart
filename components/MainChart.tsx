@@ -103,8 +103,8 @@ const registerCustomOverlays = () => {
     name: "fibRetracement",
     totalStep: 2,
     needDefaultPointFigure: false,
-    createPointFigures: ({ coordinates, bounding, yAxis }) => {
-      if (!coordinates || coordinates.length < 2 || !bounding || !yAxis) return [];
+    createPointFigures: ({ coordinates, bounding, yAxis, xAxis }) => {
+      if (!coordinates || coordinates.length < 2 || !bounding || !yAxis || !xAxis) return [];
       const [p1, p2] = coordinates;
       
       // Convert pixel coordinates to price values
@@ -113,10 +113,11 @@ const registerCustomOverlays = () => {
       
       // Fibonacci levels
       const fibLevels = [0, 0.236, 0.382, 0.5, 0.618, 0.786, 1];
-      const fibLabels = ['0%', '23.6%', '38.2%', '50%', '61.8%', '78.6%', '100%'];
+      const fibLabels = ['0.0%', '23.6%', '38.2%', '50.0%', '61.8%', '78.6%', '100.0%'];
       
-      const priceRange = price2 - price1;
-      const isUptrend = price1 < price2;
+      const priceRange = Math.abs(price2 - price1);
+      const minPrice = Math.min(price1, price2);
+      const maxPrice = Math.max(price1, price2);
       
       const figures = [];
       
@@ -127,36 +128,54 @@ const registerCustomOverlays = () => {
           coordinates: [p1, p2]
         },
         styles: {
-          color: '#888',
-          size: 1,
+          color: '#888888',
+          size: 2,
           style: 'solid'
         }
       });
       
+      // Get chart bounds for extending lines
+      const leftBound = bounding.left;
+      const rightBound = bounding.left + bounding.width;
+      
       // Draw horizontal lines for each fib level
       for (let i = 0; i < fibLevels.length; i++) {
         const level = fibLevels[i];
-        const fibPrice = isUptrend ? 
-          price1 + (priceRange * level) : 
-          price1 - (priceRange * (1 - level));
-        
+        const fibPrice = minPrice + (priceRange * level);
         const y = yAxis.convertToPixel(fibPrice);
         
-        // Horizontal line spanning the chart width
+        // Color scheme for different levels
+        let lineColor = '#999999';
+        let lineSize = 1;
+        let lineStyle = 'dashed';
+        
+        if (level === 0 || level === 1) {
+          lineColor = '#666666';
+          lineSize = 2;
+          lineStyle = 'solid';
+        } else if (level === 0.382 || level === 0.618) {
+          lineColor = '#ff9800';
+          lineSize = 2;
+          lineStyle = 'solid';
+        } else if (level === 0.5) {
+          lineColor = '#2196f3';
+          lineSize = 2;
+          lineStyle = 'solid';
+        }
+        
+        // Horizontal line spanning the entire chart width
         figures.push({
           type: "line",
           attrs: {
             coordinates: [
-              { x: Math.min(p1.x, p2.x) - 50, y },
-              { x: Math.max(p1.x, p2.x) + 100, y }
+              { x: leftBound, y },
+              { x: rightBound, y }
             ]
           },
           styles: {
-            color: level === 0.382 || level === 0.618 ? '#ff9800' : 
-                   level === 0.5 ? '#2196f3' : 
-                   level === 0 || level === 1 ? '#666' : '#999',
-            size: level === 0.382 || level === 0.618 || level === 0.5 ? 2 : 1,
-            style: level === 0 || level === 1 ? 'solid' : 'dashed'
+            color: lineColor,
+            size: lineSize,
+            style: lineStyle
           }
         });
         
@@ -164,16 +183,15 @@ const registerCustomOverlays = () => {
         figures.push({
           type: "text",
           attrs: {
-            x: Math.max(p1.x, p2.x) + 10,
-            y: y - 3,
+            x: rightBound - 120,
+            y: y - 5,
             text: `${fibLabels[i]} (${fibPrice.toFixed(2)})`
           },
           styles: {
-            color: level === 0.382 || level === 0.618 ? '#ff9800' : 
-                   level === 0.5 ? '#2196f3' : '#666',
+            color: lineColor,
             size: 11,
             family: 'Arial, sans-serif',
-            weight: level === 0.382 || level === 0.618 || level === 0.5 ? 'bold' : 'normal'
+            weight: (level === 0.382 || level === 0.618 || level === 0.5) ? 'bold' : 'normal'
           }
         });
       }
@@ -1371,12 +1389,20 @@ export default function MainChart() {
 
   const drawFibRetracement = () => {
     if (chartInstanceRef.current) {
-      chartInstanceRef.current.createOverlay({
-        name: 'fibRetracement',
-        styles: {
-          line: { color: '#ff9800', size: 2 }
-        }
-      });
+      console.log('Creating Fib Retracement overlay...');
+      try {
+        chartInstanceRef.current.createOverlay({
+          name: 'fibRetracement',
+          needDefaultPointFigure: false,
+          styles: {
+            line: { color: '#ff9800', size: 2, style: 'solid' },
+            text: { color: '#ff9800', size: 11, family: 'Arial, sans-serif' }
+          }
+        });
+        console.log('Fib Retracement overlay created successfully');
+      } catch (error) {
+        console.error('Error creating Fib Retracement overlay:', error);
+      }
     }
     setShowFibSubmenu(false);
   };
@@ -2155,6 +2181,61 @@ export default function MainChart() {
                 </g>
               </svg>
               <span style={styles.submenuText}>Fib Retracement</span>
+            </div>
+
+            {/* Fib Extension */}
+            <div style={styles.submenuItem} onClick={drawFibExtension}>
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 28" width="20" height="20">
+                <g fill="currentColor" fillRule="nonzero">
+                  <path d="M3 5h22v-1h-22z"></path>
+                  <path d="M3 17h22v-1h-22z"></path>
+                  <path d="M3 11h19.5v-1h-19.5z"></path>
+                  <path d="M5.5 23h19.5v-1h-19.5z"></path>
+                </g>
+              </svg>
+              <span style={styles.submenuText}>Fib Extension</span>
+            </div>
+
+            {/* Fib Fan */}
+            <div style={styles.submenuItem} onClick={drawFibFan}>
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 28" width="20" height="20">
+                <g fill="currentColor" fillRule="nonzero">
+                  <path d="M3 5h22v-1h-22z"></path>
+                  <path d="M3 17h22v-1h-22z"></path>
+                  <path d="M3 11h19.5v-1h-19.5z"></path>
+                </g>
+              </svg>
+              <span style={styles.submenuText}>Fib Fan</span>
+            </div>
+
+            {/* Fib Time Zone */}
+            <div style={styles.submenuItem} onClick={drawFibTimeZone}>
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 28" width="20" height="20">
+                <g fill="currentColor" fillRule="nonzero">
+                  <path d="M14 3v8h1v-8zM14 18v8h1v-8z"></path>
+                </g>
+              </svg>
+              <span style={styles.submenuText}>Fib Time Zone</span>
+            </div>
+
+            {/* Fib Circles */}
+            <div style={styles.submenuItem} onClick={drawFibCircles}>
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 28" width="20" height="20">
+                <circle cx="14" cy="14" r="8" fill="none" stroke="currentColor" strokeWidth="1"/>
+                <circle cx="14" cy="14" r="5" fill="none" stroke="currentColor" strokeWidth="1"/>
+                <circle cx="14" cy="14" r="3" fill="none" stroke="currentColor" strokeWidth="1"/>
+              </svg>
+              <span style={styles.submenuText}>Fib Circles</span>
+            </div>
+
+            {/* Fib Arcs */}
+            <div style={styles.submenuItem} onClick={drawFibArcs}>
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 28" width="20" height="20">
+                <path d="M14 6 A 8 8 0 0 1 22 14" fill="none" stroke="currentColor" strokeWidth="1"/>
+                <path d="M14 9 A 5 5 0 0 1 19 14" fill="none" stroke="currentColor" strokeWidth="1"/>
+                <path d="M14 11 A 3 3 0 0 1 17 14" fill="none" stroke="currentColor" strokeWidth="1"/>
+              </svg>
+              <span style={styles.submenuText}>Fib Arcs</span>
             </div>
           </div>
         )}
