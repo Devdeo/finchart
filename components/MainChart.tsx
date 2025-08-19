@@ -750,67 +750,350 @@ export default function MainChart() {
 
   // Drawing tool functions
   const drawTrendline = () => {
-    console.log("Drawing Trend Line...");
+    if (chartInstanceRef.current) {
+      // Create a trend line overlay
+      const chartData = chartInstanceRef.current.getDataList();
+      if (chartData && chartData.length > 10) {
+        const startIndex = Math.floor(chartData.length * 0.2);
+        const endIndex = Math.floor(chartData.length * 0.8);
+        
+        chartInstanceRef.current.createOverlay({
+          name: 'segment',
+          points: [
+            { timestamp: chartData[startIndex].timestamp, value: chartData[startIndex].low },
+            { timestamp: chartData[endIndex].timestamp, value: chartData[endIndex].high }
+          ],
+          styles: {
+            line: { color: '#1e88e5', size: 2 }
+          }
+        });
+      }
+    }
     setShowSubmenu(false);
   };
 
   const drawRay = () => {
-    console.log("Drawing Ray...");
+    if (chartInstanceRef.current) {
+      const chartData = chartInstanceRef.current.getDataList();
+      if (chartData && chartData.length > 10) {
+        const startIndex = Math.floor(chartData.length * 0.3);
+        const endIndex = Math.floor(chartData.length * 0.7);
+        
+        chartInstanceRef.current.createOverlay({
+          name: 'ray',
+          points: [
+            { timestamp: chartData[startIndex].timestamp, value: chartData[startIndex].close },
+            { timestamp: chartData[endIndex].timestamp, value: chartData[endIndex].close }
+          ],
+          styles: {
+            line: { color: '#ff9800', size: 2 }
+          }
+        });
+      }
+    }
     setShowSubmenu(false);
   };
 
   const drawInfoLine = () => {
-    console.log("Drawing Info Line...");
+    if (chartInstanceRef.current) {
+      const chartData = chartInstanceRef.current.getDataList();
+      if (chartData && chartData.length > 10) {
+        const midIndex = Math.floor(chartData.length / 2);
+        
+        chartInstanceRef.current.createOverlay({
+          name: 'segment',
+          points: [
+            { timestamp: chartData[midIndex - 5].timestamp, value: chartData[midIndex - 5].close },
+            { timestamp: chartData[midIndex + 5].timestamp, value: chartData[midIndex + 5].close }
+          ],
+          styles: {
+            line: { color: '#4caf50', size: 2, style: 'dashed' }
+          }
+        });
+      }
+    }
     setShowSubmenu(false);
   };
 
   const drawTrendAngle = () => {
-    console.log("Drawing Trend Angle...");
+    if (chartInstanceRef.current) {
+      const chartData = chartInstanceRef.current.getDataList();
+      if (chartData && chartData.length > 10) {
+        const startIndex = Math.floor(chartData.length * 0.25);
+        const endIndex = Math.floor(chartData.length * 0.75);
+        
+        chartInstanceRef.current.createOverlay({
+          name: 'segment',
+          points: [
+            { timestamp: chartData[startIndex].timestamp, value: chartData[startIndex].high },
+            { timestamp: chartData[endIndex].timestamp, value: chartData[endIndex].low }
+          ],
+          styles: {
+            line: { color: '#9c27b0', size: 2 }
+          }
+        });
+      }
+    }
     setShowSubmenu(false);
   };
 
   const drawHorizontalLine = () => {
-    console.log("Drawing Horizontal Line...");
+    if (chartInstanceRef.current) {
+      const chartData = chartInstanceRef.current.getDataList();
+      if (chartData && chartData.length > 5) {
+        const midIndex = Math.floor(chartData.length / 2);
+        const price = chartData[midIndex].close;
+        
+        chartInstanceRef.current.createOverlay({
+          name: 'horizontalStraightLine',
+          points: [
+            { timestamp: chartData[0].timestamp, value: price }
+          ],
+          styles: {
+            line: { color: '#f44336', size: 2 }
+          }
+        });
+      }
+    }
     setShowSubmenu(false);
   };
 
   const drawHorizontalRay = () => {
-    console.log("Drawing Horizontal Ray...");
+    if (chartInstanceRef.current) {
+      const chartData = chartInstanceRef.current.getDataList();
+      if (chartData && chartData.length > 5) {
+        const startIndex = Math.floor(chartData.length * 0.4);
+        const price = chartData[startIndex].close;
+        
+        chartInstanceRef.current.createOverlay({
+          name: 'horizontalRay',
+          points: [
+            { timestamp: chartData[startIndex].timestamp, value: price }
+          ],
+          styles: {
+            line: { color: '#607d8b', size: 2 }
+          }
+        });
+      }
+    }
     setShowSubmenu(false);
   };
 
   const drawExtendedLine = () => {
-    console.log("Drawing Extended Line...");
+    if (chartInstanceRef.current) {
+      const chartData = chartInstanceRef.current.getDataList();
+      if (chartData && chartData.length > 10) {
+        const startIndex = Math.floor(chartData.length * 0.3);
+        const endIndex = Math.floor(chartData.length * 0.7);
+        
+        chartInstanceRef.current.createOverlay({
+          name: 'straightLine',
+          points: [
+            { timestamp: chartData[startIndex].timestamp, value: chartData[startIndex].low },
+            { timestamp: chartData[endIndex].timestamp, value: chartData[endIndex].high }
+          ],
+          styles: {
+            line: { color: '#795548', size: 2 }
+          }
+        });
+      }
+    }
     setShowSubmenu(false);
   };
 
   const drawVerticalLine = () => {
-    console.log("Drawing Vertical Line...");
+    if (chartInstanceRef.current) {
+      const chartData = chartInstanceRef.current.getDataList();
+      if (chartData && chartData.length > 5) {
+        const midIndex = Math.floor(chartData.length / 2);
+        
+        chartInstanceRef.current.createOverlay({
+          name: 'verticalStraightLine',
+          points: [
+            { timestamp: chartData[midIndex].timestamp, value: chartData[midIndex].close }
+          ],
+          styles: {
+            line: { color: '#00bcd4', size: 2 }
+          }
+        });
+      }
+    }
     setShowSubmenu(false);
   };
 
   const drawCrossLine = () => {
-    console.log("Drawing Cross Line...");
+    if (chartInstanceRef.current) {
+      const chartData = chartInstanceRef.current.getDataList();
+      if (chartData && chartData.length > 5) {
+        const midIndex = Math.floor(chartData.length / 2);
+        const price = chartData[midIndex].close;
+        
+        // Draw horizontal line
+        chartInstanceRef.current.createOverlay({
+          name: 'horizontalStraightLine',
+          points: [
+            { timestamp: chartData[0].timestamp, value: price }
+          ],
+          styles: {
+            line: { color: '#ffeb3b', size: 1 }
+          }
+        });
+        
+        // Draw vertical line
+        chartInstanceRef.current.createOverlay({
+          name: 'verticalStraightLine',
+          points: [
+            { timestamp: chartData[midIndex].timestamp, value: price }
+          ],
+          styles: {
+            line: { color: '#ffeb3b', size: 1 }
+          }
+        });
+      }
+    }
     setShowSubmenu(false);
   };
 
   const drawParallelChannel = () => {
-    console.log("Drawing Parallel Channel...");
+    if (chartInstanceRef.current) {
+      const chartData = chartInstanceRef.current.getDataList();
+      if (chartData && chartData.length > 20) {
+        const startIndex = Math.floor(chartData.length * 0.2);
+        const endIndex = Math.floor(chartData.length * 0.8);
+        const offset = (chartData[endIndex].high - chartData[startIndex].low) * 0.1;
+        
+        // Upper line
+        chartInstanceRef.current.createOverlay({
+          name: 'segment',
+          points: [
+            { timestamp: chartData[startIndex].timestamp, value: chartData[startIndex].high + offset },
+            { timestamp: chartData[endIndex].timestamp, value: chartData[endIndex].high + offset }
+          ],
+          styles: {
+            line: { color: '#3f51b5', size: 2 }
+          }
+        });
+        
+        // Lower line
+        chartInstanceRef.current.createOverlay({
+          name: 'segment',
+          points: [
+            { timestamp: chartData[startIndex].timestamp, value: chartData[startIndex].low - offset },
+            { timestamp: chartData[endIndex].timestamp, value: chartData[endIndex].low - offset }
+          ],
+          styles: {
+            line: { color: '#3f51b5', size: 2 }
+          }
+        });
+      }
+    }
     setShowSubmenu(false);
   };
 
   const drawPriceChannel = () => {
-    console.log("Drawing Price Channel...");
+    if (chartInstanceRef.current) {
+      const chartData = chartInstanceRef.current.getDataList();
+      if (chartData && chartData.length > 20) {
+        const startIndex = Math.floor(chartData.length * 0.2);
+        const midIndex = Math.floor(chartData.length * 0.5);
+        const endIndex = Math.floor(chartData.length * 0.8);
+        
+        // Upper channel line
+        chartInstanceRef.current.createOverlay({
+          name: 'segment',
+          points: [
+            { timestamp: chartData[startIndex].timestamp, value: chartData[startIndex].high },
+            { timestamp: chartData[endIndex].timestamp, value: chartData[endIndex].high }
+          ],
+          styles: {
+            line: { color: '#e91e63', size: 2 }
+          }
+        });
+        
+        // Lower channel line
+        chartInstanceRef.current.createOverlay({
+          name: 'segment',
+          points: [
+            { timestamp: chartData[startIndex].timestamp, value: chartData[startIndex].low },
+            { timestamp: chartData[endIndex].timestamp, value: chartData[endIndex].low }
+          ],
+          styles: {
+            line: { color: '#e91e63', size: 2 }
+          }
+        });
+      }
+    }
     setShowSubmenu(false);
   };
 
   const drawRegressionTrend = () => {
-    console.log("Drawing Regression Trend...");
+    if (chartInstanceRef.current) {
+      const chartData = chartInstanceRef.current.getDataList();
+      if (chartData && chartData.length > 20) {
+        // Simple linear regression calculation
+        const n = chartData.length;
+        let sumX = 0, sumY = 0, sumXY = 0, sumXX = 0;
+        
+        for (let i = 0; i < n; i++) {
+          sumX += i;
+          sumY += chartData[i].close;
+          sumXY += i * chartData[i].close;
+          sumXX += i * i;
+        }
+        
+        const slope = (n * sumXY - sumX * sumY) / (n * sumXX - sumX * sumX);
+        const intercept = (sumY - slope * sumX) / n;
+        
+        const startValue = intercept;
+        const endValue = slope * (n - 1) + intercept;
+        
+        chartInstanceRef.current.createOverlay({
+          name: 'segment',
+          points: [
+            { timestamp: chartData[0].timestamp, value: startValue },
+            { timestamp: chartData[n - 1].timestamp, value: endValue }
+          ],
+          styles: {
+            line: { color: '#ff5722', size: 2, style: 'dashed' }
+          }
+        });
+      }
+    }
     setShowSubmenu(false);
   };
 
   const drawFlatTopBottom = () => {
-    console.log("Drawing Flat Top/Bottom...");
+    if (chartInstanceRef.current) {
+      const chartData = chartInstanceRef.current.getDataList();
+      if (chartData && chartData.length > 10) {
+        // Find recent high and low
+        const recentData = chartData.slice(-20);
+        const maxPrice = Math.max(...recentData.map(d => d.high));
+        const minPrice = Math.min(...recentData.map(d => d.low));
+        
+        // Draw resistance (top) line
+        chartInstanceRef.current.createOverlay({
+          name: 'horizontalStraightLine',
+          points: [
+            { timestamp: chartData[0].timestamp, value: maxPrice }
+          ],
+          styles: {
+            line: { color: '#f44336', size: 2, style: 'solid' }
+          }
+        });
+        
+        // Draw support (bottom) line
+        chartInstanceRef.current.createOverlay({
+          name: 'horizontalStraightLine',
+          points: [
+            { timestamp: chartData[0].timestamp, value: minPrice }
+          ],
+          styles: {
+            line: { color: '#4caf50', size: 2, style: 'solid' }
+          }
+        });
+      }
+    }
     setShowSubmenu(false);
   };
 
