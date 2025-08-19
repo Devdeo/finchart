@@ -142,46 +142,6 @@ const registerCustomOverlays = () => {
     },
   });
 
-  // Regression Trend overlay
-  registerOverlay({
-    name: "regressionTrend",
-    totalStep: 2,
-    needDefaultPointFigure: false,
-    createPointFigures: ({ coordinates, data, xAxis, yAxis }) => {
-      if (!coordinates || coordinates.length < 2 || !data || !xAxis || !yAxis) return [];
-      const [p1, p2] = coordinates;
-      const fromIndex = Math.min(p1.dataIndex, p2.dataIndex);
-      const toIndex = Math.max(p1.dataIndex, p2.dataIndex);
-      const slice = data.slice(fromIndex, toIndex + 1);
-      if (slice.length < 2) return [];
-
-      const xs = slice.map((d, i) => i);
-      const ys = slice.map((d) => d.close);
-      const n = xs.length;
-      const sumX = xs.reduce((a, b) => a + b, 0);
-      const sumY = ys.reduce((a, b) => a + b, 0);
-      const sumXY = xs.reduce((a, b, i) => a + b * ys[i], 0);
-      const sumX2 = xs.reduce((a, b) => a + b * b, 0);
-      const slope = (n * sumXY - sumX * sumY) / (n * sumX2 - sumX * sumX);
-      const intercept = (sumY - slope * sumX) / n;
-
-      const yStart = intercept;
-      const yEnd = slope * (n - 1) + intercept;
-
-      return [
-        {
-          type: "line",
-          attrs: {
-            coordinates: [
-              { x: xAxis.convertToPixel(fromIndex), y: yAxis.convertToPixel(yEnd) },
-              { x: xAxis.convertToPixel(toIndex), y: yAxis.convertToPixel(yEnd) },
-            ],
-          },
-        },
-      ];
-    },
-  });
-
   // Fibonacci Retracement overlay (custom implementation as fallback)
   registerOverlay({
     name: "fibRetracement",
@@ -278,42 +238,6 @@ const registerCustomOverlays = () => {
     },
   });
 
-  // Fib Circles (full circles at fib radii)
-  registerOverlay({
-    name: "fibCircles",
-    totalStep: 2,
-    needDefaultPointFigure: false,
-    createPointFigures: ({ coordinates }) => {
-      if (!coordinates || coordinates.length < 2) return [];
-      const [p1, p2] = coordinates;
-      const dx = p2.x - p1.x;
-      const dy = p2.y - p1.y;
-      const r = Math.sqrt(dx * dx + dy * dy);
-      const levels = [0.236, 0.382, 0.5, 0.618, 1];
-      const figures = [];
-      
-      for (let i = 0; i < levels.length; i++) {
-        const level = levels[i];
-        figures.push({
-          type: "arc",
-          attrs: { 
-            x: p1.x, 
-            y: p1.y, 
-            r: r * level, 
-            startAngle: 0, 
-            endAngle: Math.PI * 2 
-          },
-          styles: {
-            color: level === 0.382 || level === 0.618 ? '#ff9800' : '#999',
-            size: level === 0.382 || level === 0.618 ? 2 : 1,
-            style: 'solid'
-          }
-        });
-      }
-      return figures;
-    },
-  });
-
   // Fib Spiral (simple poly-line approximation)
   registerOverlay({
     name: "fibSpiral",
@@ -344,42 +268,6 @@ const registerCustomOverlays = () => {
     },
   });
 
-  // Fib Arcs (half arcs at fib radii)
-  registerOverlay({
-    name: "fibArcs",
-    totalStep: 2,
-    needDefaultPointFigure: false,
-    createPointFigures: ({ coordinates }) => {
-      if (!coordinates || coordinates.length < 2) return [];
-      const [p1, p2] = coordinates;
-      const dx = p2.x - p1.x;
-      const dy = p2.y - p1.y;
-      const r = Math.sqrt(dx * dx + dy * dy);
-      const levels = [0.382, 0.5, 0.618, 1];
-      const figures = [];
-      
-      for (let i = 0; i < levels.length; i++) {
-        const level = levels[i];
-        figures.push({
-          type: "arc",
-          attrs: { 
-            x: p1.x, 
-            y: p1.y, 
-            r: r * level, 
-            startAngle: 0, 
-            endAngle: Math.PI 
-          },
-          styles: {
-            color: level === 0.382 || level === 0.618 ? '#ff9800' : '#4caf50',
-            size: level === 0.382 || level === 0.618 ? 2 : 1,
-            style: 'solid'
-          }
-        });
-      }
-      return figures;
-    },
-  });
-
   // Fib Wedge (two rays from p1 to right edge)
   registerOverlay({
     name: "fibWedge",
@@ -402,122 +290,6 @@ const registerCustomOverlays = () => {
           styles: { color: '#e91e63', size: 2, style: 'solid' }
         },
       ];
-    },
-  });
-
-  // Fib Fan (speed resistance fan with fib ratios)
-  registerOverlay({
-    name: "fibFan",
-    totalStep: 2,
-    needDefaultPointFigure: false,
-    createPointFigures: ({ coordinates }) => {
-      if (!coordinates || coordinates.length < 2) return [];
-      const [p1, p2] = coordinates;
-      const dx = p2.x - p1.x;
-      const dy = p2.y - p1.y;
-      const ratios = [0.382, 0.5, 0.618, 1];
-      const figures = [];
-      
-      for (let i = 0; i < ratios.length; i++) {
-        const r = ratios[i];
-        figures.push({
-          type: "line",
-          attrs: { coordinates: [p1, { x: p1.x + dx, y: p1.y + dy * r }] },
-          styles: {
-            color: r === 0.382 || r === 0.618 ? '#ff9800' : '#795548',
-            size: r === 0.382 || r === 0.618 ? 2 : 1,
-            style: 'solid'
-          }
-        });
-      }
-      return figures;
-    },
-  });
-
-  // Trend-based Fib Extension (horizontal levels past p2)
-  registerOverlay({
-    name: "fibExtension",
-    totalStep: 2,
-    needDefaultPointFigure: false,
-    createPointFigures: ({ coordinates, bounding, yAxis }) => {
-      if (!coordinates || coordinates.length < 2 || !bounding || !yAxis) return [];
-      const [p1, p2] = coordinates;
-      
-      const price1 = yAxis.convertFromPixel(p1.y);
-      const price2 = yAxis.convertFromPixel(p2.y);
-      const dy = price2 - price1;
-      
-      const { left, width } = bounding;
-      const xEnd = left + width;
-      const levels = [1.272, 1.618, 2.0];
-      const figures = [];
-      
-      for (let i = 0; i < levels.length; i++) {
-        const lv = levels[i];
-        const extPrice = price1 + dy * lv;
-        const y = yAxis.convertToPixel(extPrice);
-        
-        figures.push({
-          type: "line",
-          attrs: { coordinates: [
-            { x: p2.x, y },
-            { x: xEnd, y },
-          ] },
-          styles: {
-            color: lv === 1.618 ? '#ff9800' : '#00bcd4',
-            size: lv === 1.618 ? 2 : 1,
-            style: 'dashed'
-          }
-        });
-        
-        // Label
-        figures.push({
-          type: "text",
-          attrs: {
-            x: p2.x + 10,
-            y: y - 3,
-            text: `${(lv * 100).toFixed(1)}% (${extPrice.toFixed(2)})`
-          },
-          styles: {
-            color: lv === 1.618 ? '#ff9800' : '#00bcd4',
-            size: 11,
-            family: 'Arial, sans-serif'
-          }
-        });
-      }
-      return figures;
-    },
-  });
-
-  // Fib Time Zones (vertical lines at fib-number spacings)
-  registerOverlay({
-    name: "fibTimeZone",
-    totalStep: 2,
-    needDefaultPointFigure: false,
-    createPointFigures: ({ coordinates, bounding }) => {
-      if (!coordinates || coordinates.length < 2 || !bounding) return [];
-      const [p1, p2] = coordinates;
-      const dx = p2.x - p1.x;
-      const fibs = [1, 2, 3, 5, 8, 13];
-      const figures = [];
-      
-      for (let i = 0; i < fibs.length; i++) {
-        const n = fibs[i];
-        const x = p1.x + dx * n;
-        figures.push({
-          type: "line",
-          attrs: { coordinates: [
-            { x, y: bounding.top },
-            { x, y: bounding.top + bounding.height },
-          ] },
-          styles: {
-            color: '#607d8b',
-            size: 1,
-            style: 'dashed'
-          }
-        });
-      }
-      return figures;
     },
   });
 
@@ -1699,16 +1471,6 @@ export default function MainChart() {
     createDrawingTool('Price Channel', 'priceChannelLine');
   };
 
-  const drawRegressionTrend = () => {
-    createDrawingTool('Regression Trend', 'regressionTrend', {
-      line: { style: 'dashed' }
-    });
-  };
-
-  const drawFlatTopBottom = () => {
-    createDrawingTool('Flat Top/Bottom', 'flatTopBottom');
-  };
-
   const drawFibRetracement = () => {
     if (chartInstanceRef.current) {
       console.log('Creating Fib Retracement overlay...');
@@ -1730,58 +1492,16 @@ export default function MainChart() {
     setShowFibSubmenu(false);
   };
 
-  const drawFibExtension = () => {
-    createDrawingTool('Fib Extension', 'fibExtension', {
-      line: { style: 'dashed' }
-    });
-  };
-
   const drawFibChannel = () => {
     createDrawingTool('Fib Channel', 'fibChannel');
-  };
-
-  const drawFibTimeZone = () => {
-    createDrawingTool('Fib Time Zone', 'fibTimeZone', {
-      line: { style: 'dashed' }
-    });
-  };
-
-  const drawFibFan = () => {
-    createDrawingTool('Fib Fan', 'fibFan');
   };
 
   const drawFibWedge = () => {
     createDrawingTool('Fib Wedge', 'fibWedge');
   };
 
-  const drawFibCircles = () => {
-    if (chartInstanceRef.current) {
-      chartInstanceRef.current.createOverlay({
-        name: 'fibCircles',
-        styles: {
-          arc: { color: drawingSettings.color, size: drawingSettings.thickness, style: 'stroke' }
-        }
-      });
-      setActiveDrawingTool('Fib Circles');
-    }
-    setShowFibSubmenu(false);
-  };
-
   const drawFibSpiral = () => {
     createDrawingTool('Fib Spiral', 'fibSpiral');
-  };
-
-  const drawFibArcs = () => {
-    if (chartInstanceRef.current) {
-      chartInstanceRef.current.createOverlay({
-        name: 'fibArcs',
-        styles: {
-          arc: { color: drawingSettings.color, size: drawingSettings.thickness, style: 'stroke' }
-        }
-      });
-      setActiveDrawingTool('Fib Arcs');
-    }
-    setShowFibSubmenu(false);
   };
 
   // Pattern drawing functions
@@ -2646,30 +2366,6 @@ export default function MainChart() {
               </svg>
               <span style={styles.submenuText}>Price Channel</span>
             </div>
-
-            {/* Regression Trend */}
-            <div style={styles.submenuItem} onClick={drawRegressionTrend}>
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 28" width="20" height="20">
-                <g fill="currentColor" fillRule="nonzero">
-                  <path d="M7.551 17.98l13.284-7.033-.468-.884-13.284 7.033z"></path>
-                  <path d="M6 11.801l16-8.471v4.17h1v-5.83l-18 9.529v5.301h1z"></path>
-                  <path d="M6 24.67v-4.17h-1v5.83l18-9.529v-5.301h-1v4.699z"></path>
-                  <path d="M5.5 20c.828 0 1.5-.672 1.5-1.5s-.672-1.5-1.5-1.5-1.5.672-1.5 1.5.672 1.5 1.5 1.5zm0 1c-1.381 0-2.5-1.119-2.5-2.5s1.119-2.5 2.5-2.5 2.5 1.119 2.5 2.5-1.119 2.5-2.5 2.5zM22.5 11c.828 0 1.5-.672 1.5-1.5s-.672-1.5-1.5-1.5-1.5.672-1.5 1.5.672 1.5 1.5 1.5zm0 1c-1.381 0-2.5-1.119-2.5-2.5s1.119-2.5 2.5-2.5 2.5 1.119 2.5 2.5-1.119 2.5-2.5 2.5z"></path>
-                </g>
-              </svg>
-              <span style={styles.submenuText}>Regression Trend</span>
-            </div>
-
-            {/* Flat Top/Bottom */}
-            <div style={styles.submenuItem} onClick={drawFlatTopBottom}>
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 28" width="20" height="20">
-                <g fill="currentColor" fillRule="nonzero">
-                  <path d="M4 8h20v-1h-20z"></path>
-                  <path d="M4 21h20v-1h-20z"></path>
-                </g>
-              </svg>
-              <span style={styles.submenuText}>Flat Top/Bottom</span>
-            </div>
           </div>
         )}
 
@@ -2689,60 +2385,7 @@ export default function MainChart() {
               <span style={styles.submenuText}>Fib Retracement</span>
             </div>
 
-            {/* Fib Extension */}
-            <div style={styles.submenuItem} onClick={drawFibExtension}>
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 28" width="20" height="20">
-                <g fill="currentColor" fillRule="nonzero">
-                  <path d="M3 5h22v-1h-22z"></path>
-                  <path d="M3 17h22v-1h-22z"></path>
-                  <path d="M3 11h19.5v-1h-19.5z"></path>
-                  <path d="M5.5 23h19.5v-1h-19.5z"></path>
-                </g>
-              </svg>
-              <span style={styles.submenuText}>Fib Extension</span>
-            </div>
-
-            {/* Fib Fan */}
-            <div style={styles.submenuItem} onClick={drawFibFan}>
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 28" width="20" height="20">
-                <g fill="currentColor" fillRule="nonzero">
-                  <path d="M3 5h22v-1h-22z"></path>
-                  <path d="M3 17h22v-1h-22z"></path>
-                  <path d="M3 11h19.5v-1h-19.5z"></path>
-                </g>
-              </svg>
-              <span style={styles.submenuText}>Fib Fan</span>
-            </div>
-
-            {/* Fib Time Zone */}
-            <div style={styles.submenuItem} onClick={drawFibTimeZone}>
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 28" width="20" height="20">
-                <g fill="currentColor" fillRule="nonzero">
-                  <path d="M14 3v8h1v-8zM14 18v8h1v-8z"></path>
-                </g>
-              </svg>
-              <span style={styles.submenuText}>Fib Time Zone</span>
-            </div>
-
-            {/* Fib Circles */}
-            <div style={styles.submenuItem} onClick={drawFibCircles}>
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 28" width="20" height="20">
-                <circle cx="14" cy="14" r="8" fill="none" stroke="currentColor" strokeWidth="1"/>
-                <circle cx="14" cy="14" r="5" fill="none" stroke="currentColor" strokeWidth="1"/>
-                <circle cx="14" cy="14" r="3" fill="none" stroke="currentColor" strokeWidth="1"/>
-              </svg>
-              <span style={styles.submenuText}>Fib Circles</span>
-            </div>
-
-            {/* Fib Arcs */}
-            <div style={styles.submenuItem} onClick={drawFibArcs}>
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 28" width="20" height="20">
-                <path d="M14 6 A 8 8 0 0 1 22 14" fill="none" stroke="currentColor" strokeWidth="1"/>
-                <path d="M14 9 A 5 5 0 0 1 19 14" fill="none" stroke="currentColor" strokeWidth="1"/>
-                <path d="M14 11 A 3 3 0 0 1 17 14" fill="none" stroke="currentColor" strokeWidth="1"/>
-              </svg>
-              <span style={styles.submenuText}>Fib Arcs</span>
-            </div>
+            
           </div>
         )}
 
@@ -2876,298 +2519,13 @@ export default function MainChart() {
               <span style={styles.submenuText}>Short Position</span>
             </div>
 
-            {/* Forecast */}
-            <div style={styles.submenuItem}>
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 28" width="20" height="20">
-                <g fill="currentColor">
-                  <path d="M19 11h5l-2.5 3z"></path>
-                  <circle cx="21.5" cy="16.5" r="1.5"></circle>
-                  <path fillRule="nonzero" d="M22 11v-6h-1v6z"></path>
-                  <path d="M14 18h1v3h-1z"></path>
-                  <path d="M14 5h1v6h-1z"></path>
-                  <path d="M7 19h1v3h-1z"></path>
-                  <path d="M7 6h1v7h-1z"></path>
-                  <path fillRule="nonzero" d="M8 18h1v3h-1zM8 9h1v5h-1zM8 18h1v-4h-1v4zm-1-5h3v6h-3v-6zM14 18h1v3h-1zM14 3h1v6h-1zM14 18h1v-7h-1v7zm-1-8h3v9h-3v-9zM7 19h1v3h-1zM7 6h1v7h-1z"></path>
-                </g>
-              </svg>
-              <span style={styles.submenuText}>Forecast</span>
-            </div>
-
-            {/* Bars Pattern */}
-            <div style={styles.submenuItem}>
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 28" width="20" height="20">
-                <g fill="currentColor" fillRule="nonzero">
-                  <path d="M6 6v6.5h1v-6.5zM7 22v-2.5h-1v2.5zM11 11v2.5h1v-2.5zM12 24v-7.5h-1v7.5zM16 5v5.5h1v-5.5zM17 21v-2.5h-1v2.5zM21 7v4.5h1v-4.5zM22 19v-2.5h-1v2.5z"></path>
-                  <path d="M6 13v6h1v-6zM-1 12h3v8h-3v-8z"></path>
-                  <path d="M11 16h1v-2h-1v2zm-1-3h3v4h-3v-4z"></path>
-                  <path d="M16 18h1v-7h-1v7zm-1-8h3v9h-3v-9z"></path>
-                  <path d="M21 16h1v-4h-1v4zm-1-5h3v6h-3v-6z"></path>
-                </g>
-              </svg>
-              <span style={styles.submenuText}>Bars Pattern</span>
-            </div>
-
-            {/* Ghost Feed */}
-            <div style={styles.submenuItem}>
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 28" width="20" height="20">
-                <g fill="currentColor">
-                  <path fillRule="nonzero" d="M4.529 18.21l3.157-1.292-.379-.926-3.157 1.292z"></path>
-                  <path fillRule="nonzero" d="M9.734 16.081l2.97-1.215-.379-.926-2.97 1.215z"></path>
-                  <path fillRule="nonzero" d="M14.725 14.039l2.957-1.21-.379-.926-2.957 1.21z"></path>
-                  <path fillRule="nonzero" d="M19.708 12.001l3.114-1.274-.379-.926-3.114 1.274z"></path>
-                  <path d="M8 18h1v3h-1z"></path>
-                  <path d="M8 9h1v5h-1z"></path>
-                  <path fillRule="nonzero" d="M8 18h1v-4h-1v4zm-1-5h3v6h-3v-6z"></path>
-                  <path d="M18 16h1v3h-1z"></path>
-                  <path d="M18 3h1v6h-1z"></path>
-                  <path fillRule="nonzero" d="M18 16h1v-7h-1v7zm-1-8h3v9h-3v-9z"></path>
-                  <path d="M13 6h1v5h-1z"></path>
-                  <path d="M13 15h1v5h-1z"></path>
-                  <path fillRule="nonzero" d="M13 15h1v-4h-1v4zm-1-5h3v6h-3v-6z"></path>
-                  <path fillRule="nonzero" d="M2.5 20c.828 0 1.5-.672 1.5-1.5s-.672-1.5-1.5-1.5-1.5.672-1.5 1.5.672 1.5 1.5 1.5zm0 1c-1.381 0-2.5-1.119-2.5-2.5s1.119-2.5 2.5-2.5 2.5 1.119 2.5 2.5-1.119 2.5-2.5 2.5zM24.5 11c.828 0 1.5-.672 1.5-1.5s-.672-1.5-1.5-1.5-1.5.672-1.5 1.5.672 1.5 1.5 1.5zm0 1c-1.381 0-2.5-1.119-2.5-2.5s1.119-2.5 2.5-2.5 2.5 1.119 2.5 2.5-1.119 2.5-2.5 2.5z"></path>
-                </g>
-              </svg>
-              <span style={styles.submenuText}>Ghost Feed</span>
-            </div>
-
-            {/* Projection */}
-            <div style={styles.submenuItem}>
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 28" width="20" height="20">
-                <g fill="currentColor" fillRule="nonzero">
-                  <path d="M23.886 21.431c-.953-8.558-7.742-15.354-16.299-16.315l-.112.994c8.093.909 14.516 7.338 15.417 15.432l.994-.111z"></path>
-                  <path d="M5 7.5v14h1v-14zM21.5 23h-14v1h14z"></path>
-                  <path d="M5.5 7c.828 0 1.5-.672 1.5-1.5s-.672-1.5-1.5-1.5-1.5.672-1.5 1.5.672 1.5 1.5 1.5zm0 1c-1.381 0-2.5-1.119-2.5-2.5s1.119-2.5 2.5-2.5 2.5 1.119 2.5 2.5-1.119 2.5-2.5 2.5zM23.5 25c.828 0 1.5-.672 1.5-1.5s-.672-1.5-1.5-1.5-1.5.672-1.5 1.5.672 1.5 1.5 1.5zm0 1c-1.381 0-2.5-1.119-2.5-2.5s1.119-2.5 2.5-2.5 2.5 1.119 2.5 2.5-1.119 2.5-2.5 2.5zM5.5 25c.828 0 1.5-.672 1.5-1.5s-.672-1.5-1.5-1.5-1.5.672-1.5 1.5.672 1.5 1.5 1.5zm0 1c-1.381 0-2.5-1.119-2.5-2.5s1.119-2.5 2.5-2.5 2.5 1.119 2.5 2.5-1.119 2.5-2.5 2.5z"></path>
-                </g>
-              </svg>
-              <span style={styles.submenuText}>Projection</span>
-            </div>
-
-            {/* Volume-based Section Header */}
-            <div style={styles.submenuSectionHeader}>Volume-based</div>
-
-            {/* Anchored VWAP */}
-            <div style={styles.submenuItem}>
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 28" width="20" height="20" fill="none">
-                <path fill="currentColor" d="M17 17h1v6h-1v-6zM17 2h1v5h-1V2z"></path>
-                <path fill="currentColor" d="M16 17h3V8h-3v9zM15 7h5v11h-5V7zM10 5h1v5h-1V5zM10 22h1v3h-1v-3z"></path>
-                <path fill="currentColor" d="M9 21h3V10H9v11zM8 9h5v13H8V9z"></path>
-                <path fill="currentColor" fillRule="evenodd" clipRule="evenodd" d="M25.27 9.42L14.1 16.53l-6.98-1.5L5.3 16.4l-.6-.8 2.18-1.64 7.02 1.5 10.83-6.88.54.84z"></path>
-                <path fill="currentColor" fillRule="evenodd" clipRule="evenodd" d="M4 18a1 1 0 1 0 0-2 1 1 0 0 0 0 4zm0 1a2 2 0 1 0 0-4 2 2 0 0 0 0 4z"></path>
-              </svg>
-              <span style={styles.submenuText}>Anchored VWAP</span>
-            </div>
-
-            {/* Fixed Range Volume Profile */}
-            <div style={styles.submenuItem}>
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 28" width="20" height="20" fill="none">
-                <path fill="currentColor" fillRule="evenodd" clipRule="evenodd" d="M5 21.5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0zM3.5 24a2.5 2.5 0 0 0 .5-4.95V3H3v16.05A2.5 2.5 0 0 0 3.5 24zM25 5.5a1.5 1.5 0 1 0-3 0 1.5 1.5 0 0 0 3 0zM23.5 3a2.5 2.5 0 0 1 .5 4.95V24h-1V7.95A2.5 2.5 0 0 1 23.5 3z"></path>
-                <path fill="currentColor" fillRule="evenodd" clipRule="evenodd" d="M9 7H4v2h5V7zM3 6v4h7V6H3z"></path>
-                <path fill="currentColor" fillRule="evenodd" clipRule="evenodd" d="M12 10H4v2h8v-2zm-4-1v4h10v-4H3z"></path>
-                <path fill="currentColor" fillRule="evenodd" clipRule="evenodd" d="M7 13H4v2h3v-2zm-4-1v4h5v-4H3z"></path>
-              </svg>
-              <span style={styles.submenuText}>Fixed Range Volume Profile</span>
-            </div>
-
-            {/* Anchored Volume Profile */}
-            <div style={styles.submenuItem}>
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 28" width="20" height="20">
-                <path fill="currentColor" fillRule="evenodd" d="M24 3h-1v4h-6v3h-5v3H8.95a2.5 2.5 0 1 0 0 1H15v3h5v3h3v4h1V3Zm-6 7h5V8h-5v2Zm-1 1h-4v2h10v-2h-6Zm4 5h-5v-2h7v2h-2ZM6.5 15a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3Z"></path>
-              </svg>
-              <span style={styles.submenuText}>Anchored Volume Profile</span>
-            </div>
-
-            {/* Measurer Section Header */}
-            <div style={styles.submenuSectionHeader}>Measurer</div>
-
-            {/* Price Range */}
-            <div style={styles.submenuItem}>
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 28" width="20" height="20">
-                <g fill="currentColor">
-                  <path fillRule="nonzero" d="M4 5h16.5v-1h-16.5zM25 24h-16.5v1h16.5z"></path>
-                  <path fillRule="nonzero" d="M6.5 26c.828 0 1.5-.672 1.5-1.5s-.672-1.5-1.5-1.5-1.5.672-1.5 1.5.672 1.5 1.5 1.5zm0 1c-1.381 0-2.5-1.119-2.5-2.5s1.119-2.5 2.5-2.5 2.5 1.119 2.5 2.5-1.119 2.5-2.5 2.5zM22.5 6c.828 0 1.5-.672 1.5-1.5s-.672-1.5-1.5-1.5-1.5.672-1.5 1.5.672 1.5 1.5 1.5zm0 1c-1.381 0-2.5-1.119-2.5-2.5s1.119-2.5 2.5-2.5 2.5 1.119 2.5 2.5-1.119 2.5-2.5 2.5z"></path>
-                  <path fillRule="nonzero" d="M14 9v14h1v-14z"></path>
-                  <path d="M14.5 6l2.5 3h-5z"></path>
-                </g>
-              </svg>
-              <span style={styles.submenuText}>Price Range</span>
-            </div>
-
-            {/* Date Range */}
-            <div style={styles.submenuItem}>
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 28" width="20" height="20">
-                <g fill="currentColor">
-                  <path fillRule="nonzero" d="M20 14h-14v1h14z"></path>
-                  <path d="M20 17v-5l3 2.5z"></path>
-                  <path fillRule="nonzero" d="M24 8.5v16.5h1v-16.5zM4 4v16.5h1v-16.5z"></path>
-                  <path fillRule="nonzero" d="M4.5 24c.828 0 1.5-.672 1.5-1.5s-.672-1.5-1.5-1.5-1.5.672-1.5 1.5.672 1.5 1.5 1.5zm0 1c-1.381 0-2.5-1.119-2.5-2.5s1.119-2.5 2.5-2.5 2.5 1.119 2.5 2.5-1.119 2.5-2.5 2.5zM24.5 8c.828 0 1.5-.672 1.5-1.5s-.672-1.5-1.5-1.5-1.5.672-1.5 1.5.672 1.5 1.5 1.5zm0 1c-1.381 0-2.5-1.119-2.5-2.5s1.119-2.5 2.5-2.5 2.5 1.119 2.5 2.5-1.119 2.5-2.5 2.5z"></path>
-                </g>
-              </svg>
-              <span style={styles.submenuText}>Date Range</span>
-            </div>
-
-            {/* Date and Price Range */}
-            <div style={styles.submenuItem}>
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 28" width="20" height="20">
-                <g fill="currentColor">
-                  <path fillRule="nonzero" d="M6.5 23v1h17.5v-17.5h-1v16.5z"></path>
-                  <path fillRule="nonzero" d="M21.5 5v-1h-17.5v17.5h1v-16.5z"></path>
-                  <path fillRule="nonzero" d="M4.5 25c.828 0 1.5-.672 1.5-1.5s-.672-1.5-1.5-1.5-1.5.672-1.5 1.5.672 1.5 1.5 1.5zm0 1c-1.381 0-2.5-1.119-2.5-2.5s1.119-2.5 2.5-2.5 2.5 1.119 2.5 2.5-1.119 2.5-2.5 2.5zM23.5 6c.828 0 1.5-.672 1.5-1.5s-.672-1.5-1.5-1.5-1.5.672-1.5 1.5.672 1.5 1.5 1.5zm0 1c-1.381 0-2.5-1.119-2.5-2.5s1.119-2.5 2.5-2.5 2.5 1.119 2.5 2.5-1.119 2.5-2.5 2.5z"></path>
-                  <path fillRule="nonzero" d="M13 9v13h1v-13z"></path>
-                  <path d="M13.5 6l2.5 3h-5z"></path>
-                  <path fillRule="nonzero" d="M19 14h-13v1h13z"></path>
-                  <path d="M19 17v-5l3 2.5z"></path>
-                </g>
-              </svg>
-              <span style={styles.submenuText}>Date and Price Range</span>
-            </div>
+            
           </div>
         )}
 
         {showBrushesSubmenu && (
           <div ref={brushesSubmenuRef} style={styles.brushesSubmenu}>
-            {/* Brush */}
-            <div style={styles.submenuItem}>
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 28" width="20" height="20">
-                <g fill="currentColor" fillRule="nonzero">
-                  <path d="M1.789 23l.859-.854.221-.228c.18-.19.38-.409.597-.655.619-.704 1.238-1.478 1.815-2.298.982-1.396 1.738-2.776 2.177-4.081 1.234-3.667 5.957-4.716 8.923-1.263 3.251 3.785-.037 9.38-5.379 9.38h-9.211zm9.211-1c4.544 0 7.272-4.642 4.621-7.728-2.45-2.853-6.225-2.015-7.216.931-.474 1.408-1.273 2.869-2.307 4.337-.599.852-1.241 1.653-1.882 2.383l-.068.078h6.853z"></path>
-                  <path d="M18.182 6.002l-1.419 1.286c-1.031.935-1.075 2.501-.096 3.48l1.877 1.877c.976.976 2.553.954 3.513-.045l5.65-5.874-.721-.693-5.65 5.874c-.574.596-1.507.609-2.086.031l-1.877-1.877c-.574-.574-.548-1.48.061-2.032l1.419-1.286-.672-.741z"></path>
-                </g>
-              </svg>
-              <span style={styles.submenuText}>Brush</span>
-            </div>
-
-            {/* Highlighter */}
-            <div style={styles.submenuItem}>
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 25 23" width="20" height="20">
-                <path fill="currentColor" fillRule="evenodd" clipRule="evenodd" d="M13.402 0L6.78144 6.71532C6.67313 6.82518 6.5917 6.95862 6.54354 7.10518L5.13578 11.3889C4.89843 12.1111 5.08375 12.9074 5.61449 13.4458L5.68264 13.5149L0 19.2789L8.12695 22.4056L11.2874 19.1999L11.3556 19.269C11.8863 19.8073 12.6713 19.9953 13.3834 19.7546L17.6013 18.3285C17.7493 18.2784 17.8835 18.1945 17.9931 18.0832L24.6912 11.2892L23.9857 10.5837L17.515 17.147L7.70658 7.19818L14.1076 0.705575L13.402 0ZM6.07573 11.7067L7.24437 8.15061L16.576 17.6158L13.0701 18.8012C12.7141 18.9215 12.3215 18.8275 12.0562 18.5584L6.31509 12.7351C6.04972 12.466 5.95706 12.0678 6.07573 11.7067ZM6.30539 14.3045L10.509 18.5682L7.87935 21.2355L1.78414 18.8904L6.30539 14.3045Z"></path>
-              </svg>
-              <span style={styles.submenuText}>Highlighter</span>
-            </div>
-
-            <div style={styles.submenuSectionHeader}>Arrows</div>
-
-            {/* Arrow Marker */}
-            <div style={styles.submenuItem}>
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 28" width="20" height="20">
-                <g fill="currentColor" fillRule="nonzero">
-                  <path d="M4.529 18.21l3.157-1.292-.379-.926-3.157 1.292z"></path>
-                  <path d="M9.734 16.081l2.97-1.215-.379-.926-2.97 1.215z"></path>
-                  <path d="M14.725 14.039l2.957-1.21-.379-.926-2.957 1.21z"></path>
-                  <path d="M19.708 12.001l3.114-1.274-.379-.926-3.114 1.274z"></path>
-                  <path d="M8 18h1v3h-1z"></path>
-                  <path d="M8 9h1v5h-1z"></path>
-                  <path fillRule="nonzero" d="M8 18h1v-4h-1v4zm-1-5h3v6h-3v-6z"></path>
-                  <path d="M18 16h1v3h-1z"></path>
-                  <path d="M18 3h1v6h-1z"></path>
-                  <path fillRule="nonzero" d="M18 16h1v-7h-1v7zm-1-8h3v9h-3v-9z"></path>
-                  <path d="M13 6h1v5h-1z"></path>
-                  <path d="M13 15h1v5h-1z"></path>
-                  <path fillRule="nonzero" d="M13 15h1v-4h-1v4zm-1-5h3v6h-3v-6z"></path>
-                  <path fillRule="nonzero" d="M2.5 20c.828 0 1.5-.672 1.5-1.5s-.672-1.5-1.5-1.5-1.5.672-1.5 1.5.672 1.5 1.5 1.5zm0 1c-1.381 0-2.5-1.119-2.5-2.5s1.119-2.5 2.5-2.5 2.5 1.119 2.5 2.5-1.119 2.5-2.5 2.5zM24.5 11c.828 0 1.5-.672 1.5-1.5s-.672-1.5-1.5-1.5-1.5.672-1.5 1.5.672 1.5 1.5 1.5zm0 1c-1.381 0-2.5-1.119-2.5-2.5s1.119-2.5 2.5-2.5 2.5 1.119 2.5 2.5-1.119 2.5-2.5 2.5z"></path>
-                </g>
-              </svg>
-              <span style={styles.submenuText}>Arrow Marker</span>
-            </div>
-
-            {/* Arrow */}
-            <div style={styles.submenuItem}>
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 28" width="20" height="20">
-                <g fill="currentColor" fillRule="nonzero">
-                  <path d="M7.354 21.354l14-14-.707-.707-14 14z"></path>
-                  <path d="M21 7l-8 3 5 5z"></path>
-                  <path fillRule="nonzero" d="M22.5 7c.828 0 1.5-.672 1.5-1.5s-.672-1.5-1.5-1.5-1.5.672-1.5 1.5.672 1.5 1.5 1.5zm0 1c-1.381 0-2.5-1.119-2.5-2.5s1.119-2.5 2.5-2.5 2.5 1.119 2.5 2.5-1.119 2.5-2.5 2.5zM5.5 24c.828 0 1.5-.672 1.5-1.5s-.672-1.5-1.5-1.5-1.5.672-1.5 1.5.672 1.5 1.5 1.5zm0 1c-1.381 0-2.5-1.119-2.5-2.5s1.119-2.5 2.5-2.5 2.5 1.119 2.5 2.5-1.119 2.5-2.5 2.5z"></path>
-                </g>
-              </svg>
-              <span style={styles.submenuText}>Arrow</span>
-            </div>
-
-            {/* Arrow Mark Up */}
-            <div style={styles.submenuItem}>
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 28" width="20" height="20">
-                <path fill="currentColor" fillRule="nonzero" d="M11 16v6h6v-6h4.865l-7.865-9.438-7.865 9.438h4.865zm7 7h-8v-6h-6l10-12 10 12h-6v6z"></path>
-              </svg>
-              <span style={styles.submenuText}>Arrow Mark Up</span>
-            </div>
-
-            {/* Arrow Mark Down */}
-            <div style={styles.submenuItem}>
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 28" width="20" height="20">
-                <path fill="currentColor" fillRule="nonzero" d="M17 12v-6h-6v6h-4.865l7.865 9.438 7.865-9.438h-4.865zm-7-7h8v6h6l-10 12-10-12h6v-6z"></path>
-              </svg>
-              <span style={styles.submenuText}>Arrow Mark Down</span>
-            </div>
-
-            <div style={styles.submenuSectionHeader}>Shapes</div>
-
-            {/* Rectangle */}
-            <div style={styles.submenuItem}>
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 28" width="20" height="20">
-                <g fill="currentColor" fillRule="nonzero">
-                  <path d="M7.5 6h13v-1h-13z"></path>
-                  <path d="M7.5 23h13v-1h-13z"></path>
-                  <path d="M5 7.5v13h1v-13z"></path>
-                  <path d="M22 7.5v13h1v-13z"></path>
-                  <path d="M5.5 7c.828 0 1.5-.672 1.5-1.5s-.672-1.5-1.5-1.5-1.5.672-1.5 1.5.672 1.5 1.5 1.5zm0 1c-1.381 0-2.5-1.119-2.5-2.5s1.119-2.5 2.5-2.5 2.5 1.119 2.5 2.5-1.119 2.5-2.5 2.5zM22.5 7c.828 0 1.5-.672 1.5-1.5s-.672-1.5-1.5-1.5-1.5.672-1.5 1.5.672 1.5 1.5 1.5zm0 1c-1.381 0-2.5-1.119-2.5-2.5s1.119-2.5 2.5-2.5 2.5 1.119 2.5 2.5-1.119 2.5-2.5 2.5zM22.5 24c.828 0 1.5-.672 1.5-1.5s-.672-1.5-1.5-1.5-1.5.672-1.5 1.5.672 1.5 1.5 1.5zm0 1c-1.381 0-2.5-1.119-2.5-2.5s1.119-2.5 2.5-2.5 2.5 1.119 2.5 2.5-1.119 2.5-2.5 2.5zM5.5 24c.828 0 1.5-.672 1.5-1.5s-.672-1.5-1.5-1.5-1.5.672-1.5 1.5.672 1.5 1.5 1.5zm0 1c-1.381 0-2.5-1.119-2.5-2.5s1.119-2.5 2.5-2.5 2.5 1.119 2.5 2.5-1.119 2.5-2.5 2.5z"></path>
-                </g>
-              </svg>
-              <span style={styles.submenuText}>Rectangle</span>
-            </div>
-
-            {/* Rotated Rectangle */}
-            <div style={styles.submenuItem}>
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 28" width="20" height="20">
-                <g fill="currentColor" fillRule="nonzero">
-                  <path d="M14.743 3.55l-4.208 4.208.707.707 4.208-4.208zM7.71 10.583l-4.187 4.187.707.707 4.187-4.187zM3.536 18.244l6.171 6.171.707-.707-6.171-6.171zM13.232 24.475l4.22-4.22-.707-.707-4.22 4.22zM20.214 17.494l4.217-4.217-.707-.707-4.217 4.217zM24.423 9.716l-6.218-6.218-.707.707 6.218 6.218z"></path>
-                  <path d="M2.5 18c.828 0 1.5-.672 1.5-1.5s-.672-1.5-1.5-1.5-1.5.672-1.5 1.5.672 1.5 1.5 1.5zm0 1c-1.381 0-2.5-1.119-2.5-2.5s1.119-2.5 2.5-2.5 2.5 1.119 2.5 2.5-1.119 2.5-2.5 2.5zM9.5 11c.828 0 1.5-.672 1.5-1.5s-.672-1.5-1.5-1.5-1.5.672-1.5 1.5.672 1.5 1.5 1.5zm0 1c-1.381 0-2.5-1.119-2.5-2.5s1.119-2.5 2.5-2.5 2.5 1.119 2.5 2.5-1.119 2.5-2.5 2.5zM16.5 4c.828 0 1.5-.672 1.5-1.5s-.672-1.5-1.5-1.5-1.5.672-1.5 1.5.672 1.5 1.5 1.5zm0 1c-1.381 0-2.5-1.119-2.5-2.5s1.119-2.5 2.5-2.5 2.5 1.119 2.5 2.5-1.119 2.5-2.5 2.5zM11.5 27c.828 0 1.5-.672 1.5-1.5s-.672-1.5-1.5-1.5-1.5.672-1.5 1.5.672 1.5 1.5 1.5zm0 1c-1.381 0-2.5-1.119-2.5-2.5s1.119-2.5 2.5-2.5 2.5 1.119 2.5 2.5-1.119 2.5-2.5 2.5zM18.5 20c.828 0 1.5-.672 1.5-1.5s-.672-1.5-1.5-1.5-1.5.672-1.5 1.5.672 1.5 1.5 1.5zm0 1c-1.381 0-2.5-1.119-2.5-2.5s1.119-2.5 2.5-2.5 2.5 1.119 2.5 2.5-1.119 2.5-2.5 2.5zM25.5 13c.828 0 1.5-.672 1.5-1.5s-.672-1.5-1.5-1.5-1.5.672-1.5 1.5.672 1.5 1.5 1.5zm0 1c-1.381 0-2.5-1.119-2.5-2.5s1.119-2.5 2.5-2.5 2.5 1.119 2.5 2.5-1.119 2.5-2.5 2.5z"></path>
-                </g>
-              </svg>
-              <span style={styles.submenuText}>Rotated Rectangle</span>
-            </div>
-
-            {/* Path */}
-            <div style={styles.submenuItem}>
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 28" width="20" height="20">
-                <path fill="currentColor" d="M11 10.5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0zm4 7a1.5 1.5 0 1 1 3 0 1.5 1.5 0 0 1-3 0zm11-8.8V13h1V7h-6v1h4.3l-7.42 7.41a2.49 2.49 0 0 0-2.76 0l-3.53-3.53a2.5 2.5 0 1 0-4.17 0L1 18.29l.7.71 6.42-6.41a2.49 2.49 0 0 0 2.76 0l3.53 3.53a2.5 2.5 0 1 0 4.17 0z"></path>
-              </svg>
-              <span style={styles.submenuText}>Path</span>
-            </div>
-
-            {/* Circle */}
-            <div style={styles.submenuItem}>
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 28" width="20" height="20" fill="none">
-                <path stroke="currentColor" d="M16 14a2 2 0 1 1-4 0 2 2 0 0 1 4 0Z"></path>
-                <path fill="currentColor" fillRule="evenodd" clipRule="evenodd" d="M4.529 18.21l3.157-1.292-.379-.926-3.157 1.292z"></path>
-                <path fill="currentColor" fillRule="evenodd" clipRule="evenodd" d="M4.5 14a9.5 9.5 0 0 1 18.7-2.37 2.5 2.5 0 0 0 0 4.74A9.5 9.5 0 0 1 4.5 14Zm19.7 2.5a10.5 10.5 0 1 1 0-5 2.5 2.5 0 0 1 0 5ZM22.5 14a1.5 1.5 0 1 1 3 0 1.5 1.5 0 0 1-3 0Z"></path>
-              </svg>
-              <span style={styles.submenuText}>Circle</span>
-            </div>
-
-            {/* Ellipse */}
-            <div style={styles.submenuItem}>
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 28" width="20" height="20">
-                <g fill="currentColor" fillRule="nonzero">
-                  <path d="M12.435 6.136c-4.411.589-7.983 3.039-9.085 6.27l.946.323c.967-2.836 4.209-5.059 8.271-5.602l-.132-.991zM3.347 16.584c1.101 3.243 4.689 5.701 9.117 6.283l.130-.991c-4.079-.537-7.335-2.767-8.301-5.613l-.947.321zM16.554 22.865c4.381-.582 7.94-3 9.071-6.2l-.943-.333c-.994 2.811-4.224 5.006-8.26 5.542l.132.991zM25.646 12.394c-1.107-3.225-4.675-5.668-9.078-6.257l-.133.991c4.056.542 7.293 2.76 8.265 5.591l.946-.325z"></path>
-                  <path d="M14.5 8c.828 0 1.5-.672 1.5-1.5s-.672-1.5-1.5-1.5-1.5.672-1.5 1.5.672 1.5 1.5 1.5zm0 1c-1.381 0-2.5-1.119-2.5-2.5s1.119-2.5 2.5-2.5 2.5 1.119 2.5 2.5-1.119 2.5-2.5 2.5zM14.5 24c.828 0 1.5-.672 1.5-1.5s-.672-1.5-1.5-1.5-1.5.672-1.5 1.5.672 1.5 1.5 1.5zm0 1c-1.381 0-2.5-1.119-2.5-2.5s1.119-2.5 2.5-2.5 2.5 1.119 2.5 2.5-1.119 2.5-2.5 2.5zM3.5 16c.828 0 1.5-.672 1.5-1.5s-.672-1.5-1.5-1.5-1.5.672-1.5 1.5.672 1.5 1.5 1.5zm0 1c-1.381 0-2.5-1.119-2.5-2.5s1.119-2.5 2.5-2.5 2.5 1.119 2.5 2.5-1.119 2.5-2.5 2.5zM25.5 16c.828 0 1.5-.672 1.5-1.5s-.672-1.5-1.5-1.5-1.5.672-1.5 1.5.672 1.5 1.5 1.5zm0 1c-1.381 0-2.5-1.119-2.5-2.5s1.119-2.5 2.5-2.5 2.5 1.119 2.5 2.5-1.119 2.5-2.5 2.5z"></path>
-                </g>
-              </svg>
-              <span style={styles.submenuText}>Ellipse</span>
-            </div>
-
-            {/* Polyline */}
-            <div style={styles.submenuItem}>
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 28" width="20" height="20">
-                <g fill="currentColor" fillRule="nonzero">
-                  <path d="M16.5 6h4v-1h-4z"></path>
-                  <path d="M16.5 15h4v-1h-4z"></path>
-                  <path d="M8.5 23h4v-1h-4z"></path>
-                  <path d="M8.298 11.591l5.097-4.46-.659-.753-5.097 4.46zM22 7.5v5h1v-5z"></path>
-                  <path d="M14 16.5v4h1v-4z"></path>
-                  <path d="M6 14.5v6h1v-6z"></path>
-                  <path d="M6.5 14c.828 0 1.5-.672 1.5-1.5s-.672-1.5-1.5-1.5-1.5.672-1.5 1.5.672 1.5 1.5 1.5zm0 1c-1.381 0-2.5-1.119-2.5-2.5s1.119-2.5 2.5-2.5 2.5 1.119 2.5 2.5-1.119 2.5-2.5 2.5zM14.5 7c.828 0 1.5-.672 1.5-1.5s-.672-1.5-1.5-1.5-1.5.672-1.5 1.5.672 1.5 1.5 1.5zm0 1c-1.381 0-2.5-1.119-2.5-2.5s1.119-2.5 2.5-2.5 2.5 1.119 2.5 2.5-1.119 2.5-2.5 2.5z"></path>
-                </g>
-              </svg>
-              <span style={styles.submenuText}>Polyline</span>
-            </div>
+            
           </div>
         )}
 
