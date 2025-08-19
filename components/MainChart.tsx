@@ -103,8 +103,8 @@ const registerCustomOverlays = () => {
     name: "fibRetracement",
     totalStep: 2,
     needDefaultPointFigure: false,
-    createPointFigures: ({ coordinates, bounding, yAxis, xAxis }) => {
-      if (!coordinates || coordinates.length < 2 || !bounding || !yAxis || !xAxis) return [];
+    createPointFigures: ({ coordinates, bounding, yAxis }) => {
+      if (!coordinates || coordinates.length < 2 || !bounding || !yAxis) return [];
       const [p1, p2] = coordinates;
       
       // Convert pixel coordinates to price values
@@ -115,9 +115,8 @@ const registerCustomOverlays = () => {
       const fibLevels = [0, 0.236, 0.382, 0.5, 0.618, 0.786, 1];
       const fibLabels = ['0.0%', '23.6%', '38.2%', '50.0%', '61.8%', '78.6%', '100.0%'];
       
-      const priceRange = Math.abs(price2 - price1);
-      const minPrice = Math.min(price1, price2);
-      const maxPrice = Math.max(price1, price2);
+      const priceRange = price2 - price1;
+      const startPrice = price1;
       
       const figures = [];
       
@@ -126,11 +125,6 @@ const registerCustomOverlays = () => {
         type: "line",
         attrs: {
           coordinates: [p1, p2]
-        },
-        styles: {
-          color: '#888888',
-          size: 2,
-          style: 'solid'
         }
       });
       
@@ -141,26 +135,22 @@ const registerCustomOverlays = () => {
       // Draw horizontal lines for each fib level
       for (let i = 0; i < fibLevels.length; i++) {
         const level = fibLevels[i];
-        const fibPrice = minPrice + (priceRange * level);
+        const fibPrice = startPrice + (priceRange * level);
         const y = yAxis.convertToPixel(fibPrice);
         
         // Color scheme for different levels
         let lineColor = '#999999';
         let lineSize = 1;
-        let lineStyle = 'dashed';
         
         if (level === 0 || level === 1) {
           lineColor = '#666666';
           lineSize = 2;
-          lineStyle = 'solid';
         } else if (level === 0.382 || level === 0.618) {
           lineColor = '#ff9800';
           lineSize = 2;
-          lineStyle = 'solid';
         } else if (level === 0.5) {
           lineColor = '#2196f3';
           lineSize = 2;
-          lineStyle = 'solid';
         }
         
         // Horizontal line spanning the entire chart width
@@ -171,11 +161,6 @@ const registerCustomOverlays = () => {
               { x: leftBound, y },
               { x: rightBound, y }
             ]
-          },
-          styles: {
-            color: lineColor,
-            size: lineSize,
-            style: lineStyle
           }
         });
         
@@ -186,12 +171,6 @@ const registerCustomOverlays = () => {
             x: rightBound - 120,
             y: y - 5,
             text: `${fibLabels[i]} (${fibPrice.toFixed(2)})`
-          },
-          styles: {
-            color: lineColor,
-            size: 11,
-            family: 'Arial, sans-serif',
-            weight: (level === 0.382 || level === 0.618 || level === 0.5) ? 'bold' : 'normal'
           }
         });
       }
