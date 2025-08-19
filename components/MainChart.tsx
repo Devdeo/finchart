@@ -562,6 +562,98 @@ const registerCustomOverlays = () => {
       return figures;
     },
   });
+
+  // Risk-Reward Position overlay
+  registerOverlay({
+    name: 'position',
+    needDefaultPointFigure: true,
+    totalStep: 3,
+    createPointFigures: ({ coordinates, overlay }) => {
+      if (coordinates.length < 3) return [];
+      const side = overlay.extendData?.side ?? 'long';
+      const [entry, sl, tp] = coordinates;
+      const eY = entry.y, sY = sl.y, tY = tp.y;
+      const xL = entry.x - 40, xR = entry.x + 40;
+      const risk = Math.abs(sY - eY), reward = Math.abs(tY - eY);
+      const rr = risk === 0 ? '∞' : (reward / risk).toFixed(2);
+
+      const base = [
+        {
+          type: 'line',
+          attrs: { coordinates: [{ x: xL, y: eY }, { x: xR, y: eY }] },
+          styles: { color: 'blue', size: 2, style: 'dashed' }
+        },
+        {
+          type: 'text',
+          attrs: { x: xL - 5, y: eY, text: 'Entry' },
+          styles: { fontSize: 12, color: 'blue' }
+        },
+        {
+          type: 'text',
+          attrs: { x: xR + 5, y: eY, text: `RRR ${rr}` },
+          styles: { fontSize: 12, color: '#000' }
+        }
+      ];
+
+      if (side === 'long') {
+        base.push(
+          {
+            type: 'polygon',
+            attrs: {
+              coordinates: [{ x: xL, y: eY }, { x: xR, y: eY }, { x: xR, y: sY }, { x: xL, y: sY }],
+            },
+            styles: { style: 'fill', color: '#F4511E40' }
+          },
+          {
+            type: 'text',
+            attrs: { x: xL - 5, y: sY, text: 'SL' },
+            styles: { fontSize: 12, color: 'red' }
+          },
+          {
+            type: 'polygon',
+            attrs: {
+              coordinates: [{ x: xL, y: eY }, { x: xR, y: eY }, { x: xR, y: tY }, { x: xL, y: tY }],
+            },
+            styles: { style: 'fill', color: '#7CB34240' }
+          },
+          {
+            type: 'text',
+            attrs: { x: xL - 5, y: tY, text: 'TP' },
+            styles: { fontSize: 12, color: 'green' }
+          }
+        );
+      } else {
+        base.push(
+          {
+            type: 'polygon',
+            attrs: {
+              coordinates: [{ x: xL, y: eY }, { x: xR, y: eY }, { x: xR, y: sY }, { x: xL, y: sY }],
+            },
+            styles: { style: 'fill', color: '#F4511E40' }
+          },
+          {
+            type: 'text',
+            attrs: { x: xL - 5, y: sY, text: 'SL' },
+            styles: { fontSize: 12, color: 'red' }
+          },
+          {
+            type: 'polygon',
+            attrs: {
+              coordinates: [{ x: xL, y: eY }, { x: xR, y: eY }, { x: xR, y: tY }, { x: xL, y: tY }],
+            },
+            styles: { style: 'fill', color: '#7CB34240' }
+          },
+          {
+            type: 'text',
+            attrs: { x: xL - 5, y: tY, text: 'TP' },
+            styles: { fontSize: 12, color: 'green' }
+          }
+        );
+      }
+
+      return base;
+    }
+  });
 };
 import SMAIndicator from "./SMAIndicator";
 import EMAIndicator from "./EMAIndicator";
@@ -595,11 +687,13 @@ export default function MainChart() {
   const [showPatternSubmenu, setShowPatternSubmenu] = useState(false);
   const [showProjectionSubmenu, setShowProjectionSubmenu] = useState(false);
   const [showBrushesSubmenu, setShowBrushesSubmenu] = useState(false);
+  const [showPositionSubmenu, setShowPositionSubmenu] = useState(false);
   const submenuRef = useRef(null);
   const fibSubmenuRef = useRef(null);
   const patternSubmenuRef = useRef(null);
   const projectionSubmenuRef = useRef(null);
   const brushesSubmenuRef = useRef(null);
+  const positionSubmenuRef = useRef(null);
 
   // Chart reference for pattern recognition
   const chartInstanceRef = useRef(null);
@@ -724,11 +818,20 @@ export default function MainChart() {
       ) {
         setShowBrushesSubmenu(false);
       }
+
+      if (
+        showPositionSubmenu &&
+        positionSubmenuRef.current &&
+        !positionSubmenuRef.current.contains(e.target) &&
+        !e.target.closest(".position-submenu-trigger")
+      ) {
+        setShowPositionSubmenu(false);
+      }
     };
     document.addEventListener("mousedown", handleClickOutside);
     return () =>
       document.removeEventListener("mousedown", handleClickOutside);
-  }, [showSubmenu, showFibSubmenu, showPatternSubmenu, showProjectionSubmenu, showBrushesSubmenu, showIndicatorControls]);
+  }, [showSubmenu, showFibSubmenu, showPatternSubmenu, showProjectionSubmenu, showBrushesSubmenu, showPositionSubmenu, showIndicatorControls]);
 
   const openDropdown = (menu, event) => {
     const rect = event.currentTarget.getBoundingClientRect();
@@ -1753,6 +1856,45 @@ export default function MainChart() {
     setShowPatternSubmenu(false);
   };
 
+  // Position drawing functions
+  const drawLongPosition = () => {
+    if (chartInstanceRef.current) {
+      const data = chartInstanceRef.current.getDataList();
+      const last = data[data.length - 1];
+      if (!last) return;
+      
+      chartInstanceRef.current.createOverlay({
+        name: 'position',
+        extendData: { side: 'long' },
+        points: [
+          { timestamp: last.timestamp, value: last.close },
+          { timestamp: last.timestamp, value: last.close * 0.98 }, // Stop Loss below entry
+          { timestamp: last.timestamp, value: last.close * 1.05 }, // Take Profit above entry
+        ],
+      });
+    }
+    setShowPositionSubmenu(false);
+  };
+
+  const drawShortPosition = () => {
+    if (chartInstanceRef.current) {
+      const data = chartInstanceRef.current.getDataList();
+      const last = data[data.length - 1];
+      if (!last) return;
+      
+      chartInstanceRef.current.createOverlay({
+        name: 'position',
+        extendData: { side: 'short' },
+        points: [
+          { timestamp: last.timestamp, value: last.close },
+          { timestamp: last.timestamp, value: last.close * 1.02 }, // Stop Loss above entry
+          { timestamp: last.timestamp, value: last.close * 0.95 }, // Take Profit below entry
+        ],
+      });
+    }
+    setShowPositionSubmenu(false);
+  };
+
   const handleChartTypeChange = (type) => {
     setChartType(type);
     if (chartInstanceRef.current) {
@@ -2245,6 +2387,23 @@ export default function MainChart() {
               <g fill="currentColor" fillRule="nonzero">
                 <path d="M1.789 23l.859-.854.221-.228c.18-.19.38-.409.597-.655.619-.704 1.238-1.478 1.815-2.298.982-1.396 1.738-2.776 2.177-4.081 1.234-3.667 5.957-4.716 8.923-1.263 3.251 3.785-.037 9.38-5.379 9.38h-9.211zm9.211-1c4.544 0 7.272-4.642 4.621-7.728-2.45-2.853-6.225-2.015-7.216.931-.474 1.408-1.273 2.869-2.307 4.337-.599.852-1.241 1.653-1.882 2.383l-.068.078h6.853z"></path>
                 <path d="M18.182 6.002l-1.419 1.286c-1.031.935-1.075 2.501-.096 3.48l1.877 1.877c.976.976 2.553.954 3.513-.045l5.65-5.874-.721-.693-5.65 5.874c-.574.596-1.507.609-2.086.031l-1.877-1.877c-.574-.574-.548-1.48.061-2.032l1.419-1.286-.672-.741z"></path>
+              </g>
+            </svg>
+          </div>
+
+          {/* Position tool */}
+          <div
+            className="position-submenu-trigger"
+            style={styles.numberBox}
+            onClick={() => setShowPositionSubmenu(!showPositionSubmenu)}
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 28" width="28" height="28">
+              <g fill="currentColor">
+                <path d="M4 8h20v2H4zM4 18h20v2H4z"></path>
+                <path d="M14 4v20h-2V4z"></path>
+                <path d="M8 12l4-4 4 4-1.4 1.4L14 12.8V16h-2v-3.2l-.6.6z"></path>
+                <circle cx="7" cy="7" r="2"></circle>
+                <circle cx="21" cy="21" r="2"></circle>
               </g>
             </svg>
           </div>
@@ -2915,6 +3074,34 @@ export default function MainChart() {
           </div>
         )}
 
+        {showPositionSubmenu && (
+          <div ref={positionSubmenuRef} style={styles.positionSubmenu}>
+            {/* Long Position */}
+            <div style={styles.submenuItem} onClick={drawLongPosition}>
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 28" width="20" height="20">
+                <g fill="currentColor">
+                  <path d="M4 12h20v4H4z" fill="#7CB342"></path>
+                  <path d="M14 4l-4 4h3v4h2V8h3z" fill="#4CAF50"></path>
+                  <text x="14" y="22" textAnchor="middle" fontSize="8" fill="currentColor">LONG</text>
+                </g>
+              </svg>
+              <span style={styles.submenuText}>Long Position</span>
+            </div>
+
+            {/* Short Position */}
+            <div style={styles.submenuItem} onClick={drawShortPosition}>
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 28" width="20" height="20">
+                <g fill="currentColor">
+                  <path d="M4 12h20v4H4z" fill="#F44336"></path>
+                  <path d="M14 24l4-4h-3v-4h-2v4h-3z" fill="#D32F2F"></path>
+                  <text x="14" y="8" textAnchor="middle" fontSize="8" fill="currentColor">SHORT</text>
+                </g>
+              </svg>
+              <span style={styles.submenuText}>Short Position</span>
+            </div>
+          </div>
+        )}
+
         <div style={styles.mainChart}>
           {/* Applied Indicators Display */}
           {(appliedIndicators.length > 0 || smaIndicators.length > 0 || emaIndicators.length > 0 || wmaIndicators.length > 0 || ichimokuIndicators.length > 0 || supertrendIndicators.length > 0 || psarIndicators.length > 0 || macdIndicators.length > 0 || adxIndicators.length > 0 || hmaIndicators.length > 0 || rsiIndicators.length > 0 || stochasticIndicators.length > 0 || stochasticRsiIndicators.length > 0 || cciIndicators.length > 0 || williamsRIndicators.length > 0 || rocIndicators.length > 0 || bollingerBandsIndicators.length > 0 || keltnerChannelIndicators.length > 0 || donchianChannelIndicators.length > 0 || atrIndicators.length > 0 || standardDeviationChannelIndicators.length > 0 || volumeHistogramIndicators.length > 0) && (
@@ -3370,6 +3557,19 @@ const styles = {
     boxSizing: "border-box",
     zIndex: 1000,
     maxHeight: "calc(100vh - 230px)",
+    overflowY: "auto",
+  },
+  positionSubmenu: {
+    position: "absolute",
+    left: "40px",
+    top: "270px",
+    width: "180px",
+    backgroundColor: "#f0f0f0",
+    border: "1px solid #ccc",
+    padding: "10px",
+    boxSizing: "border-box",
+    zIndex: 1000,
+    maxHeight: "calc(100vh - 270px)",
     overflowY: "auto",
   },
   submenuSectionHeader: {
