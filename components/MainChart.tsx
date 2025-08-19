@@ -748,6 +748,72 @@ export default function MainChart() {
     return "other";
   };
 
+  // Drawing tool functions
+  const drawTrendline = () => {
+    console.log("Drawing Trend Line...");
+    setShowSubmenu(false);
+  };
+
+  const drawRay = () => {
+    console.log("Drawing Ray...");
+    setShowSubmenu(false);
+  };
+
+  const drawInfoLine = () => {
+    console.log("Drawing Info Line...");
+    setShowSubmenu(false);
+  };
+
+  const drawTrendAngle = () => {
+    console.log("Drawing Trend Angle...");
+    setShowSubmenu(false);
+  };
+
+  const drawHorizontalLine = () => {
+    console.log("Drawing Horizontal Line...");
+    setShowSubmenu(false);
+  };
+
+  const drawHorizontalRay = () => {
+    console.log("Drawing Horizontal Ray...");
+    setShowSubmenu(false);
+  };
+
+  const drawExtendedLine = () => {
+    console.log("Drawing Extended Line...");
+    setShowSubmenu(false);
+  };
+
+  const drawVerticalLine = () => {
+    console.log("Drawing Vertical Line...");
+    setShowSubmenu(false);
+  };
+
+  const drawCrossLine = () => {
+    console.log("Drawing Cross Line...");
+    setShowSubmenu(false);
+  };
+
+  const drawParallelChannel = () => {
+    console.log("Drawing Parallel Channel...");
+    setShowSubmenu(false);
+  };
+
+  const drawPriceChannel = () => {
+    console.log("Drawing Price Channel...");
+    setShowSubmenu(false);
+  };
+
+  const drawRegressionTrend = () => {
+    console.log("Drawing Regression Trend...");
+    setShowSubmenu(false);
+  };
+
+  const drawFlatTopBottom = () => {
+    console.log("Drawing Flat Top/Bottom...");
+    setShowSubmenu(false);
+  };
+
   const handleChartTypeChange = (type) => {
     setChartType(type);
     if (chartInstanceRef.current) {
